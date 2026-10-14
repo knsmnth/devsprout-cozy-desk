@@ -1,0 +1,264 @@
+/* Cottage Garden Weather & Pet Playground */
+.cottageCard {
+  background: var(--cozy-bg-card, #ffffff);
+  border: 1.5px solid var(--cozy-border-soft, #e2d9c8);
+  border-radius: var(--radius-card, 18px);
+  padding: 12px 14px 10px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: var(--shadow-card, 0 4px 12px rgba(95, 78, 55, 0.05));
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.cottageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.cottageTitle {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--cozy-text-dark, #3e382f);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.weatherTogglePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: var(--cozy-bg-warm, #faf7ef);
+  border: 1px solid var(--cozy-border-soft, #dfd7c6);
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--cozy-text-muted, #797163);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.weatherTogglePill:hover {
+  background: #ffffff;
+  border-color: var(--cozy-green-header, #5f7a49);
+  color: var(--cozy-text-dark, #3e382f);
+  transform: translateY(-1px);
+}
+
+/* Viewport with dynamic weather sky */
+.cottageViewport {
+  width: 100%;
+  height: 138px;
+  border-radius: 14px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 6px;
+  user-select: none;
+  cursor: pointer;
+  transition: background 0.6s ease-in-out, border-color 0.4s ease;
+  border: 1.5px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Weather Sky Gradients */
+.skySunny {
+  background: linear-gradient(180deg, #bfe5f8 0%, #dcf1fc 45%, #eff9ef 76%, #79a64f 100%);
+  border-color: #badbb6;
+}
+
+.skySunset {
+  background: linear-gradient(180deg, #f7b297 0%, #fad4be 45%, #fcefe3 75%, #889f55 100%);
+  border-color: #e5bfa7;
+}
+
+.skyGloomy {
+  background: linear-gradient(180deg, #8fa3b7 0%, #b8c7d6 45%, #d6e0db 76%, #62824c 100%);
+  border-color: #a4b8ab;
+}
+
+.skyRainy {
+  background: linear-gradient(180deg, #5b6f85 0%, #7d91a6 45%, #9cb1ba 76%, #527343 100%);
+  border-color: #6d867c;
+}
+
+.skyDark {
+  background: linear-gradient(180deg, #0d1424 0%, #162238 45%, #1f2e48 76%, #283d26 100%);
+  border-color: #2b3e4f;
+}
+
+/* Celestial Elements */
+.celestialSun {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 1.35rem;
+  animation: sunGlow 4s infinite ease-in-out;
+  filter: drop-shadow(0 0 8px rgba(255, 200, 50, 0.6));
+  z-index: 1;
+}
+
+.celestialMoon {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  font-size: 1.35rem;
+  animation: moonFloat 5s infinite ease-in-out;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 200, 0.7));
+  z-index: 1;
+}
+
+.celestialCloud {
+  position: absolute;
+  top: 14px;
+  left: 12px;
+  font-size: 1.15rem;
+  animation: cloudDrift 14s infinite ease-in-out;
+  opacity: 0.85;
+  z-index: 1;
+}
+
+.secondCloud {
+  position: absolute;
+  top: 28px;
+  right: 60px;
+  font-size: 0.9rem;
+  animation: cloudDriftSlow 20s infinite ease-in-out;
+  opacity: 0.7;
+  z-index: 1;
+}
+
+/* Twinkling Stars in Night Mode */
+.starsContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 65px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.star {
+  position: absolute;
+  font-size: 0.55rem;
+  color: #fff9d6;
+  animation: starTwinkle 2.5s infinite ease-in-out;
+}
+
+/* Rain Effect */
+.rainOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.rainDrop {
+  position: absolute;
+  width: 1.5px;
+  height: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(200, 230, 255, 0.8) 100%);
+  animation: fallDown 0.6s linear infinite;
+  opacity: 0.75;
+}
+
+/* Playground Ground & Inhabitants */
+.groundContainer {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 8px;
+  position: relative;
+  z-index: 3;
+}
+
+.cottageBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.cottageHouse {
+  font-size: 2.25rem;
+  line-height: 1;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.cottageHouse:hover {
+  transform: scale(1.1);
+}
+
+.gardenFlora {
+  display: flex;
+  gap: 5px;
+  font-size: 1.35rem;
+  align-items: flex-end;
+}
+
+/* Bottom Footer / Tap instruction */
+.cottageFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.74rem;
+  color: var(--cozy-text-muted, #797163);
+  margin-top: 6px;
+}
+
+.tapHint {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.weatherLabel {
+  font-size: 0.7rem;
+  opacity: 0.85;
+}
+
+/* Animations */
+@keyframes sunGlow {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.08) rotate(15deg); }
+}
+
+@keyframes moonFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px) rotate(-5deg); }
+}
+
+@keyframes cloudDrift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(18px); }
+}
+
+@keyframes cloudDriftSlow {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-14px); }
+}
+
+@keyframes starTwinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes fallDown {
+  0% { transform: translateY(-20px) translateX(0); opacity: 0; }
+  20% { opacity: 0.8; }
+  100% { transform: translateY(140px) translateX(-20px); opacity: 0.2; }
+}

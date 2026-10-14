@@ -1,0 +1,234 @@
+/* DevSprout Cozy Design Tokens & Global Styles */
+:root {
+  /* Earthy Cozy Green Palette */
+  --cozy-green-header: #5f7a49;
+  --cozy-green-dark: #465d33;
+  --cozy-green-bar: #67844f;
+  --cozy-green-light: #e6ede0;
+  --cozy-green-subtle: #f0f5ec;
+  --cozy-green-accent: #78995a;
+  --cozy-green-border: #9fb88b;
+
+  /* Cream, Canvas & Parchment */
+  --cozy-bg-outer: #d8e4cf;
+  --cozy-bg-dot: #bed4b3;
+  --cozy-bg-canvas: #faf6ed;
+  --cozy-bg-card: #ffffff;
+  --cozy-bg-warm: #f6efe1;
+  --cozy-bg-panel: #fcf9f2;
+  --cozy-border-soft: #e2d9c8;
+  --cozy-border-hard: #c8bea9;
+  --cozy-dashed-border: #d5cbb8;
+
+  /* Text & Accent Tones */
+  --cozy-text-dark: #3e382f;
+  --cozy-text-muted: #797163;
+  --cozy-text-light: #9e9584;
+
+  /* Warm Accent Colors */
+  --cozy-terracotta: #a84738;
+  --cozy-terracotta-dark: #8c382b;
+  --cozy-honey: #e8a23d;
+  --cozy-honey-light: #fdf3df;
+  --cozy-butter: #f8df8c;
+  --cozy-strawberry: #e26d5c;
+  --cozy-strawberry-light: #fae8e5;
+  --cozy-matcha: #6b8e23;
+  --cozy-matcha-light: #eaf1de;
+  --cozy-boba: #c68642;
+  --cozy-sky: #70a9a1;
+  --cozy-sky-light: #e6f2f0;
+
+  /* Shadows & Radii */
+  --radius-window: 28px;
+  --radius-card: 18px;
+  --radius-badge: 9999px;
+  --radius-btn: 14px;
+  
+  --shadow-window: 0 20px 60px rgba(47, 61, 35, 0.22), 0 6px 18px rgba(0, 0, 0, 0.08);
+  --shadow-card: 0 4px 12px rgba(95, 78, 55, 0.05);
+  --shadow-pill: 0 2px 6px rgba(0, 0, 0, 0.06);
+  --shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+/* Theme: Sakura Blossom 🌸 */
+[data-theme="sakura"] {
+  --cozy-green-header: #8d4f64;
+  --cozy-green-dark: #70384a;
+  --cozy-green-bar: #a26078;
+  --cozy-green-light: #fbebee;
+  --cozy-green-subtle: #fdf5f7;
+  --cozy-green-accent: #b56b84;
+  --cozy-green-border: #d4a5b3;
+  --cozy-terracotta: #b85d68;
+  --cozy-terracotta-dark: #9e4651;
+  --cozy-bg-outer: #f8e5e8;
+  --cozy-bg-dot: #eec4cc;
+  --cozy-bg-canvas: #fdf6f7;
+  --cozy-bg-card: #ffffff;
+  --cozy-bg-warm: #faebed;
+  --cozy-bg-panel: #fcf4f5;
+  --cozy-border-soft: #ebd6db;
+  --cozy-border-hard: #d6b4bd;
+  --cozy-dashed-border: #d6b4bd;
+  --cozy-text-dark: #423035;
+  --cozy-text-muted: #826a70;
+  --cozy-text-light: #ab9399;
+}
+
+/* Theme: Coffeehouse Warmth ☕ */
+[data-theme="coffee"] {
+  --cozy-green-header: #5a4033;
+  --cozy-green-dark: #432e24;
+  --cozy-green-bar: #6d4f40;
+  --cozy-green-light: #efe8e1;
+  --cozy-green-subtle: #f7f3ef;
+  --cozy-green-accent: #87624f;
+  --cozy-green-border: #b89f8f;
+  --cozy-terracotta: #8a5738;
+  --cozy-terracotta-dark: #6e4126;
+  --cozy-bg-outer: #ebe2d8;
+  --cozy-bg-dot: #d2c4b4;
+  --cozy-bg-canvas: #f8f4ee;
+  --cozy-bg-card: #ffffff;
+  --cozy-bg-warm: #eee6db;
+  --cozy-bg-panel: #fbf7f0;
+  --cozy-border-soft: #dfd4c5;
+  --cozy-border-hard: #c2b19e;
+  --cozy-dashed-border: #c2b19e;
+  --cozy-text-dark: #362922;
+  --cozy-text-muted: #786459;
+  --cozy-text-light: #9e8a7f;
+}
+
+/* Theme: Midnight Lo-Fi 🌙 */
+[data-theme="midnight"] {
+  --cozy-green-header: #1e2533;
+  --cozy-green-dark: #151a24;
+  --cozy-green-bar: #293245;
+  --cozy-green-light: #2d384e;
+  --cozy-green-subtle: #232c3d;
+  --cozy-green-accent: #4e658a;
+  --cozy-green-border: #445470;
+  --cozy-terracotta: #394760;
+  --cozy-terracotta-dark: #293448;
+  --cozy-bg-outer: #0a0d14;
+  --cozy-bg-dot: #1e2638;
+  --cozy-bg-canvas: #131720;
+  --cozy-bg-card: #1c2230;
+  --cozy-bg-warm: #232a3b;
+  --cozy-bg-panel: #181f2c;
+  --cozy-border-soft: #2e374d;
+  --cozy-border-hard: #3e4b67;
+  --cozy-dashed-border: #3e4b67;
+  --cozy-text-dark: #e8edf5;
+  --cozy-text-muted: #9aa8be;
+  --cozy-text-light: #70819c;
+}
+
+/* Theme: Sunset Terracotta 🍊 */
+[data-theme="terracotta"] {
+  --cozy-green-header: #8e4235;
+  --cozy-green-dark: #722f24;
+  --cozy-green-bar: #a54f42;
+  --cozy-green-light: #faece9;
+  --cozy-green-subtle: #fdf5f3;
+  --cozy-green-accent: #b75c4e;
+  --cozy-green-border: #dca096;
+  --cozy-terracotta: #7a3227;
+  --cozy-terracotta-dark: #622319;
+  --cozy-bg-outer: #f6e6e0;
+  --cozy-bg-dot: #e4c8be;
+  --cozy-bg-canvas: #faf4ef;
+  --cozy-bg-card: #ffffff;
+  --cozy-bg-warm: #f5e8df;
+  --cozy-bg-panel: #fcf6f2;
+  --cozy-border-soft: #e8d7cd;
+  --cozy-border-hard: #d0b7a8;
+  --cozy-dashed-border: #d0b7a8;
+  --cozy-text-dark: #3f312c;
+  --cozy-text-muted: #7e6962;
+  --cozy-text-light: #a48f88;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  min-height: 100vh;
+  background-color: var(--cozy-bg-outer);
+  background-image: 
+    radial-gradient(var(--cozy-bg-dot) 1.5px, transparent 1.5px),
+    radial-gradient(var(--cozy-bg-dot) 1.5px, var(--cozy-bg-outer) 1.5px);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
+  color: var(--cozy-text-dark);
+  font-family: var(--font-comfortaa), 'Quicksand', -apple-system, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--cozy-bg-canvas);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--cozy-border-hard);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cozy-green-accent);
+}
+
+/* Common Cute Button Styles */
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+button:active {
+  transform: scale(0.96) !important;
+}
+
+input, textarea, select {
+  font-family: inherit;
+  color: var(--cozy-text-dark);
+}
+
+/* Bouncy Cute Animation Keyframes */
+@keyframes cuteBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes steamFloat {
+  0% { opacity: 0.3; transform: translateY(0) scale(0.9); }
+  50% { opacity: 0.9; transform: translateY(-6px) scale(1.1); }
+  100% { opacity: 0; transform: translateY(-12px) scale(1.3); }
+}
+
+@keyframes softPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.cute-bounce {
+  animation: cuteBounce 2.5s infinite ease-in-out;
+}
+
+.steam-float {
+  animation: steamFloat 2s infinite ease-out;
+}

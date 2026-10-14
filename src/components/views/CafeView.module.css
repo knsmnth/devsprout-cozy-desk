@@ -1,0 +1,456 @@
+.cafeGrid {
+  display: grid;
+  grid-template-columns: 290px 1fr;
+  gap: 20px;
+}
+
+/* Left Column */
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  background: #ffffff;
+  border: 1.5px solid var(--cozy-border-soft);
+  border-radius: var(--radius-card);
+  padding: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+/* Loyalty Card */
+.loyaltyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.loyaltyTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #3e382f;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stampsPill {
+  background: var(--cozy-green-light);
+  border: 1px solid var(--cozy-green-border);
+  color: var(--cozy-green-dark);
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  transition: all 0.25s ease;
+}
+
+.loyaltyDesc {
+  font-size: 0.78rem;
+  color: #797163;
+  line-height: 1.4;
+  margin-bottom: 14px;
+}
+
+.stampsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.stampSlot {
+  background: #faf7ef;
+  border: 1.5px solid #ded5c2;
+  border-radius: 12px;
+  height: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  position: relative;
+  transition: transform 0.15s ease;
+}
+
+.stampSlot:hover {
+  transform: scale(1.05);
+}
+
+.stampActive {
+  background: #fffbe6;
+  border-color: #657d4f;
+}
+
+.stampDone {
+  background: #f1f8ed;
+  border-color: #92b378;
+}
+
+.stampReward {
+  background: #fdf3df;
+  border-color: #e8a23d;
+}
+
+.stampSlotLabel {
+  font-size: 0.6rem;
+  color: #797163;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.rewardBox {
+  background: #fbf9f4;
+  border: 1.5px dashed #ded6c5;
+  border-radius: 10px;
+  padding: 8px 12px;
+  text-align: center;
+  font-size: 0.78rem;
+  color: #5d5548;
+}
+
+/* Orders Today Card */
+.ordersHeader {
+  background: var(--cozy-green-header);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 12px;
+  transition: background-color 0.25s ease;
+}
+
+.orderList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.orderItem {
+  background: #faf8f2;
+  border: 1.5px solid #e5decb;
+  border-radius: 12px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.orderName {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #3e382f;
+}
+
+.orderSub {
+  font-size: 0.72rem;
+  color: #8c8371;
+}
+
+.orderBadge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.badgeRefilled { background: #e2f0d9; color: #385723; }
+.badgeHot { background: #fce4d6; color: #c65911; }
+.badgeBaked { background: #fff2cc; color: #833c0c; }
+
+.cafeTip {
+  background: #fbf9f2;
+  border: 1.5px dashed #dfd6c4;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 0.74rem;
+  color: #797163;
+}
+
+/* Right Column: Clock & History */
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.clockCard {
+  background: #ffffff;
+  border: 1.5px solid var(--cozy-border-soft);
+  border-radius: var(--radius-card);
+  padding: 18px 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.clockTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.clockTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #3e382f;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.intervalBadge {
+  background: var(--cozy-green-light);
+  border: 1px solid var(--cozy-green-border);
+  color: var(--cozy-green-dark);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  transition: all 0.25s ease;
+}
+
+.clockBody {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.brewBox {
+  background: #faf7ef;
+  border: 1.5px solid #ded5c2;
+  border-radius: 16px;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.steamIcons {
+  display: flex;
+  gap: 4px;
+  font-size: 1rem;
+}
+
+.brewMug {
+  font-size: 2.2rem;
+  margin: 4px 0;
+}
+
+.brewStateText {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #554d3e;
+}
+
+.brewSub {
+  font-size: 0.68rem;
+  color: #8c8371;
+}
+
+.timeDisplaySection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.digitsRow {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.digits {
+  font-size: 3.2rem;
+  font-weight: 700;
+  color: var(--cozy-green-header);
+  font-family: var(--font-comfortaa), monospace;
+  line-height: 1;
+  transition: color 0.25s ease;
+}
+
+.timerLabel {
+  font-size: 0.95rem;
+  color: var(--cozy-text-muted);
+  font-weight: 600;
+}
+
+.timerProgressBar {
+  height: 8px;
+  background: var(--cozy-border-soft);
+  border-radius: 9999px;
+  overflow: hidden;
+  margin: 4px 0;
+}
+
+.timerFill {
+  height: 100%;
+  background: var(--cozy-green-header);
+  border-radius: 9999px;
+  transition: width 0.3s ease, background-color 0.25s ease;
+}
+
+.clockBtns {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.startBtn {
+  background: var(--cozy-green-header);
+  color: #ffffff;
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.25s ease;
+}
+
+.startBtn:hover {
+  background: var(--cozy-green-dark);
+}
+
+.pauseBtn {
+  background: #faf7ef;
+  border: 1.5px solid #ded6c5;
+  color: #4a4336;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.resetBtn {
+  background: #faf7ef;
+  border: 1.5px solid #ded6c5;
+  color: #8c8371;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.modeNote {
+  font-size: 0.74rem;
+  color: #8c8371;
+  margin-left: auto;
+}
+
+/* History Card */
+.historyCard {
+  background: #ffffff;
+  border: 1.5px solid var(--cozy-border-soft);
+  border-radius: var(--radius-card);
+  padding: 18px 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.historyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.5px dashed #ded6c5;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.historyTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #3e382f;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.historyTicket {
+  font-size: 0.75rem;
+  color: #8c8371;
+  border: 1px solid #ded6c5;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.historyTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.historyTable th {
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #8c8371;
+  padding: 6px 8px;
+  letter-spacing: 0.4px;
+}
+
+.historyTable td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #f4efe2;
+  color: #4a4336;
+}
+
+.statusCompleted {
+  background: #eef5e6;
+  color: #3f6027;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.72rem;
+  display: inline-block;
+}
+
+.statusRested {
+  background: #e6f3f5;
+  color: #2b616b;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.72rem;
+  display: inline-block;
+}
+
+.historyFooter {
+  margin-top: 14px;
+  background: #fffdf7;
+  border: 1.5px dashed #ded6c5;
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #554d3e;
+}
+
+.logManualBtn {
+  background: #faf7ef;
+  border: 1px solid #ded6c5;
+  color: #554d3e;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+@media (max-width: 820px) {
+  .cafeGrid {
+    grid-template-columns: 1fr;
+  }
+  .clockBody {
+    grid-template-columns: 1fr;
+  }
+}
