@@ -15,32 +15,36 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  gap: 12px;
 }
 
 .cottageTitle {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--cozy-text-dark, #3e382f);
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .weatherTogglePill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
+  gap: 5px;
+  padding: 3px 9px;
   background: var(--cozy-bg-warm, #faf7ef);
   border: 1px solid var(--cozy-border-soft, #dfd7c6);
   border-radius: 9999px;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--cozy-text-muted, #797163);
   cursor: pointer;
   transition: all 0.15s ease;
   user-select: none;
+  white-space: nowrap;
 }
 
 .weatherTogglePill:hover {
@@ -53,7 +57,7 @@
 /* Viewport with dynamic weather sky */
 .cottageViewport {
   width: 100%;
-  height: 138px;
+  height: 148px;
   border-radius: 14px;
   position: relative;
   overflow: hidden;
@@ -101,37 +105,39 @@
 .headerRight {
   display: flex;
   align-items: center;
-  gap: 5px;
-  flex-wrap: wrap;
+  gap: 6px;
+  flex-wrap: nowrap;
 }
 
 .timePill {
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--cozy-text-dark, #3e382f);
   background: var(--cozy-bg-warm, #faf7ef);
   border: 1px solid var(--cozy-border-soft, #dfd7c6);
-  padding: 2px 7px;
+  padding: 3px 8px;
   border-radius: 9999px;
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   user-select: none;
+  white-space: nowrap;
 }
 
 .cityPill {
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 600;
   color: #615643;
   background: var(--cozy-bg-warm, #faf7ef);
   border: 1px solid var(--cozy-border-soft, #dfd7c6);
-  padding: 2px 7px;
+  padding: 3px 8px;
   border-radius: 9999px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
   cursor: pointer;
   transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .cityPill:hover {
