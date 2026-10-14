@@ -9,6 +9,7 @@ import {
   searchCityCoordinates,
   fetchOpenMeteoWeather,
   getCachedWeather,
+  detectExactGPSLocation,
 } from "@/utils/weather";
 
 const WEATHER_MODES = [
@@ -77,8 +78,11 @@ export default function CottageGarden() {
   const [currentHour, setCurrentHour] = useState(12);
   const [gardenFlowers, setGardenFlowers] = useState(["🌷", "🍄", "🌻", "🌿"]);
 
-  // City Search State
-  const [isEditingCity, setIsEditingCity] = useState(false);
+  // Location Modal State
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  const [isDetectingGps, setIsDetectingGps] = useState(false);
+  const [locationFeedback, setLocationFeedback] = useState(null);
+  const [locationError, setLocationError] = useState(null);
   const [cityInput, setCityInput] = useState("");
   const [savedCity, setSavedCity] = useState(() => {
     if (typeof window !== "undefined") {
@@ -166,33 +170,67 @@ export default function CottageGarden() {
     });
   };
 
-  // Handle City Submission
-  const handleCitySubmit = async (e) => {
-    e.preventDefault();
-    if (!cityInput.trim()) {
-      setIsEditingCity(false);
-      return;
-    }
-
+  // Trigger browser GPS and reverse-geocode exact location
+  const handleTriggerExactGPS = async () => {
+    setIsDetectingGps(true);
+    setLocationError(null);
+    setLocationFeedback(null);
     try {
-      const coord = await searchCityCoordinates(cityInput.trim());
+      const weather = await detectExactGPSLocation();
+      setWeatherData(weather);
+      setSavedCity(weather.city);
+      setLocationFeedback(`✓ Detected exact location: ${weather.city} (${weather.temp}°C)!`);
+      if (sounds) sounds.playPop();
+      setTimeout(() => {
+        setIsLocationModalOpen(false);
+        setLocationFeedback(null);
+      }, 1500);
+    } catch (err) {
+      setLocationError("Could not access GPS. Please allow location access or type your city below!");
+    } finally {
+      setIsDetectingGps(false);
+    }
+  };
+
+  // Select city by name
+  const handleSelectCity = async (name) => {
+    if (!name || !name.trim()) return;
+    setLocationError(null);
+    setLocationFeedback(null);
+    try {
+      const coord = await searchCityCoordinates(name.trim());
       if (coord) {
         const weather = await fetchOpenMeteoWeather(
           coord.latitude,
           coord.longitude,
-          `${coord.name}${coord.country ? `, ${coord.country}` : ""}`
+          coord.name
         );
         setWeatherData(weather);
-        setSavedCity(cityInput.trim());
+        setSavedCity(coord.name);
         try {
-          localStorage.setItem("devsprout_weather_city", cityInput.trim());
+          localStorage.setItem("devsprout_weather_city", coord.name);
+          localStorage.removeItem("devsprout_weather_coords");
         } catch {}
+        setLocationFeedback(`✓ Set location to ${coord.name} (${weather.temp}°C)!`);
         if (sounds) sounds.playPop();
+        setTimeout(() => {
+          setIsLocationModalOpen(false);
+          setLocationFeedback(null);
+        }, 1200);
+      } else {
+        setLocationError(`Could not find "${name}". Try a nearby city or check spelling.`);
       }
-    } catch (err) {
-      console.warn("City lookup error:", err);
+    } catch {
+      setLocationError("Network error while searching city. Please try again.");
     }
-    setIsEditingCity(false);
+  };
+
+  // Handle City Submission Form
+  const handleCitySubmit = (e) => {
+    e.preventDefault();
+    if (cityInput.trim()) {
+      handleSelectCity(cityInput.trim());
+    }
   };
 
   const getSkyClass = () => {
@@ -236,38 +274,25 @@ export default function CottageGarden() {
             </span>
           )}
 
-          {/* City / Location Pill */}
-          {!isEditingCity ? (
-            <button
-              className={styles.cityPill}
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsEditingCity(true);
-                setCityInput(weatherData?.city || "");
-              }}
-              title="Click to change city or location"
-            >
-              <span>📍</span>
-              <span>{weatherData?.city || "My City"}</span>
-              {weatherData?.temp !== undefined && (
-                <strong style={{ marginLeft: "2px" }}>{weatherData.temp}°C</strong>
-              )}
-            </button>
-          ) : (
-            <form onSubmit={handleCitySubmit} className={styles.cityInputBox}>
-              <input
-                type="text"
-                value={cityInput}
-                onChange={(e) => setCityInput(e.target.value)}
-                placeholder="City name..."
-                className={styles.cityInput}
-                autoFocus
-              />
-              <button type="submit" className={styles.cityBtn}>
-                ✓
-              </button>
-            </form>
-          )}
+          {/* City / Location Pill (Click to open Location modal) */}
+          <button
+            className={styles.cityPill}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (sounds) sounds.playClick();
+              setIsLocationModalOpen(true);
+              setCityInput(weatherData?.city || "");
+              setLocationError(null);
+              setLocationFeedback(null);
+            }}
+            title="Click to detect exact GPS or search your city"
+          >
+            <span>📍</span>
+            <span>{weatherData?.city || "Set Location"}</span>
+            {weatherData?.temp !== undefined && (
+              <strong style={{ marginLeft: "2px" }}>{weatherData.temp}°C</strong>
+            )}
+          </button>
 
           {/* Mode Pill Toggle */}
           <button
@@ -427,6 +452,111 @@ export default function CottageGarden() {
           )}
         </div>
       </div>
+
+      {/* Location Picker Modal */}
+      {isLocationModalOpen && (
+        <div
+          className={styles.locationModalOverlay}
+          onClick={() => setIsLocationModalOpen(false)}
+        >
+          <div
+            className={styles.locationModal}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className={styles.locationHeader}>
+              <div className={styles.locationTitle}>
+                <span>📍</span> Set Your Exact Location
+              </div>
+              <button
+                className={styles.locationCloseBtn}
+                onClick={() => setIsLocationModalOpen(false)}
+                title="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            {locationFeedback && (
+              <div className={styles.locationFeedback}>{locationFeedback}</div>
+            )}
+            {locationError && (
+              <div className={styles.locationError}>{locationError}</div>
+            )}
+
+            {/* GPS Detection Button */}
+            <button
+              className={styles.gpsBtn}
+              onClick={handleTriggerExactGPS}
+              disabled={isDetectingGps}
+              title="Detect precise GPS location and reverse geocode exact town"
+            >
+              <span>🎯</span>
+              <span>
+                {isDetectingGps
+                  ? "Detecting GPS & Weather..."
+                  : "Detect My Exact GPS Location"}
+              </span>
+            </button>
+
+            <div className={styles.divider}>or search city / municipality</div>
+
+            {/* Search Input Form */}
+            <form onSubmit={handleCitySubmit} className={styles.searchForm}>
+              <input
+                type="text"
+                value={cityInput}
+                onChange={(e) => setCityInput(e.target.value)}
+                placeholder="Type city (e.g. Cebu, Davao, Manila, Iloilo...)"
+                className={styles.modalSearchInput}
+                autoFocus
+              />
+              <button type="submit" className={styles.modalSearchBtn}>
+                Search
+              </button>
+            </form>
+
+            {/* Quick Preset Chips */}
+            <div>
+              <div
+                style={{
+                  fontSize: "0.7rem",
+                  color: "#8a7e6b",
+                  marginBottom: "6px",
+                  fontWeight: 700,
+                }}
+              >
+                Quick Select:
+              </div>
+              <div className={styles.presetChips}>
+                {[
+                  "Cebu City",
+                  "Davao City",
+                  "Manila",
+                  "Quezon City",
+                  "Baguio",
+                  "Iloilo City",
+                  "Bacolod",
+                  "Cagayan de Oro",
+                  "Pasig",
+                  "Tokyo",
+                  "London",
+                ].map((city) => (
+                  <button
+                    key={city}
+                    type="button"
+                    className={styles.chipBtn}
+                    onClick={() => handleSelectCity(city)}
+                  >
+                    {city}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

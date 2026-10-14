@@ -5,7 +5,6 @@ const CACHE_DURATION_MS = 15 * 60 * 1000; // 15 minutes cache
 
 // WMO Weather Interpretation Codes to Cozy Meadow States
 export function mapWmoCodeToMeadow(wmoCode, isDay = 1, currentHour = 12) {
-  // If night (isDay === 0 or hour < 6 or hour >= 19)
   const isNight = isDay === 0 || currentHour < 6 || currentHour >= 19;
   const isSunset = currentHour >= 17 && currentHour < 19 && isDay !== 0;
 
@@ -93,6 +92,37 @@ export function getWeatherDescription(wmoCode) {
   }
 }
 
+// Free reverse geocoding to resolve exact town/city name from latitude and longitude
+export async function reverseGeocode(latitude, longitude) {
+  try {
+    const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      const place = data.city || data.locality || data.principalSubdivision;
+      if (place) {
+        return place;
+      }
+    }
+  } catch (err) {
+    console.warn("Reverse geocode primary error:", err);
+  }
+
+  // Fallback: OpenStreetMap Nominatim
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      const addr = data.address || {};
+      const place = addr.city || addr.town || addr.municipality || addr.village || addr.suburb || addr.county;
+      if (place) return place;
+    }
+  } catch {}
+
+  return "My Location";
+}
+
 // Fetch weather from Open-Meteo for latitude & longitude
 export async function fetchOpenMeteoWeather(latitude, longitude, cityName = "Current City") {
   const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,is_day,weather_code&timezone=auto`;
@@ -132,7 +162,7 @@ export async function fetchOpenMeteoWeather(latitude, longitude, cityName = "Cur
   return result;
 }
 
-// Search coordinates by city name using Open-Meteo Geocoding API
+// Search coordinates by city/town name using Open-Meteo Geocoding API
 export async function searchCityCoordinates(cityName) {
   if (!cityName || !cityName.trim()) return null;
   const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName.trim())}&count=1&language=en&format=json`;
@@ -152,6 +182,35 @@ export async function searchCityCoordinates(cityName) {
   return null;
 }
 
+// Request exact device GPS location, reverse-geocode to real city, and fetch weather
+export async function detectExactGPSLocation() {
+  if (typeof window === "undefined" || !("geolocation" in navigator)) {
+    throw new Error("Geolocation is not supported by your browser.");
+  }
+
+  const position = await new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(resolve, reject, {
+      enableHighAccuracy: true,
+      timeout: 12000,
+      maximumAge: 0,
+    });
+  });
+
+  const { latitude, longitude } = position.coords;
+  const exactCity = await reverseGeocode(latitude, longitude);
+
+  // Save exact location & coords to local storage
+  try {
+    localStorage.setItem("devsprout_weather_city", exactCity);
+    localStorage.setItem(
+      "devsprout_weather_coords",
+      JSON.stringify({ latitude, longitude, cityName: exactCity })
+    );
+  } catch {}
+
+  return await fetchOpenMeteoWeather(latitude, longitude, exactCity);
+}
+
 // Retrieve cached weather if valid
 export function getCachedWeather() {
   if (typeof window === "undefined") return null;
@@ -168,14 +227,34 @@ export function getCachedWeather() {
 
 // Auto-detect location & fetch weather
 export async function autoDetectAndFetchWeather(preferredCity = null) {
-  // If user has a saved city, search that first
+  // Check if exact GPS coords were previously saved
+  if (typeof window !== "undefined") {
+    try {
+      const savedCoordsRaw = localStorage.getItem("devsprout_weather_coords");
+      if (savedCoordsRaw) {
+        const savedCoords = JSON.parse(savedCoordsRaw);
+        if (savedCoords?.latitude && savedCoords?.longitude) {
+          // If preferredCity is same or empty, reuse saved GPS coords directly
+          if (!preferredCity || preferredCity === savedCoords.cityName) {
+            return await fetchOpenMeteoWeather(
+              savedCoords.latitude,
+              savedCoords.longitude,
+              savedCoords.cityName || "My Location"
+            );
+          }
+        }
+      }
+    } catch {}
+  }
+
+  // If user has a custom city name, geocode that city
   if (preferredCity) {
     const cityCoord = await searchCityCoordinates(preferredCity);
     if (cityCoord) {
       return await fetchOpenMeteoWeather(
         cityCoord.latitude,
         cityCoord.longitude,
-        `${cityCoord.name}${cityCoord.country ? `, ${cityCoord.country}` : ""}`
+        cityCoord.name
       );
     }
   }
@@ -184,26 +263,25 @@ export async function autoDetectAndFetchWeather(preferredCity = null) {
   const cached = getCachedWeather();
   if (cached) return cached;
 
-  // Try browser GPS with timeout
+  // Try browser GPS
   if (typeof window !== "undefined" && "geolocation" in navigator) {
     try {
       const position = await new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
-          timeout: 5000,
+          enableHighAccuracy: true,
+          timeout: 4000,
           maximumAge: 60000,
         });
       });
-      return await fetchOpenMeteoWeather(
-        position.coords.latitude,
-        position.coords.longitude,
-        "Local Area"
-      );
+      const { latitude, longitude } = position.coords;
+      const exactCity = await reverseGeocode(latitude, longitude);
+      return await fetchOpenMeteoWeather(latitude, longitude, exactCity);
     } catch {
-      // GPS denied or timed out; proceed to IP fallback
+      // GPS not granted or timed out
     }
   }
 
-  // Fallback: Free IP geolocation lookup
+  // Fallback: IP geolocation lookup
   try {
     const ipRes = await fetch("https://ipapi.co/json/");
     if (ipRes.ok) {
@@ -212,12 +290,12 @@ export async function autoDetectAndFetchWeather(preferredCity = null) {
         return await fetchOpenMeteoWeather(
           ipData.latitude,
           ipData.longitude,
-          ipData.city || "Local Town"
+          ipData.city || "Local Area"
         );
       }
     }
   } catch {}
 
-  // Safe universal fallback (Tokyo / Cozy Default)
-  return await fetchOpenMeteoWeather(35.6762, 139.6503, "Sprout Meadow");
+  // Final fallback
+  return await fetchOpenMeteoWeather(14.5995, 120.9842, "Philippines");
 }
