@@ -566,6 +566,29 @@
   color: #797163;
 }
 
+.questNoteBtn {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #5c5039;
+  background: #ffffff;
+  border: 1px solid #dcd1bb;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-left: auto;
+}
+
+.questNoteBtn:hover {
+  background: #f5edda;
+  border-color: #bfae90;
+  color: #2e2617;
+  transform: translateY(-1px);
+}
+
 .questTitleText {
   font-size: 0.94rem;
   font-weight: 700;

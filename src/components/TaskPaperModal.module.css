@@ -1,0 +1,513 @@
+/* Task Paper Modal - Cozy Stationery & Notebook Sheet */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(36, 31, 23, 0.55);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  padding: 20px 16px;
+  perspective: 1200px;
+}
+
+/* Paper Sheet Container with realistic stationery texture */
+.paperSheet {
+  width: 100%;
+  max-width: 580px;
+  max-height: 90vh;
+  background-color: #faf6ee;
+  background-image: 
+    repeating-linear-gradient(
+      transparent,
+      transparent 27px,
+      rgba(215, 203, 185, 0.35) 28px
+    );
+  background-size: 100% 28px;
+  border: 1.5px solid #ded3be;
+  border-radius: 14px;
+  box-shadow: 
+    0 22px 50px rgba(45, 35, 20, 0.28),
+    0 8px 18px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.04);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: paperUnfold 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: top center;
+  color: #3b352a;
+}
+
+@keyframes paperUnfold {
+  0% {
+    opacity: 0;
+    transform: translateY(28px) scale(0.92) rotateX(12deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotateX(0deg);
+  }
+}
+
+/* Washi Tape Accent at the top */
+.washiTape {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(229, 218, 188, 0.85);
+  backdrop-filter: blur(2px);
+  border-bottom: 1px dashed rgba(168, 150, 115, 0.6);
+  border-left: 2px dashed rgba(168, 150, 115, 0.4);
+  border-right: 2px dashed rgba(168, 150, 115, 0.4);
+  color: #6b5e46;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 18px;
+  border-radius: 0 0 6px 6px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* Top bar with badges and close button */
+.paperTopBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26px 20px 10px 32px;
+  border-bottom: 1.5px dashed rgba(215, 203, 185, 0.7);
+  background: rgba(250, 246, 238, 0.8);
+  position: relative;
+  z-index: 2;
+}
+
+.badgesCluster {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ticketBadge {
+  font-family: monospace;
+  font-size: 0.76rem;
+  font-weight: 700;
+  background: #ede3cf;
+  color: #5c503b;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid #d4c7af;
+}
+
+.statusBadge,
+.priorityBadge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #ffffff;
+  padding: 3px 8px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.closeBtn {
+  background: #ede3cf;
+  border: 1px solid #d8caa7;
+  color: #635641;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.closeBtn:hover {
+  background: #dfd0b5;
+  color: #2b2316;
+  transform: scale(1.08);
+}
+
+/* Paper Body and notebook margin line */
+.paperBody {
+  position: relative;
+  overflow-y: auto;
+  max-height: calc(90vh - 120px);
+  padding: 16px 22px 18px 42px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Notebook left margin vertical red line */
+.paperMarginLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 28px;
+  width: 1.5px;
+  background: rgba(220, 110, 110, 0.35);
+  pointer-events: none;
+}
+
+.contentWrap {
+  flex: 1;
+}
+
+/* Task Title */
+.taskTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #2d261b;
+  line-height: 1.35;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.01em;
+}
+
+/* Meta Pill Row */
+.metaRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.appPill,
+.typePill,
+.teacupsPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: #efe7d6;
+  border: 1px solid #ddd1bb;
+  color: #554a37;
+  padding: 3px 9px;
+  border-radius: 9999px;
+}
+
+/* Full notes section */
+.notesSection {
+  margin-bottom: 16px;
+}
+
+.notesSectionLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #8c7e68;
+  margin-bottom: 6px;
+}
+
+.notesPaperBox {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1.5px dashed #dcd0bc;
+  border-radius: 10px;
+  padding: 12px 14px;
+  min-height: 80px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.notesText {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: #3b3325;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.notesEmpty {
+  font-size: 0.82rem;
+  font-style: italic;
+  color: #9c8e79;
+  margin: 0;
+}
+
+/* Quick Status Mover */
+.quickStatusBox {
+  background: #f1ebd8;
+  border: 1px solid #decfaa;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quickStatusLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #5c5039;
+}
+
+.quickStatusButtons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.statusMoveBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: 6px;
+  border: 1px solid #cfbe99;
+  background: #ffffff;
+  color: #4f432e;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.statusMoveBtn:hover {
+  background: #faf5ea;
+  border-color: #657d4f;
+  transform: translateY(-1px);
+}
+
+.btnBloom {
+  background: #fbf2df;
+  border-color: #dfba6c;
+  color: #8b5b15;
+}
+
+.btnBloom:hover {
+  background: #f7e6c4;
+}
+
+.btnHarvest {
+  background: #eef5e6;
+  border-color: #88aa67;
+  color: #3f5e26;
+}
+
+.btnHarvest:hover {
+  background: #dfedd2;
+}
+
+/* Paper Footer */
+.paperFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1.5px dashed rgba(215, 203, 185, 0.7);
+  margin-top: 8px;
+}
+
+.leftActions,
+.rightActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.deleteBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #b54949;
+  background: rgba(220, 110, 110, 0.1);
+  border: 1px solid rgba(220, 110, 110, 0.25);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.deleteBtn:hover {
+  background: #b54949;
+  color: #ffffff;
+}
+
+.foldPaperBtn {
+  padding: 6px 12px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  background: transparent;
+  border: 1px solid #d4c7af;
+  color: #695e49;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.foldPaperBtn:hover {
+  background: #eee4d1;
+  color: #2b2316;
+}
+
+/* Prominent Edit Task Button */
+.editTaskBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: var(--cozy-green-header, #5f7a49);
+  border: 1px solid #4a6336;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(95, 122, 73, 0.35);
+  transition: all 0.15s ease;
+}
+
+.editTaskBtn:hover {
+  background: #50683d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(95, 122, 73, 0.45);
+}
+
+/* Edit Mode Form Styling */
+.editModeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #4a3e2a;
+}
+
+.editTicketHint {
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #8a7e6b;
+}
+
+.formGroup {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fieldLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #73654d;
+}
+
+.paperInput,
+.paperTextarea,
+.paperSelect {
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: #2e261a;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1.5px solid #dcd0bc;
+  border-radius: 8px;
+  padding: 7px 10px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.paperInput:focus,
+.paperTextarea:focus,
+.paperSelect:focus {
+  outline: none;
+  border-color: #5f7a49;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(95, 122, 73, 0.18);
+}
+
+.paperTextarea {
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+
+.cancelBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #695e49;
+  background: #eee4d1;
+  border: 1px solid #d4c7af;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cancelBtn:hover {
+  background: #e2d6bf;
+  color: #2b2316;
+}
+
+.saveBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 18px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #5f7a49;
+  border: 1px solid #4a6336;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(95, 122, 73, 0.35);
+  transition: all 0.15s ease;
+}
+
+.saveBtn:hover {
+  background: #4f673c;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 520px) {
+  .paperSheet {
+    max-height: 94vh;
+  }
+  .paperTopBar {
+    padding: 24px 14px 10px 22px;
+  }
+  .paperBody {
+    padding: 14px 14px 16px 28px;
+  }
+  .paperMarginLine {
+    left: 18px;
+  }
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}

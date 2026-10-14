@@ -5,6 +5,7 @@ import styles from "./SprintView.module.css";
 import { useTaskManager } from "@/context/TaskContext";
 import { sounds } from "@/utils/audio";
 import NewTaskModal from "@/components/NewTaskModal";
+import TaskPaperModal from "@/components/TaskPaperModal";
 import { Plus, ArrowRight, ArrowLeft, Trash2, CheckCircle } from "lucide-react";
 
 export default function SprintView() {
@@ -19,6 +20,12 @@ export default function SprintView() {
 
   const [activeFilter, setActiveFilter] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTaskForPaper, setSelectedTaskForPaper] = useState(null);
+
+  const handleOpenPaper = (task) => {
+    if (sounds) sounds.playClick();
+    setSelectedTaskForPaper(task);
+  };
 
   // Filter tasks by selected app and category
   const filteredTasks = tasks.filter((t) => {
@@ -168,7 +175,13 @@ export default function SprintView() {
               <div className={styles.emptyColMessage}>No sprouting tasks yet 🌱</div>
             ) : (
               sproutingTasks.map((task) => (
-                <div key={task.id} className={styles.taskCard}>
+                <div
+                  key={task.id}
+                  className={styles.taskCard}
+                  onClick={() => handleOpenPaper(task)}
+                  style={{ cursor: "pointer" }}
+                  title="Click to view full paper note & details"
+                >
                   <div className={styles.cardTop}>
                     <span
                       className={styles.badgeTag}
@@ -189,8 +202,21 @@ export default function SprintView() {
                     <span>{"🍵".repeat(task.teacups || 1)}</span>
                     <div className={styles.cardActions}>
                       <button
+                        className={styles.paperBtn}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenPaper(task);
+                        }}
+                        title="Open paper note & edit details"
+                      >
+                        📄 Note
+                      </button>
+                      <button
                         className={styles.actionBtn}
-                        onClick={() => updateTaskStatus(task.id, "in-bloom")}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateTaskStatus(task.id, "in-bloom");
+                        }}
                         title="Move to In Bloom"
                       >
                         Bloom <ArrowRight size={12} style={{ display: "inline" }} />
@@ -227,7 +253,13 @@ export default function SprintView() {
               <div className={styles.emptyColMessage}>No tasks currently in bloom 🌻</div>
             ) : (
               inBloomTasks.map((task) => (
-                <div key={task.id} className={styles.taskCard}>
+                <div
+                  key={task.id}
+                  className={styles.taskCard}
+                  onClick={() => handleOpenPaper(task)}
+                  style={{ cursor: "pointer" }}
+                  title="Click to view full paper note & details"
+                >
                   <div className={styles.cardTop}>
                     <span
                       className={styles.badgeTag}
@@ -245,8 +277,21 @@ export default function SprintView() {
                     <span>🧸 sprout bear</span>
                     <div className={styles.cardActions}>
                       <button
+                        className={styles.paperBtn}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenPaper(task);
+                        }}
+                        title="Open paper note & edit details"
+                      >
+                        📄 Note
+                      </button>
+                      <button
                         className={styles.actionBtn}
-                        onClick={() => updateTaskStatus(task.id, "sprouting")}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateTaskStatus(task.id, "sprouting");
+                        }}
                         title="Move back"
                       >
                         <ArrowLeft size={12} style={{ display: "inline" }} />
@@ -254,7 +299,10 @@ export default function SprintView() {
                       <button
                         className={styles.actionBtn}
                         style={{ background: "#657d4f", color: "#fff" }}
-                        onClick={() => updateTaskStatus(task.id, "harvested")}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateTaskStatus(task.id, "harvested");
+                        }}
                         title="Harvest task"
                       >
                         Harvest 🍯
@@ -285,7 +333,13 @@ export default function SprintView() {
               <div className={styles.emptyColMessage}>No harvested tasks yet 🍯</div>
             ) : (
               harvestedTasks.map((task) => (
-                <div key={task.id} className={styles.taskCard} style={{ opacity: 0.85 }}>
+                <div
+                  key={task.id}
+                  className={styles.taskCard}
+                  onClick={() => handleOpenPaper(task)}
+                  style={{ opacity: 0.85, cursor: "pointer" }}
+                  title="Click to view full paper note & details"
+                >
                   <div className={styles.cardTop}>
                     <span
                       className={styles.badgeTag}
@@ -305,8 +359,21 @@ export default function SprintView() {
                     <span>✨ harvested</span>
                     <div className={styles.cardActions}>
                       <button
+                        className={styles.paperBtn}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenPaper(task);
+                        }}
+                        title="Open paper note & edit details"
+                      >
+                        📄 Note
+                      </button>
+                      <button
                         className={styles.actionBtn}
-                        onClick={() => updateTaskStatus(task.id, "in-bloom")}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateTaskStatus(task.id, "in-bloom");
+                        }}
                         title="Reopen task"
                       >
                         Reopen
@@ -314,7 +381,10 @@ export default function SprintView() {
                       <button
                         className={styles.actionBtn}
                         style={{ color: "#d9534f" }}
-                        onClick={() => deleteTask(task.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteTask(task.id);
+                        }}
                         title="Delete"
                       >
                         <Trash2 size={12} />
@@ -329,6 +399,11 @@ export default function SprintView() {
       </div>
 
       <NewTaskModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <TaskPaperModal
+        task={selectedTaskForPaper}
+        isOpen={Boolean(selectedTaskForPaper)}
+        onClose={() => setSelectedTaskForPaper(null)}
+      />
     </div>
   );
 }

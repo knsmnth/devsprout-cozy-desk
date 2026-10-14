@@ -343,11 +343,36 @@
   background: #ebe4d5;
   color: #4a4336;
   font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s ease;
 }
 
 .actionBtn:hover {
   background: #657d4f;
   color: #ffffff;
+}
+
+.paperBtn {
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #5c5039;
+  border: 1px solid #dcd1bb;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.paperBtn:hover {
+  background: #f5edda;
+  color: #2e2617;
+  border-color: #bfae90;
+  transform: translateY(-1px);
 }
 
 .addSeedBtn {

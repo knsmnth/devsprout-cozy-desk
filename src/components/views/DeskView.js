@@ -5,6 +5,7 @@ import styles from "./DeskView.module.css";
 import { useTaskManager } from "@/context/TaskContext";
 import { sounds } from "@/utils/audio";
 import NewTaskModal from "@/components/NewTaskModal";
+import TaskPaperModal from "@/components/TaskPaperModal";
 import CottageGarden from "@/components/CottageGarden";
 import { Check, Plus, AlertCircle, Coffee, Sparkles } from "lucide-react";
 
@@ -28,6 +29,7 @@ export default function DeskView() {
   } = useTaskManager();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedTaskForPaper, setSelectedTaskForPaper] = useState(null);
 
   const completedCount = tasks.filter((t) => t.status === "harvested").length;
 
@@ -339,7 +341,15 @@ export default function DeskView() {
                       {isDone && <Check size={14} />}
                     </button>
 
-                    <div className={styles.questBody}>
+                    <div
+                      className={styles.questBody}
+                      onClick={() => {
+                        if (sounds) sounds.playClick();
+                        setSelectedTaskForPaper(task);
+                      }}
+                      style={{ cursor: "pointer" }}
+                      title="Click to view full paper note & details"
+                    >
                       <div className={styles.questTopMeta}>
                         <span className={`${styles.tagBadge} ${getTagClass()}`}>
                           {task.typeLabel || task.type.toUpperCase()}
@@ -354,6 +364,17 @@ export default function DeskView() {
                             🔥 URGENT
                           </span>
                         )}
+                        <button
+                          className={styles.questNoteBtn}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (sounds) sounds.playClick();
+                            setSelectedTaskForPaper(task);
+                          }}
+                          title="Open full paper note & edit details"
+                        >
+                          📄 Note
+                        </button>
                       </div>
 
                       <div
@@ -381,6 +402,13 @@ export default function DeskView() {
 
       {/* New Task Modal */}
       <NewTaskModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+
+      {/* Paper Task Details & Edit Modal */}
+      <TaskPaperModal
+        task={selectedTaskForPaper}
+        isOpen={Boolean(selectedTaskForPaper)}
+        onClose={() => setSelectedTaskForPaper(null)}
+      />
     </div>
   );
 }

@@ -314,6 +314,35 @@ export function TaskProvider({ children }) {
     if (sounds) sounds.playClick();
   };
 
+  const updateTask = (taskId, updates) => {
+    setTasks((prev) =>
+      prev.map((t) => {
+        if (t.id === taskId) {
+          const updated = {
+            ...t,
+            ...updates,
+            updatedAt: new Date().toISOString(),
+          };
+          if (updates.type && !updates.typeLabel) {
+            updated.typeLabel = updates.type.toUpperCase();
+          }
+          if (updates.status === "harvested" && t.status !== "harvested") {
+            if (sounds) sounds.playPop();
+            confetti({
+              particleCount: 35,
+              spread: 45,
+              origin: { y: 0.7 },
+              colors: ["#6b8e23", "#f9d976", "#e07a5f"],
+            });
+          }
+          return updated;
+        }
+        return t;
+      })
+    );
+    if (sounds) sounds.playPop();
+  };
+
   const updateTaskStatus = (taskId, newStatus) => {
     setTasks((prev) =>
       prev.map((t) => {
@@ -582,6 +611,7 @@ export function TaskProvider({ children }) {
         deleteApp,
         tasks,
         addTask,
+        updateTask,
         updateTaskStatus,
         deleteTask,
         toggleTaskDone,
