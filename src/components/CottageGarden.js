@@ -4,12 +4,20 @@ import React, { useState, useEffect, useMemo } from "react";
 import styles from "./CottageGarden.module.css";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
+import {
+  autoDetectAndFetchWeather,
+  searchCityCoordinates,
+  fetchOpenMeteoWeather,
+  getCachedWeather,
+} from "@/utils/weather";
 
 const WEATHER_MODES = [
-  { id: "auto", label: "Auto (Local Time)", icon: "⏰" },
+  { id: "auto", label: "Auto (Live Weather)", icon: "🌐" },
   { id: "sunny", label: "Sunny", icon: "☀️" },
+  { id: "sunset", label: "Sunset", icon: "🌅" },
   { id: "gloomy", label: "Gloomy", icon: "☁️" },
   { id: "rainy", label: "Rainy", icon: "🌧️" },
+  { id: "snowy", label: "Snowy", icon: "❄️" },
   { id: "dark", label: "Dark Night", icon: "🌙" },
 ];
 
@@ -28,6 +36,18 @@ const RAIN_DROPS = [
   { id: 11, left: "81%", delay: "0.22s", duration: "0.64s" },
   { id: 12, left: "88%", delay: "0.32s", duration: "0.52s" },
   { id: 13, left: "95%", delay: "0.1s", duration: "0.48s" },
+];
+
+const SNOW_FLAKES = [
+  { id: 0, left: "6%", delay: "0s", duration: "3.2s" },
+  { id: 1, left: "15%", delay: "0.8s", duration: "3.8s" },
+  { id: 2, left: "26%", delay: "1.4s", duration: "3.0s" },
+  { id: 3, left: "37%", delay: "0.3s", duration: "4.2s" },
+  { id: 4, left: "48%", delay: "1.9s", duration: "3.5s" },
+  { id: 5, left: "59%", delay: "0.6s", duration: "3.1s" },
+  { id: 6, left: "70%", delay: "2.2s", duration: "4.0s" },
+  { id: 7, left: "81%", delay: "1.1s", duration: "3.6s" },
+  { id: 8, left: "92%", delay: "2.6s", duration: "3.4s" },
 ];
 
 const NIGHT_STARS = [
@@ -51,27 +71,70 @@ export default function CottageGarden() {
     }
     return "auto";
   });
+
+  const [weatherData, setWeatherData] = useState(() => getCachedWeather());
+  const [timeString, setTimeString] = useState("");
   const [currentHour, setCurrentHour] = useState(12);
   const [gardenFlowers, setGardenFlowers] = useState(["🌷", "🍄", "🌻", "🌿"]);
 
-  // Start clock timer
+  // City Search State
+  const [isEditingCity, setIsEditingCity] = useState(false);
+  const [cityInput, setCityInput] = useState("");
+  const [savedCity, setSavedCity] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        return localStorage.getItem("devsprout_weather_city") || "";
+      } catch {}
+    }
+    return "";
+  });
+
+  // Clock Synchronization (Time of Day)
   useEffect(() => {
-    const updateHour = () => {
-      setCurrentHour(new Date().getHours());
+    const updateClock = () => {
+      const now = new Date();
+      setCurrentHour(now.getHours());
+      setTimeString(
+        now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+      );
     };
-    updateHour();
-    const timer = setInterval(updateHour, 60000);
+    updateClock();
+    const timer = setInterval(updateClock, 15000);
     return () => clearInterval(timer);
   }, []);
 
-  // Compute effective weather state
+  // Initial weather load and 15-minute refresh
+  useEffect(() => {
+    let isCancelled = false;
+
+    const fetchWeather = async () => {
+      try {
+        const data = await autoDetectAndFetchWeather(savedCity || null);
+        if (!isCancelled && data) {
+          setWeatherData(data);
+        }
+      } catch (err) {
+        console.warn("Weather fetch fallback:", err);
+      }
+    };
+
+    fetchWeather();
+    const interval = setInterval(fetchWeather, 15 * 60 * 1000);
+    return () => {
+      isCancelled = true;
+      clearInterval(interval);
+    };
+  }, [savedCity]);
+
+  // Compute effective visual weather
   const effectiveWeather = useMemo(() => {
     if (weatherMode !== "auto") return weatherMode;
-    // Auto mode based on current real-world hour
+    if (weatherData?.atmosphere) return weatherData.atmosphere;
+    // Fallback if offline / before load
     if (currentHour >= 6 && currentHour < 17) return "sunny";
     if (currentHour >= 17 && currentHour < 19) return "sunset";
-    return "dark"; // 7 PM to 6 AM
-  }, [weatherMode, currentHour]);
+    return "dark";
+  }, [weatherMode, weatherData, currentHour]);
 
   // Cycle weather mode
   const handleCycleWeather = (e) => {
@@ -85,7 +148,7 @@ export default function CottageGarden() {
     } catch {}
   };
 
-  // Water the garden
+  // Water the garden mini-game
   const handleTendGarden = () => {
     if (sounds) sounds.playWaterDrop();
     const floraList = ["🌷", "🍄", "🌻", "🌿", "🌸", "🌱", "🍓", "🌼", "🍀", "🌺"];
@@ -96,13 +159,42 @@ export default function CottageGarden() {
       particleCount: 22,
       spread: 40,
       origin: { y: 0.38, x: 0.55 },
-      colors: effectiveWeather === "dark" 
-        ? ["#a0c4ff", "#bdb2ff", "#ffc6ff"] 
-        : ["#78995a", "#f9d976", "#e07a5f", "#70a9a1"],
+      colors:
+        effectiveWeather === "dark"
+          ? ["#a0c4ff", "#bdb2ff", "#ffc6ff"]
+          : ["#78995a", "#f9d976", "#e07a5f", "#70a9a1"],
     });
   };
 
-  // Get sky class based on effective weather
+  // Handle City Submission
+  const handleCitySubmit = async (e) => {
+    e.preventDefault();
+    if (!cityInput.trim()) {
+      setIsEditingCity(false);
+      return;
+    }
+
+    try {
+      const coord = await searchCityCoordinates(cityInput.trim());
+      if (coord) {
+        const weather = await fetchOpenMeteoWeather(
+          coord.latitude,
+          coord.longitude,
+          `${coord.name}${coord.country ? `, ${coord.country}` : ""}`
+        );
+        setWeatherData(weather);
+        setSavedCity(cityInput.trim());
+        try {
+          localStorage.setItem("devsprout_weather_city", cityInput.trim());
+        } catch {}
+        if (sounds) sounds.playPop();
+      }
+    } catch (err) {
+      console.warn("City lookup error:", err);
+    }
+    setIsEditingCity(false);
+  };
+
   const getSkyClass = () => {
     switch (effectiveWeather) {
       case "sunny":
@@ -113,6 +205,8 @@ export default function CottageGarden() {
         return styles.skyGloomy;
       case "rainy":
         return styles.skyRainy;
+      case "snowy":
+        return styles.skySnowy;
       case "dark":
         return styles.skyDark;
       default:
@@ -120,23 +214,75 @@ export default function CottageGarden() {
     }
   };
 
-  const activeModeObj = WEATHER_MODES.find((m) => m.id === weatherMode) || WEATHER_MODES[0];
+  const activeModeObj =
+    WEATHER_MODES.find((m) => m.id === weatherMode) || WEATHER_MODES[0];
 
   return (
     <div className={styles.cottageCard}>
-      {/* Header with Title and Weather Pill */}
+      {/* Header with Title, Live Time, Location, and Weather Mode Pill */}
       <div className={styles.cottageHeader}>
         <div className={styles.cottageTitle}>
           <span>🏡</span> Sprout&apos;s Meadow
         </div>
-        <button
-          className={styles.weatherTogglePill}
-          onClick={handleCycleWeather}
-          title="Click to switch weather (Auto, Sunny, Gloomy, Rainy, Dark)"
-        >
-          <span>{activeModeObj.icon}</span>
-          <span>{weatherMode === "auto" ? `Auto (${effectiveWeather})` : activeModeObj.label}</span>
-        </button>
+
+        <div className={styles.headerRight}>
+          {/* Live Clock Badge */}
+          {timeString && (
+            <span
+              className={styles.timePill}
+              title={`Real-world time of day (${currentHour >= 12 ? "PM" : "AM"})`}
+            >
+              <span>⏰</span> {timeString}
+            </span>
+          )}
+
+          {/* City / Location Pill */}
+          {!isEditingCity ? (
+            <button
+              className={styles.cityPill}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEditingCity(true);
+                setCityInput(weatherData?.city || "");
+              }}
+              title="Click to change city or location"
+            >
+              <span>📍</span>
+              <span>{weatherData?.city || "My City"}</span>
+              {weatherData?.temp !== undefined && (
+                <strong style={{ marginLeft: "2px" }}>{weatherData.temp}°C</strong>
+              )}
+            </button>
+          ) : (
+            <form onSubmit={handleCitySubmit} className={styles.cityInputBox}>
+              <input
+                type="text"
+                value={cityInput}
+                onChange={(e) => setCityInput(e.target.value)}
+                placeholder="City name..."
+                className={styles.cityInput}
+                autoFocus
+              />
+              <button type="submit" className={styles.cityBtn}>
+                ✓
+              </button>
+            </form>
+          )}
+
+          {/* Mode Pill Toggle */}
+          <button
+            className={styles.weatherTogglePill}
+            onClick={handleCycleWeather}
+            title="Click to cycle weather (Auto Open-Meteo, Sunny, Sunset, Gloomy, Rainy, Snowy, Dark)"
+          >
+            <span>{weatherMode === "auto" ? weatherData?.icon || "🌐" : activeModeObj.icon}</span>
+            <span>
+              {weatherMode === "auto"
+                ? `Live (${effectiveWeather})`
+                : activeModeObj.label}
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Interactive Weather Viewport */}
@@ -164,7 +310,12 @@ export default function CottageGarden() {
         {effectiveWeather === "gloomy" && (
           <>
             <span className={styles.celestialCloud} style={{ opacity: 0.95 }}>☁️</span>
-            <span className={styles.secondCloud} style={{ top: "12px", right: "20px", fontSize: "1.2rem", opacity: 0.9 }}>🌥️</span>
+            <span
+              className={styles.secondCloud}
+              style={{ top: "12px", right: "20px", fontSize: "1.2rem", opacity: 0.9 }}
+            >
+              🌥️
+            </span>
           </>
         )}
 
@@ -172,7 +323,12 @@ export default function CottageGarden() {
         {effectiveWeather === "rainy" && (
           <>
             <span className={styles.celestialCloud} style={{ opacity: 0.95 }}>🌧️</span>
-            <span className={styles.secondCloud} style={{ top: "8px", right: "16px", fontSize: "1.2rem" }}>⛈️</span>
+            <span
+              className={styles.secondCloud}
+              style={{ top: "8px", right: "16px", fontSize: "1.2rem" }}
+            >
+              ⛈️
+            </span>
             <div className={styles.rainOverlay}>
               {RAIN_DROPS.map((drop) => (
                 <div
@@ -184,6 +340,28 @@ export default function CottageGarden() {
                     animationDuration: drop.duration,
                   }}
                 />
+              ))}
+            </div>
+          </>
+        )}
+
+        {/* Snowy weather with falling snowflakes */}
+        {effectiveWeather === "snowy" && (
+          <>
+            <span className={styles.celestialCloud} style={{ opacity: 0.95 }}>🌨️</span>
+            <div className={styles.snowOverlay}>
+              {SNOW_FLAKES.map((s) => (
+                <div
+                  key={s.id}
+                  className={styles.snowFlake}
+                  style={{
+                    left: s.left,
+                    animationDelay: s.delay,
+                    animationDuration: s.duration,
+                  }}
+                >
+                  ❄️
+                </div>
               ))}
             </div>
           </>
@@ -233,11 +411,20 @@ export default function CottageGarden() {
           <span>tap meadow to water</span>
         </div>
         <div className={styles.weatherLabel}>
-          {effectiveWeather === "sunny" && "☀️ clear & sunny"}
-          {effectiveWeather === "sunset" && "🌅 golden sunset"}
-          {effectiveWeather === "gloomy" && "☁️ cozy overcast"}
-          {effectiveWeather === "rainy" && "🌧️ gentle rainfall"}
-          {effectiveWeather === "dark" && "🌙 starry night"}
+          {weatherMode === "auto" && weatherData ? (
+            <span>
+              {weatherData.icon} {weatherData.temp}°C • {weatherData.description}
+            </span>
+          ) : (
+            <>
+              {effectiveWeather === "sunny" && "☀️ clear & sunny"}
+              {effectiveWeather === "sunset" && "🌅 golden sunset"}
+              {effectiveWeather === "gloomy" && "☁️ cozy overcast"}
+              {effectiveWeather === "rainy" && "🌧️ gentle rainfall"}
+              {effectiveWeather === "snowy" && "❄️ gentle snowfall"}
+              {effectiveWeather === "dark" && "🌙 starry night"}
+            </>
+          )}
         </div>
       </div>
     </div>
