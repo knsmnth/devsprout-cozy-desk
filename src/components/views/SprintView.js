@@ -6,7 +6,33 @@ import { useTaskManager } from "@/context/TaskContext";
 import { sounds } from "@/utils/audio";
 import NewTaskModal from "@/components/NewTaskModal";
 import TaskPaperModal from "@/components/TaskPaperModal";
-import { Plus, ArrowRight, ArrowLeft, Trash2 } from "lucide-react";
+const getPriorityEmoji = (priority) => {
+  switch (priority) {
+    case "urgent":
+      return "🔥";
+    case "high":
+      return "🌸";
+    case "cozy":
+      return "🌱";
+    case "normal":
+    default:
+      return "🍵";
+  }
+};
+
+const getPriorityLabel = (priority) => {
+  switch (priority) {
+    case "urgent":
+      return "Urgent (ASAP)";
+    case "high":
+      return "High (Today)";
+    case "cozy":
+      return "Cozy (Later)";
+    case "normal":
+    default:
+      return "Normal (Gentle)";
+  }
+};
 
 export default function SprintView() {
   const {
@@ -214,26 +240,12 @@ export default function SprintView() {
                     title="Click to view full paper note & details"
                   >
                     <div className={styles.minimalLeft}>
-                      {app ? (
-                        <span
-                          className={styles.miniAppBadge}
-                          style={{
-                            background: app.color ? `${app.color}15` : "#f3ede2",
-                            color: app.color || "#5c4f3a",
-                            borderColor: app.color ? `${app.color}35` : "#ded4c2",
-                          }}
-                          title={`Project: ${app.name}`}
-                        >
-                          <span>{app.icon}</span> {app.tag || app.name}
-                        </span>
-                      ) : (
-                        <span className={styles.miniAppBadge} title="Workspace task">
-                          <span>🌱</span> task
-                        </span>
-                      )}
-                      {task.priority === "urgent" && (
-                        <span className={styles.urgentBadge} title="Urgent Priority">🔥 URGENT</span>
-                      )}
+                      <span
+                        className={styles.priorityEmojiOnly}
+                        title={`Priority: ${getPriorityLabel(task.priority)}${app ? ` • Project: ${app.name}` : ""}`}
+                      >
+                        {getPriorityEmoji(task.priority)}
+                      </span>
                       <span className={styles.minimalTitle}>{task.title}</span>
                     </div>
 
@@ -291,26 +303,12 @@ export default function SprintView() {
                     title="Click to view full paper note & details"
                   >
                     <div className={styles.minimalLeft}>
-                      {app ? (
-                        <span
-                          className={styles.miniAppBadge}
-                          style={{
-                            background: app.color ? `${app.color}18` : "#fef4e2",
-                            color: app.color || "#7c5516",
-                            borderColor: app.color ? `${app.color}40` : "#f4dfb5",
-                          }}
-                          title={`Project: ${app.name}`}
-                        >
-                          <span>{app.icon}</span> {app.tag || app.name}
-                        </span>
-                      ) : (
-                        <span className={styles.miniAppBadge} title="Workspace task">
-                          <span>🌻</span> doing
-                        </span>
-                      )}
-                      {task.priority === "urgent" && (
-                        <span className={styles.urgentBadge} title="Urgent Priority">🔥 URGENT</span>
-                      )}
+                      <span
+                        className={styles.priorityEmojiOnly}
+                        title={`Priority: ${getPriorityLabel(task.priority)}${app ? ` • Project: ${app.name}` : ""}`}
+                      >
+                        {getPriorityEmoji(task.priority)}
+                      </span>
                       <span className={styles.minimalTitle}>{task.title}</span>
                     </div>
 
@@ -385,23 +383,12 @@ export default function SprintView() {
                     title="Click to view full paper note & details"
                   >
                     <div className={styles.minimalLeft}>
-                      {app ? (
-                        <span
-                          className={styles.miniAppBadge}
-                          style={{
-                            background: "#f5f0e6",
-                            color: "#8c8371",
-                            borderColor: "#e4dbcc",
-                          }}
-                          title={`Project: ${app.name}`}
-                        >
-                          <span>{app.icon}</span> {app.tag || app.name}
-                        </span>
-                      ) : (
-                        <span className={styles.miniAppBadge}>
-                          <span>🍯</span> done
-                        </span>
-                      )}
+                      <span
+                        className={styles.priorityEmojiOnly}
+                        title={`Priority: ${getPriorityLabel(task.priority)}${app ? ` • Project: ${app.name}` : ""}`}
+                      >
+                        {getPriorityEmoji(task.priority)}
+                      </span>
                       <span className={`${styles.minimalTitle} ${styles.harvestedTitle}`}>
                         {task.title}
                       </span>
