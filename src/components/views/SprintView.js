@@ -6,6 +6,8 @@ import { useTaskManager } from "@/context/TaskContext";
 import { sounds } from "@/utils/audio";
 import NewTaskModal from "@/components/NewTaskModal";
 import TaskPaperModal from "@/components/TaskPaperModal";
+import { Trash2 } from "lucide-react";
+
 const getPriorityEmoji = (priority) => {
   switch (priority) {
     case "urgent":
