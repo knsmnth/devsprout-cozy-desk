@@ -1,13 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./DeskView.module.css";
 import { useTaskManager } from "@/context/TaskContext";
 import { sounds } from "@/utils/audio";
 import NewTaskModal from "@/components/NewTaskModal";
 import TaskPaperModal from "@/components/TaskPaperModal";
 import CottageGarden from "@/components/CottageGarden";
-import { Check, Plus, AlertCircle, Coffee, Sparkles } from "lucide-react";
+import {
+  Check,
+  Plus,
+  AlertCircle,
+  Coffee,
+  Sparkles,
+  LayoutGrid,
+  List,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 export default function DeskView() {
   const {
@@ -30,8 +40,62 @@ export default function DeskView() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTaskForPaper, setSelectedTaskForPaper] = useState(null);
+  const [questViewMode, setQuestViewMode] = useState("bento"); // 'bento' | 'list'
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Restore saved view preference
+  useEffect(() => {
+    try {
+      const savedMode = localStorage.getItem("devsprout_quest_view_mode");
+      if (savedMode === "bento" || savedMode === "list") {
+        setQuestViewMode(savedMode);
+      }
+    } catch (e) {
+      // ignore storage errors
+    }
+  }, []);
+
+  const handleViewModeChange = (mode) => {
+    if (sounds) sounds.playClick();
+    setQuestViewMode(mode);
+    setCurrentPage(1);
+    try {
+      localStorage.setItem("devsprout_quest_view_mode", mode);
+    } catch (e) {}
+  };
+
+  // Pagination calculations: 4 items per page for cute bite-sized bento box layout
+  const itemsPerPage = 4;
+  const totalPages = Math.max(1, Math.ceil(tasks.length / itemsPerPage));
+  const safePage = Math.min(Math.max(1, currentPage), totalPages);
+  const paginatedTasks = tasks.slice((safePage - 1) * itemsPerPage, safePage * itemsPerPage);
+
+  // Keep page within bounds when tasks change
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [tasks.length, totalPages, currentPage]);
 
   const completedCount = tasks.filter((t) => t.status === "harvested").length;
+
+  // tag color helper
+  const getTagClass = (type) => {
+    switch (type) {
+      case "bugfix":
+        return styles.tagBugfix;
+      case "backend":
+        return styles.tagBackend;
+      case "rest":
+        return styles.tagRest;
+      case "ui-flower":
+        return styles.tagUi;
+      case "polish":
+        return styles.tagPolish;
+      default:
+        return styles.tagSprint;
+    }
+  };
 
   return (
     <div className={styles.deskGrid}>
@@ -286,54 +350,155 @@ export default function DeskView() {
           <div className={styles.questsHeader}>
             <div className={styles.questsTitle}>
               <span>📋</span> Current Quests & Checklist
+              {tasks.length > 0 && (
+                <span className={styles.questsCountBadge}>{tasks.length}</span>
+              )}
             </div>
-            <button
-              className={styles.newQuestBtn}
-              onClick={() => {
-                if (sounds) sounds.playClick();
-                setIsModalOpen(true);
-              }}
-            >
-              <Plus size={15} />
-              <span>new quest</span>
-            </button>
+
+            <div className={styles.headerRightActions}>
+              {/* Cute View Toggle: Bento Cards vs List */}
+              <div className={styles.viewToggleGroup} role="group" aria-label="Quest view style">
+                <button
+                  type="button"
+                  className={`${styles.viewToggleBtn} ${questViewMode === "bento" ? styles.viewToggleActive : ""}`}
+                  onClick={() => handleViewModeChange("bento")}
+                  title="Bento Card Grid (2-column compact cards)"
+                >
+                  <LayoutGrid size={13} />
+                  <span>Bento</span>
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.viewToggleBtn} ${questViewMode === "list" ? styles.viewToggleActive : ""}`}
+                  onClick={() => handleViewModeChange("list")}
+                  title="Classic List View"
+                >
+                  <List size={13} />
+                  <span>List</span>
+                </button>
+              </div>
+
+              {/* New Quest Button */}
+              <button
+                type="button"
+                className={styles.newQuestBtn}
+                onClick={() => {
+                  if (sounds) sounds.playClick();
+                  setIsModalOpen(true);
+                }}
+              >
+                <Plus size={15} />
+                <span>new quest</span>
+              </button>
+            </div>
           </div>
 
-          <div className={styles.questList}>
-            {tasks.length === 0 ? (
-              <div className={styles.emptyQuests}>
-                <div className={styles.emptyEmoji}>🌱</div>
-                <div className={styles.emptyTitle}>No quests planted yet!</div>
-                <p className={styles.emptyDesc}>
-                  Your desk is fresh and clear. Click <strong>+ new quest</strong> to plant your first focus task.
-                </p>
-              </div>
-            ) : (
-              tasks.map((task) => {
+          {tasks.length === 0 ? (
+            <div className={styles.emptyQuests}>
+              <div className={styles.emptyEmoji}>🌱</div>
+              <div className={styles.emptyTitle}>No quests planted yet!</div>
+              <p className={styles.emptyDesc}>
+                Your desk is fresh and clear. Click <strong>+ new quest</strong> to plant your first focus task.
+              </p>
+            </div>
+          ) : questViewMode === "bento" ? (
+            /* Bento Cards Layout: 2 Columns, Compact & Cute */
+            <div className={styles.bentoGrid}>
+              {paginatedTasks.map((task) => {
                 const isDone = task.status === "harvested";
                 const app = apps.find((a) => a.id === task.appId);
 
-                // tag color helper
-                const getTagClass = () => {
-                  switch (task.type) {
-                    case "bugfix":
-                      return styles.tagBugfix;
-                    case "backend":
-                      return styles.tagBackend;
-                    case "rest":
-                      return styles.tagRest;
-                    case "ui-flower":
-                      return styles.tagUi;
-                    case "polish":
-                      return styles.tagPolish;
-                    default:
-                      return styles.tagSprint;
-                  }
-                };
+                return (
+                  <div
+                    key={task.id}
+                    className={`${styles.bentoCard} ${isDone ? styles.bentoCardDone : ""}`}
+                    onClick={() => {
+                      if (sounds) sounds.playClick();
+                      setSelectedTaskForPaper(task);
+                    }}
+                    title="Click to view full paper note & details"
+                  >
+                    {/* Top Row: Checkbox, Badge & Note */}
+                    <div className={styles.bentoTopRow}>
+                      <div className={styles.bentoTopLeft}>
+                        <button
+                          type="button"
+                          className={`${styles.questCheckbox} ${styles.bentoCheckbox} ${isDone ? styles.questChecked : ""}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleTaskDone(task.id);
+                          }}
+                          title={isDone ? "Mark as in progress" : "Mark completed"}
+                        >
+                          {isDone && <Check size={12} strokeWidth={3} />}
+                        </button>
+
+                        <span className={`${styles.tagBadge} ${styles.bentoTagBadge} ${getTagClass(task.type)}`}>
+                          {task.typeLabel || task.type?.toUpperCase()}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        className={`${styles.questNoteBtn} ${styles.bentoNoteBtn}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (sounds) sounds.playClick();
+                          setSelectedTaskForPaper(task);
+                        }}
+                        title="Open full paper note & edit details"
+                      >
+                        📄 Note
+                      </button>
+                    </div>
+
+                    {/* Middle: Title & Description Preview */}
+                    <div className={styles.bentoContent}>
+                      <div className={`${styles.bentoTitle} ${isDone ? styles.questDoneText : ""}`}>
+                        {task.title}
+                      </div>
+                      {task.description && (
+                        <p className={styles.bentoDesc}>{task.description}</p>
+                      )}
+                    </div>
+
+                    {/* Bottom Row: App Pill + Urgency + Teacups & Ticket */}
+                    <div className={styles.bentoBottomRow}>
+                      <div className={styles.bentoAppPill}>
+                        {app ? (
+                          <span className={styles.bentoAppName} title={app.name}>
+                            {app.icon} {app.name}
+                          </span>
+                        ) : (
+                          <span className={styles.bentoTicket}>ticket {task.ticketNumber}</span>
+                        )}
+                        {task.priority === "urgent" && (
+                          <span className={styles.bentoUrgent} title="Urgent Priority">🔥 URGENT</span>
+                        )}
+                      </div>
+
+                      <div className={styles.bentoMetaRight}>
+                        <span className={styles.bentoTeacups}>{"🍵".repeat(Math.min(task.teacups || 1, 4))}</span>
+                        {app && task.ticketNumber && (
+                          <span className={styles.bentoTicket}>#{task.ticketNumber}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            /* Classic List View */
+            <div className={styles.questList}>
+              {paginatedTasks.map((task) => {
+                const isDone = task.status === "harvested";
+                const app = apps.find((a) => a.id === task.appId);
 
                 return (
                   <div key={task.id} className={styles.questItem}>
                     <button
+                      type="button"
                       className={`${styles.questCheckbox} ${isDone ? styles.questChecked : ""}`}
                       onClick={() => toggleTaskDone(task.id)}
                       title={isDone ? "Mark as in progress" : "Mark completed"}
@@ -351,8 +516,8 @@ export default function DeskView() {
                       title="Click to view full paper note & details"
                     >
                       <div className={styles.questTopMeta}>
-                        <span className={`${styles.tagBadge} ${getTagClass()}`}>
-                          {task.typeLabel || task.type.toUpperCase()}
+                        <span className={`${styles.tagBadge} ${getTagClass(task.type)}`}>
+                          {task.typeLabel || task.type?.toUpperCase()}
                         </span>
                         {app && (
                           <span className={styles.appTagPill}>
@@ -365,6 +530,7 @@ export default function DeskView() {
                           </span>
                         )}
                         <button
+                          type="button"
                           className={styles.questNoteBtn}
                           onClick={(e) => {
                             e.stopPropagation();
@@ -394,9 +560,76 @@ export default function DeskView() {
                     </div>
                   </div>
                 );
-              })
-            )}
-          </div>
+              })}
+            </div>
+          )}
+
+          {/* Cute Page-by-Page Pagination Bar */}
+          {tasks.length > 0 && totalPages > 1 && (
+            <div className={styles.paginationRow}>
+              <div className={styles.pageInfo}>
+                <span className={styles.pageInfoIcon}>🌱</span>
+                <span>
+                  Page <strong>{safePage}</strong> of <strong>{totalPages}</strong>
+                  <span className={styles.pageInfoCount}>({tasks.length} total)</span>
+                </span>
+              </div>
+
+              <div className={styles.paginationBtns}>
+                <button
+                  type="button"
+                  className={styles.pageNavBtn}
+                  onClick={() => {
+                    if (safePage > 1) {
+                      if (sounds) sounds.playClick();
+                      setCurrentPage((p) => Math.max(1, p - 1));
+                    }
+                  }}
+                  disabled={safePage <= 1}
+                  title="Previous Page"
+                >
+                  <ChevronLeft size={14} />
+                  <span>Prev</span>
+                </button>
+
+                <div className={styles.pagePills}>
+                  {Array.from({ length: totalPages }, (_, idx) => {
+                    const pageNum = idx + 1;
+                    const isActive = pageNum === safePage;
+                    return (
+                      <button
+                        key={pageNum}
+                        type="button"
+                        className={`${styles.pagePill} ${isActive ? styles.pagePillActive : ""}`}
+                        onClick={() => {
+                          if (sounds) sounds.playClick();
+                          setCurrentPage(pageNum);
+                        }}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  type="button"
+                  className={styles.pageNavBtn}
+                  onClick={() => {
+                    if (safePage < totalPages) {
+                      if (sounds) sounds.playClick();
+                      setCurrentPage((p) => Math.min(totalPages, p + 1));
+                    }
+                  }}
+                  disabled={safePage >= totalPages}
+                  title="Next Page"
+                >
+                  <span>Next</span>
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
