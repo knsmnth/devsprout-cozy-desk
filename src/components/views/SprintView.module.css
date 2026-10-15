@@ -86,23 +86,35 @@
 }
 
 .progressBar {
-  height: 8px;
-  background: var(--cozy-border-soft);
+  height: 12px;
+  background: var(--cozy-bg-warm);
+  border: 1px solid var(--cozy-border-soft);
   border-radius: 9999px;
-  overflow: hidden;
-  margin: 8px 0;
+  overflow: visible;
+  margin: 10px 0;
+  position: relative;
 }
 
 .progressFill {
   height: 100%;
-  background: var(--cozy-green-header);
+  background: linear-gradient(90deg, #7da05e 0%, #5f7a49 100%);
   border-radius: 9999px;
-  transition: width 0.3s ease, background-color 0.25s ease;
+  transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+.progressSproutEmoji {
+  position: absolute;
+  right: -8px;
+  top: -8px;
+  font-size: 1rem;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+  animation: sproutWiggle 3s infinite ease-in-out;
 }
 
 .sprintSubtext {
   font-size: 0.78rem;
-  color: #797163;
+  color: var(--cozy-text-muted);
   font-weight: 600;
 }
 
@@ -111,36 +123,44 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-left: 1.5px dashed #ded6c5;
-  padding-left: 18px;
+  border-left: 1.5px dashed var(--cozy-dashed-border);
+  padding: 8px 16px;
+  background: var(--cozy-bg-panel);
+  border-radius: 14px;
   flex-shrink: 0;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.harvestJarBox:hover {
+  transform: scale(1.04);
 }
 
 .jarIcon {
-  font-size: 1.6rem;
+  font-size: 1.8rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
 }
 
 .jarTitle {
   font-size: 0.82rem;
   font-weight: 700;
-  color: #3e382f;
+  color: var(--cozy-text-dark);
 }
 
 .jarSubtitle {
   font-size: 0.72rem;
-  color: #8c8371;
+  color: var(--cozy-text-muted);
 }
 
 /* Quick Filters */
 .quickFiltersCard {
-  background: #ffffff;
+  background: var(--cozy-bg-card);
   border: 1.5px solid var(--cozy-border-soft);
   border-radius: var(--radius-card);
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
   box-shadow: var(--shadow-card);
 }
 
@@ -150,13 +170,14 @@
   align-items: center;
   font-size: 0.85rem;
   font-weight: 700;
-  color: #3e382f;
+  color: var(--cozy-text-dark);
 }
 
 .clearBtn {
-  font-size: 0.75rem;
-  color: #8c8371;
+  font-size: 0.74rem;
+  color: var(--cozy-text-muted);
   text-decoration: underline;
+  cursor: pointer;
 }
 
 .filterPills {
@@ -166,19 +187,31 @@
 }
 
 .filterBtn {
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 9999px;
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   font-weight: 700;
-  background: #faf7ef;
-  border: 1px solid #dfd8c8;
-  color: #5d5548;
+  background: var(--cozy-bg-warm);
+  border: 1px solid var(--cozy-border-soft);
+  color: var(--cozy-text-dark);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.filterBtn:hover {
+  background: #ffffff;
+  border-color: var(--cozy-border-hard);
+  transform: translateY(-1px);
 }
 
 .filterBtnActive {
   background: var(--cozy-green-header) !important;
   color: #ffffff !important;
-  border-color: var(--cozy-green-header) !important;
+  border-color: var(--cozy-green-dark) !important;
+  box-shadow: 0 2px 6px rgba(95, 122, 73, 0.3);
 }
 
 /* Multi-App Selector Tabs */
@@ -191,7 +224,7 @@
 }
 
 .appTabBtn {
-  padding: 5px 14px;
+  padding: 6px 14px;
   border-radius: 9999px;
   font-size: 0.82rem;
   font-weight: 700;
@@ -202,13 +235,22 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  transition: all 0.2s ease;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.appTabBtn:hover {
+  background: var(--cozy-bg-panel);
+  border-color: var(--cozy-border-hard);
+  transform: translateY(-1px);
 }
 
 .appTabBtnActive {
-  background: var(--cozy-green-header);
-  color: #ffffff;
-  border-color: var(--cozy-green-dark);
+  background: var(--cozy-green-header) !important;
+  color: #ffffff !important;
+  border-color: var(--cozy-green-dark) !important;
+  box-shadow: 0 3px 8px rgba(95, 122, 73, 0.32);
 }
 
 /* Prominent Board Top Bar */
@@ -229,45 +271,70 @@
 }
 
 .statusPill {
-  background: var(--cozy-bg-card);
-  border: 1px solid var(--cozy-border-soft);
-  padding: 4px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
   border-radius: 9999px;
-  font-size: 0.76rem;
-  color: var(--cozy-text-dark);
-  font-weight: 500;
+  font-size: 0.78rem;
+  font-weight: 600;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  border: 1.2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.sproutPill {
+  background: #f1f7ed;
+  border-color: #cfe1c6;
+  color: #3c5e28;
+}
+
+.bloomPill {
+  background: #fff9ed;
+  border-color: #f4e0bc;
+  color: #7a5416;
+}
+
+.harvestPill {
+  background: #faf3ec;
+  border-color: #ebd7c5;
+  color: #7d4f30;
 }
 
 .statusPill strong {
-  color: var(--cozy-green-header);
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .specialPlantSeedBtn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 18px;
+  gap: 8px;
+  padding: 8px 20px;
   border-radius: 9999px;
-  background: var(--cozy-green-header);
+  background: linear-gradient(135deg, #6c8a54 0%, #526f3b 100%);
   color: #ffffff;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  border: 1.5px solid var(--cozy-green-dark);
+  border: 1.5px solid #455d32;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(101, 125, 79, 0.25);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 3px 10px rgba(82, 111, 59, 0.3);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .specialPlantSeedBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(101, 125, 79, 0.38);
-  filter: brightness(1.06);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 16px rgba(82, 111, 59, 0.4);
+  filter: brightness(1.07);
 }
 
 .specialPlantSeedBtn:active {
   transform: translateY(0);
+}
+
+.bouncySprout {
+  display: inline-block;
+  font-size: 1.05rem;
+  animation: sproutWiggle 2.5s infinite ease-in-out;
 }
 
 /* 3-Column Kanban Board */
@@ -280,12 +347,13 @@
 .kanbanCol {
   background: var(--cozy-bg-card);
   border: 1.5px solid var(--cozy-border-soft);
-  border-radius: var(--radius-card);
-  padding: 14px;
+  border-radius: 18px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-height: 440px;
+  min-height: 460px;
+  box-shadow: var(--shadow-card);
   transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
@@ -293,32 +361,49 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1.5px dashed var(--cozy-dashed-border);
-  padding-bottom: 8px;
+  border-bottom: 2px dashed var(--cozy-dashed-border);
+  padding-bottom: 10px;
 }
 
 .colTitle {
-  font-size: 0.95rem;
+  font-size: 0.96rem;
   font-weight: 700;
   color: var(--cozy-text-dark);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
 }
 
 .colCountBadge {
-  background: var(--cozy-green-light);
-  color: var(--cozy-green-dark);
-  border: 1px solid var(--cozy-green-border);
-  border-radius: 50%;
-  width: 22px;
+  border-radius: 9999px;
+  padding: 2px 9px;
+  min-width: 24px;
   height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.74rem;
+  font-weight: 800;
+  border: 1px solid transparent;
   transition: all 0.25s ease;
+}
+
+.sproutBadge {
+  background: #eaf3e5;
+  color: #43662d;
+  border-color: #c8dfbf;
+}
+
+.bloomBadge {
+  background: #fff5e0;
+  color: #875c12;
+  border-color: #f2dbb0;
+}
+
+.harvestBadge {
+  background: #f7ede3;
+  color: #7f512c;
+  border-color: #e7d1bf;
 }
 
 .cardsList {
@@ -331,7 +416,7 @@
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-width: thin;
-  scrollbar-color: #dcd4c0 transparent;
+  scrollbar-color: var(--cozy-border-soft) transparent;
 }
 
 .cardsList::-webkit-scrollbar {
@@ -339,7 +424,7 @@
 }
 
 .cardsList::-webkit-scrollbar-thumb {
-  background: #dcd4c0;
+  background: var(--cozy-border-soft);
   border-radius: 4px;
 }
 
@@ -348,31 +433,39 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 10px;
   background: var(--cozy-bg-card);
   border: 1.5px solid var(--cozy-border-soft);
-  border-radius: 10px;
-  padding: 8px 10px;
-  min-height: 40px;
+  border-radius: 12px;
+  padding: 9px 12px;
+  min-height: 44px;
   cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 1px 4px rgba(95, 78, 55, 0.04);
 }
 
 .minimalTaskCard:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   border-color: var(--cozy-border-hard);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 12px rgba(95, 78, 55, 0.09);
+  background: #ffffff;
 }
 
 .minimalCardBloom {
-  background: var(--cozy-bg-panel);
-  border-color: var(--cozy-border-soft);
+  background: #fffdf7;
+  border-color: #ecdab9;
+  box-shadow: 0 1px 4px rgba(212, 139, 56, 0.07);
+}
+
+.minimalCardBloom:hover {
+  border-color: #e2a84a;
+  box-shadow: 0 4px 14px rgba(212, 139, 56, 0.15);
 }
 
 .minimalCardHarvested {
-  opacity: 0.85;
-  background: var(--cozy-bg-warm);
+  opacity: 0.88;
+  background: #faf8f3;
+  border-color: #e5ded0;
 }
 
 .minimalLeft {
@@ -383,48 +476,60 @@
   min-width: 0;
 }
 
-.minimalAppDot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
+.miniAppBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  border: 1px solid #dfd6c4;
+  white-space: nowrap;
   flex-shrink: 0;
-  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.08);
 }
 
-.urgentFire {
-  font-size: 0.82rem;
+.urgentBadge {
+  background: #fae8e8;
+  border: 1px solid #f0b8b8;
+  color: #c93b3b;
+  font-size: 0.66rem;
+  font-weight: 800;
+  padding: 1.5px 6px;
+  border-radius: 5px;
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .minimalTitle {
-  font-size: 0.84rem;
+  font-size: 0.86rem;
   font-weight: 600;
-  color: #3e382f;
+  color: var(--cozy-text-dark);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.25;
+  line-height: 1.3;
 }
 
 .harvestedTitle {
   text-decoration: line-through;
-  color: #8c8371;
+  color: var(--cozy-text-muted);
 }
 
 .minimalActions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   flex-shrink: 0;
 }
 
 .miniNoteBtn {
-  font-size: 0.7rem;
-  padding: 3px 6px;
-  border-radius: 5px;
+  font-size: 0.72rem;
+  padding: 3px 8px;
+  border-radius: 8px;
   background: #faf7ef;
-  border: 1px solid #dcd1bb;
-  color: #5c5039;
+  border: 1.2px solid #ded5bf;
+  color: #5c4e36;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -432,52 +537,123 @@
 }
 
 .miniNoteBtn:hover {
-  background: #f0e6cf;
-  border-color: #baa788;
+  background: #f2e7cd;
+  border-color: #c9bc9e;
+  transform: translateY(-1px);
 }
 
-.miniActionBtn {
-  font-size: 0.7rem;
-  padding: 3px 7px;
-  border-radius: 5px;
-  background: #ebe4d5;
-  color: #4a4336;
+.miniBloomBtn {
+  background: #fff8e8;
+  border: 1.2px solid #edd69f;
+  color: #7d5718;
   font-weight: 700;
-  border: none;
+  border-radius: 8px;
+  padding: 3px 9px;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
   transition: all 0.15s ease;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
 }
 
-.miniActionBtn:hover {
-  background: var(--cozy-green-header);
-  color: #ffffff;
+.miniBloomBtn:hover {
+  background: #fcebc0;
+  border-color: #e2a84a;
+  transform: translateY(-1px) scale(1.03);
+}
+
+.miniBackBtn {
+  background: #f3ede2;
+  border: 1.2px solid #dfd4bf;
+  color: #61533e;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 3px 7px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.miniBackBtn:hover {
+  background: #e8ddc9;
+  transform: translateY(-1px);
 }
 
 .miniHarvestBtn {
-  background: #eef5e6;
-  color: #4a6635;
-  border: 1px solid #bdd4a8;
+  background: #eef7e6;
+  border: 1.2px solid #bedeb0;
+  color: #3c6126;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
 }
 
 .miniHarvestBtn:hover {
   background: #657d4f !important;
   color: #ffffff !important;
   border-color: #657d4f !important;
+  transform: translateY(-1px) scale(1.03);
+}
+
+.miniReopenBtn {
+  background: #eef5e9;
+  border: 1.2px solid #c6deb8;
+  color: #43632c;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.miniReopenBtn:hover {
+  background: #dfeecd;
+  transform: translateY(-1px);
 }
 
 .miniDeleteBtn {
-  background: transparent;
-  color: #b85c5c;
-  padding: 3px 5px;
+  background: #fdf2f2;
+  border: 1.2px solid #f4c7c7;
+  color: #ba4343;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 3px 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .miniDeleteBtn:hover {
-  background: #fde8e8 !important;
-  color: #d9534f !important;
+  background: #fcdcdc;
+  transform: translateY(-1px);
+}
+
+.cozyTipBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #7d6b53;
+  background: #faf4e6;
+  border: 1.2px dashed #ded0b4;
+  border-radius: 10px;
+  padding: 8px 12px;
+  margin-top: auto;
+  text-align: center;
+}
+
+@keyframes sproutWiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
 }
 
 /* Kanban Task Card (Legacy fallback) */

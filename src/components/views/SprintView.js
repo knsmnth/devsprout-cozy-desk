@@ -102,7 +102,11 @@ export default function SprintView() {
               <div
                 className={styles.progressFill}
                 style={{ width: `${progressPercent}%` }}
-              />
+              >
+                {progressPercent > 8 && (
+                  <span className={styles.progressSproutEmoji}>🌱</span>
+                )}
+              </div>
             </div>
 
             <div className={styles.sprintSubtext}>
@@ -161,14 +165,14 @@ export default function SprintView() {
       {/* Prominent Action Bar above columns with Special Seed Button */}
       <div className={styles.boardTopBar}>
         <div className={styles.boardStatusPills}>
-          <span className={styles.statusPill}>
-            🌱 Sprouting: <strong>{sproutingTasks.length}</strong>
+          <span className={`${styles.statusPill} ${styles.sproutPill}`}>
+            🌱 Sprouting <strong>{sproutingTasks.length}</strong>
           </span>
-          <span className={styles.statusPill}>
-            🌻 In Bloom: <strong>{inBloomTasks.length}</strong>
+          <span className={`${styles.statusPill} ${styles.bloomPill}`}>
+            🌻 In Bloom <strong>{inBloomTasks.length}</strong>
           </span>
-          <span className={styles.statusPill}>
-            🍯 Harvested: <strong>{harvestedTasks.length}</strong>
+          <span className={`${styles.statusPill} ${styles.harvestPill}`}>
+            🍯 Harvested <strong>{harvestedTasks.length}</strong>
           </span>
         </div>
 
@@ -180,8 +184,8 @@ export default function SprintView() {
           }}
           title="Plant a new seed / quest"
         >
-          <Plus size={16} />
-          <span>+ plant new seed</span>
+          <span className={styles.bouncySprout}>🌱</span>
+          <span>Plant New Seed</span>
         </button>
       </div>
 
@@ -193,7 +197,7 @@ export default function SprintView() {
             <div className={styles.colTitle}>
               <span>🌱</span> Sprouting (To Do)
             </div>
-            <span className={styles.colCountBadge}>{sproutingTasks.length}</span>
+            <span className={`${styles.colCountBadge} ${styles.sproutBadge}`}>{sproutingTasks.length}</span>
           </div>
 
           <div className={styles.cardsList}>
@@ -210,13 +214,25 @@ export default function SprintView() {
                     title="Click to view full paper note & details"
                   >
                     <div className={styles.minimalLeft}>
-                      <span
-                        className={styles.minimalAppDot}
-                        style={{ backgroundColor: app?.color || "#8c8371" }}
-                        title={app?.name ? `Project: ${app.name}` : "Workspace task"}
-                      />
+                      {app ? (
+                        <span
+                          className={styles.miniAppBadge}
+                          style={{
+                            background: app.color ? `${app.color}15` : "#f3ede2",
+                            color: app.color || "#5c4f3a",
+                            borderColor: app.color ? `${app.color}35` : "#ded4c2",
+                          }}
+                          title={`Project: ${app.name}`}
+                        >
+                          <span>{app.icon}</span> {app.tag || app.name}
+                        </span>
+                      ) : (
+                        <span className={styles.miniAppBadge} title="Workspace task">
+                          <span>🌱</span> task
+                        </span>
+                      )}
                       {task.priority === "urgent" && (
-                        <span className={styles.urgentFire} title="Urgent Priority">🔥</span>
+                        <span className={styles.urgentBadge} title="Urgent Priority">🔥 URGENT</span>
                       )}
                       <span className={styles.minimalTitle}>{task.title}</span>
                     </div>
@@ -235,14 +251,14 @@ export default function SprintView() {
                       </button>
                       <button
                         type="button"
-                        className={styles.miniActionBtn}
+                        className={`${styles.miniActionBtn} ${styles.miniBloomBtn}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           updateTaskStatus(task.id, "in-bloom");
                         }}
                         title="Move to In Bloom"
                       >
-                        Bloom <ArrowRight size={11} style={{ display: "inline" }} />
+                        🌻 Bloom →
                       </button>
                     </div>
                   </div>
@@ -258,7 +274,7 @@ export default function SprintView() {
             <div className={styles.colTitle}>
               <span>🌻</span> In Bloom (Doing)
             </div>
-            <span className={styles.colCountBadge}>{inBloomTasks.length}</span>
+            <span className={`${styles.colCountBadge} ${styles.bloomBadge}`}>{inBloomTasks.length}</span>
           </div>
 
           <div className={styles.cardsList}>
@@ -275,13 +291,25 @@ export default function SprintView() {
                     title="Click to view full paper note & details"
                   >
                     <div className={styles.minimalLeft}>
-                      <span
-                        className={styles.minimalAppDot}
-                        style={{ backgroundColor: app?.color || "#d48b38" }}
-                        title={app?.name ? `Project: ${app.name}` : "Workspace task"}
-                      />
+                      {app ? (
+                        <span
+                          className={styles.miniAppBadge}
+                          style={{
+                            background: app.color ? `${app.color}18` : "#fef4e2",
+                            color: app.color || "#7c5516",
+                            borderColor: app.color ? `${app.color}40` : "#f4dfb5",
+                          }}
+                          title={`Project: ${app.name}`}
+                        >
+                          <span>{app.icon}</span> {app.tag || app.name}
+                        </span>
+                      ) : (
+                        <span className={styles.miniAppBadge} title="Workspace task">
+                          <span>🌻</span> doing
+                        </span>
+                      )}
                       {task.priority === "urgent" && (
-                        <span className={styles.urgentFire} title="Urgent Priority">🔥</span>
+                        <span className={styles.urgentBadge} title="Urgent Priority">🔥 URGENT</span>
                       )}
                       <span className={styles.minimalTitle}>{task.title}</span>
                     </div>
@@ -300,14 +328,14 @@ export default function SprintView() {
                       </button>
                       <button
                         type="button"
-                        className={styles.miniActionBtn}
+                        className={`${styles.miniActionBtn} ${styles.miniBackBtn}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           updateTaskStatus(task.id, "sprouting");
                         }}
                         title="Move back to Sprouting"
                       >
-                        <ArrowLeft size={11} style={{ display: "inline" }} />
+                        ←
                       </button>
                       <button
                         type="button"
@@ -319,7 +347,7 @@ export default function SprintView() {
                         }}
                         title="Harvest task"
                       >
-                        Harvest 🍯
+                        🍯 Harvest
                       </button>
                     </div>
                   </div>
@@ -327,8 +355,9 @@ export default function SprintView() {
               })
             )}
 
-            <div className={styles.colTip}>
-              * take a 30-second eye rest between tasks 🌿 *
+            <div className={styles.cozyTipBox}>
+              <span>🍵</span>
+              <span>take a 30-sec eye rest &amp; stretch your paws ~ 🐾</span>
             </div>
           </div>
         </div>
@@ -339,7 +368,7 @@ export default function SprintView() {
             <div className={styles.colTitle}>
               <span>🍯</span> Harvested (Done)
             </div>
-            <span className={styles.colCountBadge}>{harvestedTasks.length}</span>
+            <span className={`${styles.colCountBadge} ${styles.harvestBadge}`}>{harvestedTasks.length}</span>
           </div>
 
           <div className={styles.cardsList}>
@@ -356,11 +385,23 @@ export default function SprintView() {
                     title="Click to view full paper note & details"
                   >
                     <div className={styles.minimalLeft}>
-                      <span
-                        className={styles.minimalAppDot}
-                        style={{ backgroundColor: app?.color || "#657d4f" }}
-                        title={app?.name ? `Project: ${app.name}` : "Workspace task"}
-                      />
+                      {app ? (
+                        <span
+                          className={styles.miniAppBadge}
+                          style={{
+                            background: "#f5f0e6",
+                            color: "#8c8371",
+                            borderColor: "#e4dbcc",
+                          }}
+                          title={`Project: ${app.name}`}
+                        >
+                          <span>{app.icon}</span> {app.tag || app.name}
+                        </span>
+                      ) : (
+                        <span className={styles.miniAppBadge}>
+                          <span>🍯</span> done
+                        </span>
+                      )}
                       <span className={`${styles.minimalTitle} ${styles.harvestedTitle}`}>
                         {task.title}
                       </span>
@@ -380,14 +421,14 @@ export default function SprintView() {
                       </button>
                       <button
                         type="button"
-                        className={styles.miniActionBtn}
+                        className={`${styles.miniActionBtn} ${styles.miniReopenBtn}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           updateTaskStatus(task.id, "in-bloom");
                         }}
                         title="Reopen task"
                       >
-                        Reopen
+                        ↩ Reopen
                       </button>
                       <button
                         type="button"
