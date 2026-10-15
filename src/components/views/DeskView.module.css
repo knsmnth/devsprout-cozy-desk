@@ -447,6 +447,204 @@
   white-space: nowrap;
 }
 
+/* Currently Blooming / In Focus Spotlight */
+.bloomingSpotlight {
+  background: #fffdf7;
+  border: 1.5px solid #ebd9b8;
+  border-radius: var(--radius-card);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bloomingHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1.5px dashed #ebd9b8;
+  padding-bottom: 8px;
+}
+
+.bloomingTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #5c431d;
+}
+
+.bloomingPulsingIcon {
+  font-size: 1.15rem;
+  display: inline-block;
+  animation: softPulse 2.5s infinite ease-in-out;
+}
+
+.bloomingBadge {
+  background: #fdf3d8;
+  border: 1px solid #e8c880;
+  color: #8f6016;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.sprintJumpBtn {
+  background: transparent;
+  border: 1px solid #d5c09a;
+  color: #73592c;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sprintJumpBtn:hover {
+  background: #fbf2dc;
+  border-color: #baa074;
+}
+
+.bloomingCardsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #e5d6bc transparent;
+}
+
+.bloomingCardsList::-webkit-scrollbar {
+  width: 5px;
+}
+
+.bloomingCardsList::-webkit-scrollbar-thumb {
+  background: #e5d6bc;
+  border-radius: 4px;
+}
+
+.bloomingCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #ffffff;
+  border: 1.5px solid #eee2cc;
+  border-radius: 12px;
+  padding: 9px 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+}
+
+.bloomingCard:hover {
+  transform: translateY(-1px);
+  border-color: #d6be96;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+.bloomingCardLeft {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.bloomingCardTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bloomingAppPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+
+.bloomingTaskTitle {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--cozy-text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bloomingDesc {
+  font-size: 0.76rem;
+  color: #797163;
+  margin: 0;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bloomingCardActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.bloomingHarvestBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #eef5e6;
+  color: #44612e;
+  border: 1.5px solid #bed6a8;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bloomingHarvestBtn:hover {
+  background: #657d4f;
+  color: #ffffff;
+  border-color: #657d4f;
+  transform: translateY(-1px);
+}
+
+.bloomingNoteBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #faf7ef;
+  color: #5c5039;
+  border: 1px solid #dcd1bb;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bloomingNoteBtn:hover {
+  background: #f0e6cf;
+}
+
 /* Quests & Checklist Section */
 .questsContainer {
   background: var(--cozy-bg-card);

@@ -24,6 +24,7 @@ export default function DeskView() {
     apps,
     tasks,
     toggleTaskDone,
+    updateTaskStatus,
     staleTasks,
     appBalanceData,
     imbalancedApp,
@@ -43,6 +44,8 @@ export default function DeskView() {
   const [questViewMode, setQuestViewMode] = useState("bento"); // 'bento' | 'list'
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(8); // at least 8-10 quests per page
+
+  const inBloomTasks = tasks.filter((t) => t.status === "in-bloom");
 
   // Restore saved view and page size preferences
   useEffect(() => {
@@ -361,6 +364,104 @@ export default function DeskView() {
           </div>
         )}
 
+        {/* Currently Blooming / In Focus Spotlight */}
+        {inBloomTasks.length > 0 && (
+          <div className={styles.bloomingSpotlight}>
+            <div className={styles.bloomingHeader}>
+              <div className={styles.bloomingTitle}>
+                <span className={styles.bloomingPulsingIcon}>🌻</span>
+                <span>Currently Blooming &amp; In Focus</span>
+                <span className={styles.bloomingBadge}>{inBloomTasks.length} active</span>
+              </div>
+              <button
+                type="button"
+                className={styles.sprintJumpBtn}
+                onClick={() => {
+                  if (sounds) sounds.playClick();
+                  setActiveTab("sprint");
+                }}
+                title="Open Sprint Harvest Board"
+              >
+                View in Sprint →
+              </button>
+            </div>
+
+            <div className={styles.bloomingCardsList}>
+              {inBloomTasks.map((task) => {
+                const app = apps.find((a) => a.id === task.appId);
+                return (
+                  <div
+                    key={task.id}
+                    className={styles.bloomingCard}
+                    style={{
+                      borderLeftColor: app?.color || "#e2a84a",
+                      borderLeftWidth: "4px",
+                    }}
+                    onClick={() => {
+                      if (sounds) sounds.playClick();
+                      setSelectedTaskForPaper(task);
+                    }}
+                    title="Click to view full paper note & details"
+                  >
+                    <div className={styles.bloomingCardLeft}>
+                      <div className={styles.bloomingCardTitleRow}>
+                        {app && (
+                          <span
+                            className={styles.bloomingAppPill}
+                            style={{
+                              borderColor: app.color || "#d48b38",
+                              color: app.color || "#6b5938",
+                              background: app.color ? `${app.color}18` : undefined,
+                            }}
+                          >
+                            {app.icon} {app.name}
+                          </span>
+                        )}
+                        <span className={styles.bloomingTaskTitle}>{task.title}</span>
+                        {task.priority === "urgent" && (
+                          <span className={styles.bentoUrgent} title="Urgent Priority">
+                            🔥 URGENT
+                          </span>
+                        )}
+                      </div>
+                      {task.description && (
+                        <p className={styles.bloomingDesc}>{task.description}</p>
+                      )}
+                    </div>
+
+                    <div className={styles.bloomingCardActions}>
+                      <button
+                        type="button"
+                        className={styles.bloomingHarvestBtn}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (sounds) sounds.playHarvest();
+                          updateTaskStatus(task.id, "harvested");
+                        }}
+                        title="Harvest task (Mark Done)"
+                      >
+                        🍯 Harvest
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.bloomingNoteBtn}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (sounds) sounds.playClick();
+                          setSelectedTaskForPaper(task);
+                        }}
+                        title="Open paper note"
+                      >
+                        📄 Note
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Current Quests & Checklist */}
         <div className={styles.questsContainer}>
           <div className={styles.questsHeader}>
@@ -428,6 +529,10 @@ export default function DeskView() {
                   <div
                     key={task.id}
                     className={`${styles.bentoCard} ${isDone ? styles.bentoCardDone : ""}`}
+                    style={{
+                      borderLeftColor: app?.color || undefined,
+                      borderLeftWidth: app?.color ? "4px" : undefined,
+                    }}
                     onClick={() => {
                       if (sounds) sounds.playClick();
                       setSelectedTaskForPaper(task);
@@ -482,7 +587,24 @@ export default function DeskView() {
                     <div className={styles.bentoBottomRow}>
                       <div className={styles.bentoAppPill}>
                         {app ? (
-                          <span className={styles.bentoAppName} title={app.name}>
+                          <span
+                            className={styles.bentoAppName}
+                            style={{
+                              color: app.color || undefined,
+                              fontWeight: 700,
+                            }}
+                            title={app.name}
+                          >
+                            <span
+                              style={{
+                                display: "inline-block",
+                                width: 7,
+                                height: 7,
+                                borderRadius: "50%",
+                                backgroundColor: app.color || "#8c8371",
+                                marginRight: 4,
+                              }}
+                            />
                             {app.icon} {app.name}
                           </span>
                         ) : (
@@ -512,7 +634,14 @@ export default function DeskView() {
                 const app = apps.find((a) => a.id === task.appId);
 
                 return (
-                  <div key={task.id} className={styles.questItem}>
+                  <div
+                    key={task.id}
+                    className={styles.questItem}
+                    style={{
+                      borderLeftColor: app?.color || undefined,
+                      borderLeftWidth: app?.color ? "4px" : undefined,
+                    }}
+                  >
                     <button
                       type="button"
                       className={`${styles.questCheckbox} ${isDone ? styles.questChecked : ""}`}
@@ -536,7 +665,24 @@ export default function DeskView() {
                           {task.typeLabel || task.type?.toUpperCase()}
                         </span>
                         {app && (
-                          <span className={styles.appTagPill}>
+                          <span
+                            className={styles.appTagPill}
+                            style={{
+                              borderColor: app.color || undefined,
+                              color: app.color || undefined,
+                              background: app.color ? `${app.color}15` : undefined,
+                            }}
+                          >
+                            <span
+                              style={{
+                                display: "inline-block",
+                                width: 6,
+                                height: 6,
+                                borderRadius: "50%",
+                                backgroundColor: app.color || "#8c8371",
+                                marginRight: 4,
+                              }}
+                            />
                             {app.icon} {app.name}
                           </span>
                         )}

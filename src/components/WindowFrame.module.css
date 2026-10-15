@@ -246,18 +246,22 @@
   border: 2px solid #444;
 }
 
-/* Main Content Area */
 .mainCanvas {
   background-color: var(--cozy-bg-canvas);
-  padding: 24px 32px 48px;
+  padding: 24px 32px 76px;
   flex: 1;
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
 }
 
-/* Bottom Desk Footer */
+/* Bottom Desk Footer - Locked & Fixed on Bottom */
 .deskFooter {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
   background-color: var(--cozy-terracotta);
   padding: 10px 24px;
   display: flex;
@@ -267,6 +271,7 @@
   color: #ffffff;
   user-select: none;
   width: 100%;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12);
   transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 

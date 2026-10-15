@@ -21,6 +21,7 @@ import {
   Droplets,
   Clock,
   Sparkles,
+  Tag,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -98,6 +99,10 @@ export default function DeskMenuModal({ isOpen, onClose }) {
     updateMaxWater,
     pomodoroDuration,
     updatePomodoroDuration,
+    taskCategories,
+    addCategory,
+    deleteCategory,
+    updateCategory,
     clearHarvestedTasks,
     resetDailyStats,
     exportWorkspaceData,
@@ -118,7 +123,13 @@ export default function DeskMenuModal({ isOpen, onClose }) {
   const [newAppIcon, setNewAppIcon] = useState("🌱");
   const [newAppTag, setNewAppTag] = useState("Web App");
   const [newAppColor, setNewAppColor] = useState("#5F7A49");
+  const [newAppTheme, setNewAppTheme] = useState("matcha");
   const [newAppQuota, setNewAppQuota] = useState(2);
+
+  // New Tag / Filter Form
+  const [newCatLabel, setNewCatLabel] = useState("");
+  const [newCatEmoji, setNewCatEmoji] = useState("🏷️");
+  const [newCatColor, setNewCatColor] = useState("#5F7A49");
 
   const fileInputRef = useRef(null);
 
@@ -178,13 +189,33 @@ export default function DeskMenuModal({ isOpen, onClose }) {
       name: newAppName.trim(),
       icon: newAppIcon || "🌱",
       tag: newAppTag.trim() || "Project",
-      color: newAppColor,
+      color: newAppColor || "#5F7A49",
+      theme: newAppTheme || "matcha",
       dailyTarget: Number(newAppQuota) || 2,
     });
 
     setNewAppName("");
     setNewAppTag("Web App");
+    setNewAppColor("#5F7A49");
+    setNewAppTheme("matcha");
     setNewAppQuota(2);
+  };
+
+  const handleAddCategory = (e) => {
+    e.preventDefault();
+    if (!newCatLabel.trim()) return;
+
+    const slug = newCatLabel.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-");
+    addCategory({
+      id: slug || `cat-${Date.now()}`,
+      label: newCatLabel.trim(),
+      emoji: newCatEmoji || "🏷️",
+      color: newCatColor || "#5F7A49",
+    });
+
+    setNewCatLabel("");
+    setNewCatEmoji("🏷️");
+    setNewCatColor("#5F7A49");
   };
 
   const handleFileUpload = (e) => {
@@ -239,6 +270,12 @@ export default function DeskMenuModal({ isOpen, onClose }) {
             onClick={() => handleTabChange("apps")}
           >
             <FolderKanban size={14} /> Projects & Quotas
+          </button>
+          <button
+            className={`${styles.tabBtn} ${deskMenuTab === "tags" ? styles.tabBtnActive : ""}`}
+            onClick={() => handleTabChange("tags")}
+          >
+            <Tag size={14} /> Task Filters & Tags
           </button>
           <button
             className={`${styles.tabBtn} ${deskMenuTab === "theme" ? styles.tabBtnActive : ""}`}
@@ -492,6 +529,30 @@ export default function DeskMenuModal({ isOpen, onClose }) {
                     </div>
 
                     <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                      {/* Project Theme Selector */}
+                      <select
+                        value={app.theme || "matcha"}
+                        onChange={(e) => updateApp(app.id, { theme: e.target.value })}
+                        className={styles.select}
+                        style={{ padding: "4px 8px", fontSize: "0.76rem", borderRadius: "6px", maxWidth: "115px" }}
+                        title="Project Theme (auto-applies when switching to this project)"
+                      >
+                        <option value="matcha">🍵 Matcha</option>
+                        <option value="sakura">🌸 Sakura</option>
+                        <option value="coffee">☕ Coffee</option>
+                        <option value="midnight">🌙 Midnight</option>
+                        <option value="terracotta">🍊 Sunset</option>
+                      </select>
+
+                      {/* Project Accent Color */}
+                      <input
+                        type="color"
+                        value={app.color || "#5F7A49"}
+                        onChange={(e) => updateApp(app.id, { color: e.target.value })}
+                        title="Project Identification Color (seen on cards & checklist)"
+                        style={{ width: "24px", height: "24px", border: "none", borderRadius: "50%", cursor: "pointer", background: "none" }}
+                      />
+
                       <input
                         type="number"
                         min={1}
@@ -499,7 +560,7 @@ export default function DeskMenuModal({ isOpen, onClose }) {
                         value={app.dailyTarget || 1}
                         onChange={(e) => updateApp(app.id, { dailyTarget: Number(e.target.value) || 1 })}
                         title="Daily target tasks"
-                        style={{ width: "50px", padding: "4px", borderRadius: "6px", border: "1px solid #ccc", textAlign: "center" }}
+                        style={{ width: "42px", padding: "4px", borderRadius: "6px", border: "1px solid #ccc", textAlign: "center" }}
                       />
                       {apps.length > 1 && (
                         <button
@@ -550,7 +611,7 @@ export default function DeskMenuModal({ isOpen, onClose }) {
                   </div>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "50px 1.5fr 1fr 60px auto", gap: "8px", alignItems: "center" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "48px 1.2fr 1fr 100px 36px 45px auto", gap: "8px", alignItems: "center" }}>
                   <input
                     type="text"
                     maxLength={2}
@@ -575,6 +636,26 @@ export default function DeskMenuModal({ isOpen, onClose }) {
                     value={newAppTag}
                     onChange={(e) => setNewAppTag(e.target.value)}
                   />
+                  <select
+                    value={newAppTheme}
+                    onChange={(e) => setNewAppTheme(e.target.value)}
+                    className={styles.select}
+                    style={{ padding: "6px 8px", fontSize: "0.76rem", borderRadius: "8px" }}
+                    title="Default Project Theme"
+                  >
+                    <option value="matcha">🍵 Matcha</option>
+                    <option value="sakura">🌸 Sakura</option>
+                    <option value="coffee">☕ Coffee</option>
+                    <option value="midnight">🌙 Midnight</option>
+                    <option value="terracotta">🍊 Sunset</option>
+                  </select>
+                  <input
+                    type="color"
+                    value={newAppColor}
+                    onChange={(e) => setNewAppColor(e.target.value)}
+                    title="Project Color"
+                    style={{ width: "32px", height: "32px", border: "none", borderRadius: "6px", cursor: "pointer", background: "none" }}
+                  />
                   <input
                     type="number"
                     min={1}
@@ -582,10 +663,102 @@ export default function DeskMenuModal({ isOpen, onClose }) {
                     value={newAppQuota}
                     onChange={(e) => setNewAppQuota(Number(e.target.value))}
                     title="Daily Target"
-                    style={{ width: "100%", padding: "8px 4px", borderRadius: "8px", border: "1px solid #ccc", textAlign: "center" }}
+                    style={{ width: "100%", padding: "6px 4px", borderRadius: "8px", border: "1px solid #ccc", textAlign: "center" }}
                   />
                   <button type="submit" className={styles.primaryBtn} style={{ padding: "8px 14px" }}>
                     <Plus size={15} /> Add
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* TAB: TASK FILTERS & TAGS */}
+          {deskMenuTab === "tags" && (
+            <div>
+              <div className={styles.sectionTitle}>Task Filters & Categories</div>
+              <div className={styles.sectionSubtitle}>
+                Customize quick filter tags used across your sprint board and quest creation.
+              </div>
+
+              <div style={{ marginBottom: "16px" }}>
+                {taskCategories.map((cat) => (
+                  <div key={cat.id} className={styles.shelfRow}>
+                    <div className={styles.shelfInfo}>
+                      <span style={{ fontSize: "1.2rem" }}>{cat.emoji || "🏷️"}</span>
+                      <div>
+                        <div style={{ fontWeight: 600 }}>{cat.label}</div>
+                        <div style={{ fontSize: "0.74rem", color: "#8c8371" }}>
+                          Filter Key: <code>{cat.id}</code>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                      <span
+                        style={{
+                          width: "18px",
+                          height: "18px",
+                          borderRadius: "50%",
+                          backgroundColor: cat.color || "#657d4f",
+                          display: "inline-block",
+                          border: "1px solid rgba(0,0,0,0.15)",
+                        }}
+                        title={`Color: ${cat.color}`}
+                      />
+                      {taskCategories.length > 1 && (
+                        <button
+                          type="button"
+                          className={styles.deleteBtn}
+                          onClick={() => deleteCategory(cat.id)}
+                          title="Delete tag"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add New Tag / Filter Form */}
+              <form onSubmit={handleAddCategory} style={{ background: "#faf7ef", padding: "14px", borderRadius: "12px", border: "1px dashed #dcd3be" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                  <span style={{ fontSize: "0.84rem", fontWeight: 700, color: "#4f633d" }}>
+                    + Add New Category Filter
+                  </span>
+                  <span style={{ fontSize: "0.74rem", color: "#8c8371" }}>
+                    Icon: <strong style={{ fontSize: "1rem" }}>{newCatEmoji}</strong>
+                  </span>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "50px 1.5fr 40px auto", gap: "8px", alignItems: "center" }}>
+                  <input
+                    type="text"
+                    maxLength={2}
+                    className={styles.input}
+                    value={newCatEmoji}
+                    onChange={(e) => setNewCatEmoji(e.target.value)}
+                    title="Emoji icon"
+                    style={{ textAlign: "center", fontSize: "1.15rem", padding: "6px" }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Filter Name (e.g. DevOps, Database, Design)"
+                    className={styles.input}
+                    value={newCatLabel}
+                    onChange={(e) => setNewCatLabel(e.target.value)}
+                    required
+                  />
+                  <input
+                    type="color"
+                    value={newCatColor}
+                    onChange={(e) => setNewCatColor(e.target.value)}
+                    title="Tag Badge Color"
+                    style={{ width: "36px", height: "36px", border: "none", borderRadius: "8px", cursor: "pointer", background: "none" }}
+                  />
+                  <button type="submit" className={styles.primaryBtn} style={{ padding: "8px 14px" }}>
+                    <Plus size={15} /> Add Tag
                   </button>
                 </div>
               </form>

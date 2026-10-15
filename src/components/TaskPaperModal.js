@@ -33,14 +33,14 @@ export default function TaskPaperModal({ task, isOpen, onClose, initialEditMode 
 }
 
 function TaskPaperContent({ task, onClose, initialEditMode = false }) {
-  const { apps, updateTask, deleteTask, updateTaskStatus } = useTaskManager();
+  const { apps, updateTask, deleteTask, updateTaskStatus, taskCategories } = useTaskManager();
 
   const [isEditing, setIsEditing] = useState(initialEditMode);
   const [title, setTitle] = useState(task?.title || "");
   const [description, setDescription] = useState(task?.description || "");
   const [appId, setAppId] = useState(task?.appId || (apps[0]?.id || ""));
   const [priority, setPriority] = useState(task?.priority || "normal");
-  const [type, setType] = useState(task?.type || "sprint");
+  const [type, setType] = useState(task?.type || "ui-flower");
   const [status, setStatus] = useState(task?.status || "sprouting");
   const [teacups, setTeacups] = useState(task?.teacups || 1);
 
@@ -68,12 +68,15 @@ function TaskPaperContent({ task, onClose, initialEditMode = false }) {
     e.preventDefault();
     if (!title.trim()) return;
 
+    const matchedCat = taskCategories?.find((c) => c.id === type);
+
     updateTask(task.id, {
       title: title.trim(),
       description: description.trim(),
       appId,
       priority,
       type,
+      typeLabel: matchedCat ? matchedCat.label : type.toUpperCase(),
       status,
       teacups: Number(teacups),
     });
@@ -351,12 +354,19 @@ function TaskPaperContent({ task, onClose, initialEditMode = false }) {
                     onChange={(e) => setType(e.target.value)}
                     className={styles.paperSelect}
                   >
-                    <option value="sprint">Sprint Quest</option>
-                    <option value="backend">Backend Logic ⚡</option>
-                    <option value="bugfix">Bug Squash 🐞</option>
-                    <option value="ui-flower">UI Flower 🌸</option>
-                    <option value="polish">Polish / Clean ✨</option>
-                    <option value="rest">Mindful Rest ☕</option>
+                    {taskCategories && taskCategories.length > 0 ? (
+                      taskCategories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.emoji} {cat.label}
+                        </option>
+                      ))
+                    ) : (
+                      <>
+                        <option value="ui-flower">🌸 Front-End Petals</option>
+                        <option value="backend">🥕 Backend Roots</option>
+                        <option value="bugfix">🐞 Bug Squash</option>
+                      </>
+                    )}
                   </select>
                 </div>
 

@@ -6,7 +6,7 @@ import { useTaskManager } from "@/context/TaskContext";
 import { sounds } from "@/utils/audio";
 import NewTaskModal from "@/components/NewTaskModal";
 import TaskPaperModal from "@/components/TaskPaperModal";
-import { Plus, ArrowRight, ArrowLeft, Trash2, CheckCircle } from "lucide-react";
+import { Plus, ArrowRight, ArrowLeft, Trash2 } from "lucide-react";
 
 export default function SprintView() {
   const {
@@ -16,6 +16,8 @@ export default function SprintView() {
     deleteTask,
     selectedAppId,
     setSelectedAppId,
+    selectAppWithTheme,
+    taskCategories,
   } = useTaskManager();
 
   const [activeFilter, setActiveFilter] = useState("all");
@@ -27,14 +29,11 @@ export default function SprintView() {
     setSelectedTaskForPaper(task);
   };
 
-  // Filter tasks by selected app and category
+  // Filter tasks by selected app and dynamic category
   const filteredTasks = tasks.filter((t) => {
     if (selectedAppId !== "all" && t.appId !== selectedAppId) return false;
     if (activeFilter === "all") return true;
-    if (activeFilter === "frontend" && (t.type === "ui-flower" || t.type === "polish")) return true;
-    if (activeFilter === "backend" && t.type === "backend") return true;
-    if (activeFilter === "bugfix" && t.type === "bugfix") return true;
-    return true;
+    return t.type === activeFilter;
   });
 
   const sproutingTasks = filteredTasks.filter((t) => t.status === "sprouting");
@@ -47,16 +46,23 @@ export default function SprintView() {
 
   const currentAppObj = apps.find((a) => a.id === selectedAppId);
 
+  // Helper to switch app and project theme
+  const handleSelectApp = (appId) => {
+    if (sounds) sounds.playClick();
+    if (typeof selectAppWithTheme === "function") {
+      selectAppWithTheme(appId);
+    } else {
+      setSelectedAppId(appId);
+    }
+  };
+
   return (
     <div className={styles.sprintContainer}>
-      {/* Multi-App Filter Bar */}
+      {/* Multi-App Filter Bar with Theme Association */}
       <div className={styles.appTabsBar}>
         <button
           className={`${styles.appTabBtn} ${selectedAppId === "all" ? styles.appTabBtnActive : ""}`}
-          onClick={() => {
-            if (sounds) sounds.playClick();
-            setSelectedAppId("all");
-          }}
+          onClick={() => handleSelectApp("all")}
         >
           <span>🌐</span> All Apps & Portals ({tasks.length})
         </button>
@@ -66,9 +72,10 @@ export default function SprintView() {
             <button
               key={app.id}
               className={`${styles.appTabBtn} ${selectedAppId === app.id ? styles.appTabBtnActive : ""}`}
-              onClick={() => {
-                if (sounds) sounds.playClick();
-                setSelectedAppId(app.id);
+              onClick={() => handleSelectApp(app.id)}
+              style={{
+                borderLeftColor: app.color || undefined,
+                borderLeftWidth: app.color ? "3px" : undefined,
               }}
             >
               <span>{app.icon}</span> {app.name} ({count})
@@ -116,7 +123,7 @@ export default function SprintView() {
           </div>
         </div>
 
-        {/* Quick Filters Card */}
+        {/* Quick Filters Card (Dynamic from Desk Menu categories) */}
         <div className={styles.quickFiltersCard}>
           <div className={styles.filterHeader}>
             <span>🍓 Quick Filters</span>
@@ -137,29 +144,52 @@ export default function SprintView() {
             >
               all tasks ({totalFiltered})
             </button>
-            <button
-              className={`${styles.filterBtn} ${activeFilter === "frontend" ? styles.filterBtnActive : ""}`}
-              onClick={() => setActiveFilter("frontend")}
-            >
-              🌸 front-end petals
-            </button>
-            <button
-              className={`${styles.filterBtn} ${activeFilter === "backend" ? styles.filterBtnActive : ""}`}
-              onClick={() => setActiveFilter("backend")}
-            >
-              🥕 backend roots
-            </button>
-            <button
-              className={`${styles.filterBtn} ${activeFilter === "bugfix" ? styles.filterBtnActive : ""}`}
-              onClick={() => setActiveFilter("bugfix")}
-            >
-              🐞 bug squash
-            </button>
+            {taskCategories && taskCategories.map((cat) => {
+              const count = tasks.filter(
+                (t) => (selectedAppId === "all" || t.appId === selectedAppId) && t.type === cat.id
+              ).length;
+              return (
+                <button
+                  key={cat.id}
+                  className={`${styles.filterBtn} ${activeFilter === cat.id ? styles.filterBtnActive : ""}`}
+                  onClick={() => setActiveFilter(cat.id)}
+                >
+                  <span>{cat.icon}</span> {cat.label} ({count})
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      {/* 3-Column Kanban Board */}
+      {/* Prominent Action Bar above columns with Special Seed Button */}
+      <div className={styles.boardTopBar}>
+        <div className={styles.boardStatusPills}>
+          <span className={styles.statusPill}>
+            🌱 Sprouting: <strong>{sproutingTasks.length}</strong>
+          </span>
+          <span className={styles.statusPill}>
+            🌻 In Bloom: <strong>{inBloomTasks.length}</strong>
+          </span>
+          <span className={styles.statusPill}>
+            🍯 Harvested: <strong>{harvestedTasks.length}</strong>
+          </span>
+        </div>
+
+        <button
+          className={styles.specialPlantSeedBtn}
+          onClick={() => {
+            if (sounds) sounds.playClick();
+            setIsModalOpen(true);
+          }}
+          title="Plant a new seed / quest"
+        >
+          <Plus size={16} />
+          <span>+ plant new seed</span>
+        </button>
+      </div>
+
+      {/* 3-Column Minimal Kanban Board with Independent Column Scroll */}
       <div className={styles.kanbanGrid}>
         {/* Column 1: Sprouting (To Do) */}
         <div className={styles.kanbanCol}>
@@ -174,68 +204,55 @@ export default function SprintView() {
             {sproutingTasks.length === 0 ? (
               <div className={styles.emptyColMessage}>No sprouting tasks yet 🌱</div>
             ) : (
-              sproutingTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className={styles.taskCard}
-                  onClick={() => handleOpenPaper(task)}
-                  style={{ cursor: "pointer" }}
-                  title="Click to view full paper note & details"
-                >
-                  <div className={styles.cardTop}>
-                    <span
-                      className={styles.badgeTag}
-                      style={{
-                        background: task.priority === "urgent" ? "#d9534f" : "#657d4f",
-                        color: "#fff",
-                      }}
-                    >
-                      {task.priority === "urgent" ? "🔥 URGENT" : task.typeLabel || task.type}
-                    </span>
-                    <span className={styles.ticketId}>{task.ticketNumber}</span>
-                  </div>
+              sproutingTasks.map((task) => {
+                const app = apps.find((a) => a.id === task.appId);
+                return (
+                  <div
+                    key={task.id}
+                    className={styles.minimalTaskCard}
+                    onClick={() => handleOpenPaper(task)}
+                    title="Click to view full paper note & details"
+                  >
+                    <div className={styles.minimalLeft}>
+                      <span
+                        className={styles.minimalAppDot}
+                        style={{ backgroundColor: app?.color || "#8c8371" }}
+                        title={app?.name ? `Project: ${app.name}` : "Workspace task"}
+                      />
+                      {task.priority === "urgent" && (
+                        <span className={styles.urgentFire} title="Urgent Priority">🔥</span>
+                      )}
+                      <span className={styles.minimalTitle}>{task.title}</span>
+                    </div>
 
-                  <div className={styles.cardTitle}>{task.title}</div>
-                  {task.description && <div className={styles.cardDesc}>{task.description}</div>}
-
-                  <div className={styles.cardFooter}>
-                    <span>{"🍵".repeat(task.teacups || 1)}</span>
-                    <div className={styles.cardActions}>
+                    <div className={styles.minimalActions}>
                       <button
-                        className={styles.paperBtn}
+                        type="button"
+                        className={styles.miniNoteBtn}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleOpenPaper(task);
                         }}
-                        title="Open paper note & edit details"
+                        title="Open paper note"
                       >
                         📄 Note
                       </button>
                       <button
-                        className={styles.actionBtn}
+                        type="button"
+                        className={styles.miniActionBtn}
                         onClick={(e) => {
                           e.stopPropagation();
                           updateTaskStatus(task.id, "in-bloom");
                         }}
                         title="Move to In Bloom"
                       >
-                        Bloom <ArrowRight size={12} style={{ display: "inline" }} />
+                        Bloom <ArrowRight size={11} style={{ display: "inline" }} />
                       </button>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
-
-            <button
-              className={styles.addSeedBtn}
-              onClick={() => {
-                if (sounds) sounds.playClick();
-                setIsModalOpen(true);
-              }}
-            >
-              + plant new seed
-            </button>
           </div>
         </div>
 
@@ -252,55 +269,56 @@ export default function SprintView() {
             {inBloomTasks.length === 0 ? (
               <div className={styles.emptyColMessage}>No tasks currently in bloom 🌻</div>
             ) : (
-              inBloomTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className={styles.taskCard}
-                  onClick={() => handleOpenPaper(task)}
-                  style={{ cursor: "pointer" }}
-                  title="Click to view full paper note & details"
-                >
-                  <div className={styles.cardTop}>
-                    <span
-                      className={styles.badgeTag}
-                      style={{ background: "#d48b38", color: "#fff" }}
-                    >
-                      {task.typeLabel || task.type}
-                    </span>
-                    <span className={styles.ticketId}>{task.ticketNumber}</span>
-                  </div>
+              inBloomTasks.map((task) => {
+                const app = apps.find((a) => a.id === task.appId);
+                return (
+                  <div
+                    key={task.id}
+                    className={`${styles.minimalTaskCard} ${styles.minimalCardBloom}`}
+                    onClick={() => handleOpenPaper(task)}
+                    title="Click to view full paper note & details"
+                  >
+                    <div className={styles.minimalLeft}>
+                      <span
+                        className={styles.minimalAppDot}
+                        style={{ backgroundColor: app?.color || "#d48b38" }}
+                        title={app?.name ? `Project: ${app.name}` : "Workspace task"}
+                      />
+                      {task.priority === "urgent" && (
+                        <span className={styles.urgentFire} title="Urgent Priority">🔥</span>
+                      )}
+                      <span className={styles.minimalTitle}>{task.title}</span>
+                    </div>
 
-                  <div className={styles.cardTitle}>{task.title}</div>
-                  {task.description && <div className={styles.cardDesc}>{task.description}</div>}
-
-                  <div className={styles.cardFooter}>
-                    <span>🧸 sprout bear</span>
-                    <div className={styles.cardActions}>
+                    <div className={styles.minimalActions}>
                       <button
-                        className={styles.paperBtn}
+                        type="button"
+                        className={styles.miniNoteBtn}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleOpenPaper(task);
                         }}
-                        title="Open paper note & edit details"
+                        title="Open paper note"
                       >
                         📄 Note
                       </button>
                       <button
-                        className={styles.actionBtn}
+                        type="button"
+                        className={styles.miniActionBtn}
                         onClick={(e) => {
                           e.stopPropagation();
                           updateTaskStatus(task.id, "sprouting");
                         }}
-                        title="Move back"
+                        title="Move back to Sprouting"
                       >
-                        <ArrowLeft size={12} style={{ display: "inline" }} />
+                        <ArrowLeft size={11} style={{ display: "inline" }} />
                       </button>
                       <button
-                        className={styles.actionBtn}
-                        style={{ background: "#657d4f", color: "#fff" }}
+                        type="button"
+                        className={`${styles.miniActionBtn} ${styles.miniHarvestBtn}`}
                         onClick={(e) => {
                           e.stopPropagation();
+                          if (sounds) sounds.playHarvest();
                           updateTaskStatus(task.id, "harvested");
                         }}
                         title="Harvest task"
@@ -309,8 +327,8 @@ export default function SprintView() {
                       </button>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
 
             <div className={styles.colTip}>
@@ -332,44 +350,41 @@ export default function SprintView() {
             {harvestedTasks.length === 0 ? (
               <div className={styles.emptyColMessage}>No harvested tasks yet 🍯</div>
             ) : (
-              harvestedTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className={styles.taskCard}
-                  onClick={() => handleOpenPaper(task)}
-                  style={{ opacity: 0.85, cursor: "pointer" }}
-                  title="Click to view full paper note & details"
-                >
-                  <div className={styles.cardTop}>
-                    <span
-                      className={styles.badgeTag}
-                      style={{ background: "#657d4f", color: "#fff" }}
-                    >
-                      ✓ DONE
-                    </span>
-                    <span className={styles.ticketId}>{task.ticketNumber}</span>
-                  </div>
+              harvestedTasks.map((task) => {
+                const app = apps.find((a) => a.id === task.appId);
+                return (
+                  <div
+                    key={task.id}
+                    className={`${styles.minimalTaskCard} ${styles.minimalCardHarvested}`}
+                    onClick={() => handleOpenPaper(task)}
+                    title="Click to view full paper note & details"
+                  >
+                    <div className={styles.minimalLeft}>
+                      <span
+                        className={styles.minimalAppDot}
+                        style={{ backgroundColor: app?.color || "#657d4f" }}
+                        title={app?.name ? `Project: ${app.name}` : "Workspace task"}
+                      />
+                      <span className={`${styles.minimalTitle} ${styles.harvestedTitle}`}>
+                        {task.title}
+                      </span>
+                    </div>
 
-                  <div className={styles.cardTitle} style={{ textDecoration: "line-through" }}>
-                    {task.title}
-                  </div>
-                  {task.description && <div className={styles.cardDesc}>{task.description}</div>}
-
-                  <div className={styles.cardFooter}>
-                    <span>✨ harvested</span>
-                    <div className={styles.cardActions}>
+                    <div className={styles.minimalActions}>
                       <button
-                        className={styles.paperBtn}
+                        type="button"
+                        className={styles.miniNoteBtn}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleOpenPaper(task);
                         }}
-                        title="Open paper note & edit details"
+                        title="Open paper note"
                       >
                         📄 Note
                       </button>
                       <button
-                        className={styles.actionBtn}
+                        type="button"
+                        className={styles.miniActionBtn}
                         onClick={(e) => {
                           e.stopPropagation();
                           updateTaskStatus(task.id, "in-bloom");
@@ -379,20 +394,20 @@ export default function SprintView() {
                         Reopen
                       </button>
                       <button
-                        className={styles.actionBtn}
-                        style={{ color: "#d9534f" }}
+                        type="button"
+                        className={`${styles.miniActionBtn} ${styles.miniDeleteBtn}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           deleteTask(task.id);
                         }}
                         title="Delete"
                       >
-                        <Trash2 size={12} />
+                        <Trash2 size={11} />
                       </button>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>

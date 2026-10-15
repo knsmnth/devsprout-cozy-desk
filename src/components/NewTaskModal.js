@@ -6,13 +6,13 @@ import { useTaskManager } from "@/context/TaskContext";
 import { X } from "lucide-react";
 
 export default function NewTaskModal({ isOpen, onClose }) {
-  const { apps, addTask } = useTaskManager();
+  const { apps, addTask, taskCategories } = useTaskManager();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedAppId, setSelectedAppId] = useState("");
   const [priority, setPriority] = useState("normal");
-  const [type, setType] = useState("sprint");
+  const [type, setType] = useState(taskCategories?.[0]?.id || "ui-flower");
   const [teacups, setTeacups] = useState(1);
 
   const activeAppId =
@@ -26,13 +26,15 @@ export default function NewTaskModal({ isOpen, onClose }) {
     e.preventDefault();
     if (!title.trim()) return;
 
+    const matchedCat = taskCategories?.find((c) => c.id === type);
+
     addTask({
       title: title.trim(),
       description: description.trim(),
       appId: activeAppId,
       priority,
       type,
-      typeLabel: type.toUpperCase(),
+      typeLabel: matchedCat ? matchedCat.label : type.toUpperCase(),
       teacups: Number(teacups),
       status: "sprouting",
     });
@@ -115,12 +117,19 @@ export default function NewTaskModal({ isOpen, onClose }) {
                 onChange={(e) => setType(e.target.value)}
                 className={styles.select}
               >
-                <option value="sprint">Sprint Quest</option>
-                <option value="bugfix">Bug Squash 🐛</option>
-                <option value="backend">Backend Logic ⚡</option>
-                <option value="ui-flower">UI Flower 🌸</option>
-                <option value="polish">Polish / Clean ✨</option>
-                <option value="rest">Mindful Rest ☕</option>
+                {taskCategories && taskCategories.length > 0 ? (
+                  taskCategories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.emoji} {cat.label}
+                    </option>
+                  ))
+                ) : (
+                  <>
+                    <option value="ui-flower">🌸 Front-End Petals</option>
+                    <option value="backend">🥕 Backend Roots</option>
+                    <option value="bugfix">🐞 Bug Squash</option>
+                  </>
+                )}
               </select>
             </div>
           </div>

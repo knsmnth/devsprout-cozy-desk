@@ -13,9 +13,18 @@ const DEFAULT_APPS = [
     icon: "🌱",
     tag: "Core",
     color: "#5F7A49",
+    theme: "matcha",
     dailyTarget: 2,
     description: "Personal dev workspace & quests.",
   },
+];
+
+const DEFAULT_CATEGORIES = [
+  { id: "ui-flower", label: "Front-End Petals", emoji: "🌸", color: "#78995a" },
+  { id: "backend", label: "Backend Roots", emoji: "🥕", color: "#d48b38" },
+  { id: "bugfix", label: "Bug Squash", emoji: "🐞", color: "#e26d5c" },
+  { id: "polish", label: "Polish & Clean", emoji: "✨", color: "#70a9a1" },
+  { id: "rest", label: "Mindful Rest", emoji: "☕", color: "#6d849b" },
 ];
 
 const INITIAL_TASKS = [];
@@ -70,6 +79,7 @@ export function TaskProvider({ children }) {
   // App & Task State
   const [apps, setApps] = useState(DEFAULT_APPS);
   const [tasks, setTasks] = useState(INITIAL_TASKS);
+  const [taskCategories, setTaskCategories] = useState(DEFAULT_CATEGORIES);
   const [waterCups, setWaterCups] = useState(0);
   const [maxWaterCups, setMaxWaterCups] = useState(5);
 
@@ -155,6 +165,13 @@ export function TaskProvider({ children }) {
       const savedLearnings = localStorage.getItem("devsprout_learnings");
       if (savedLearnings) setLearnings(JSON.parse(savedLearnings));
 
+      const savedCategories = localStorage.getItem("devsprout_categories");
+      if (savedCategories) {
+        try {
+          setTaskCategories(JSON.parse(savedCategories));
+        } catch {}
+      }
+
       const savedLogs = localStorage.getItem("devsprout_session_logs");
       if (savedLogs) setSessionLogs(JSON.parse(savedLogs));
     } catch {
@@ -236,6 +253,12 @@ export function TaskProvider({ children }) {
       localStorage.setItem("devsprout_session_logs", JSON.stringify(sessionLogs));
     } catch {}
   }, [sessionLogs]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("devsprout_categories", JSON.stringify(taskCategories));
+    } catch {}
+  }, [taskCategories]);
 
   const handlePomodoroComplete = useCallback(() => {
     if (sounds) sounds.playBellChime();
@@ -431,6 +454,43 @@ export function TaskProvider({ children }) {
     if (sounds) sounds.playClick();
   };
 
+  // Task Category / Filter Management
+  const addCategory = (newCat) => {
+    const id = newCat.id || `cat-${Date.now()}`;
+    const category = {
+      id,
+      label: newCat.label || "New Tag",
+      emoji: newCat.emoji || "🏷️",
+      color: newCat.color || "#657d4f",
+    };
+    setTaskCategories((prev) => [...prev, category]);
+    if (sounds) sounds.playPop();
+  };
+
+  const deleteCategory = (catId) => {
+    if (taskCategories.length <= 1) return;
+    setTaskCategories((prev) => prev.filter((c) => c.id !== catId));
+    if (sounds) sounds.playClick();
+  };
+
+  const updateCategory = (catId, updates) => {
+    setTaskCategories((prev) =>
+      prev.map((c) => (c.id === catId ? { ...c, ...updates } : c))
+    );
+    if (sounds) sounds.playPop();
+  };
+
+  // Select App with optional theme switching
+  const selectAppWithTheme = (appId) => {
+    setSelectedAppId(appId);
+    if (appId !== "all") {
+      const app = apps.find((a) => a.id === appId);
+      if (app && app.theme) {
+        updateTheme(app.theme);
+      }
+    }
+  };
+
   // Theme & Audio Controls
   const updateTheme = (newTheme) => {
     setTheme(newTheme);
@@ -604,11 +664,17 @@ export function TaskProvider({ children }) {
         toggleAudio,
         updateMaxWater,
         updatePomodoroDuration,
+        // Categories & Custom Filters
+        taskCategories,
+        addCategory,
+        updateCategory,
+        deleteCategory,
         // Apps & Tasks
         apps,
         addApp,
         updateApp,
         deleteApp,
+        selectAppWithTheme,
         tasks,
         addTask,
         updateTask,

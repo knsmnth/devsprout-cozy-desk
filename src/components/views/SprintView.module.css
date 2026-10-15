@@ -211,6 +211,65 @@
   border-color: var(--cozy-green-dark);
 }
 
+/* Prominent Board Top Bar */
+.boardTopBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.boardStatusPills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.statusPill {
+  background: var(--cozy-bg-card);
+  border: 1px solid var(--cozy-border-soft);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 0.76rem;
+  color: var(--cozy-text-dark);
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.statusPill strong {
+  color: var(--cozy-green-header);
+  font-weight: 700;
+}
+
+.specialPlantSeedBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  background: var(--cozy-green-header);
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 1.5px solid var(--cozy-green-dark);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(101, 125, 79, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.specialPlantSeedBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(101, 125, 79, 0.38);
+  filter: brightness(1.06);
+}
+
+.specialPlantSeedBtn:active {
+  transform: translateY(0);
+}
+
 /* 3-Column Kanban Board */
 .kanbanGrid {
   display: grid;
@@ -226,7 +285,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-height: 480px;
+  min-height: 440px;
   transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
@@ -265,11 +324,163 @@
 .cardsList {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   flex: 1;
+  max-height: calc(100vh - 310px);
+  min-height: 260px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #dcd4c0 transparent;
 }
 
-/* Kanban Task Card */
+.cardsList::-webkit-scrollbar {
+  width: 5px;
+}
+
+.cardsList::-webkit-scrollbar-thumb {
+  background: #dcd4c0;
+  border-radius: 4px;
+}
+
+/* Minimal Title-Only Kanban Task Card */
+.minimalTaskCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #ffffff;
+  border: 1.5px solid #e7dfcd;
+  border-radius: 10px;
+  padding: 8px 10px;
+  min-height: 40px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.minimalTaskCard:hover {
+  transform: translateY(-1px);
+  border-color: #baa788;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+}
+
+.minimalCardBloom {
+  background: #fffdf9;
+  border-color: #eedcc0;
+}
+
+.minimalCardHarvested {
+  opacity: 0.85;
+  background: #fbf9f4;
+}
+
+.minimalLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.minimalAppDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.08);
+}
+
+.urgentFire {
+  font-size: 0.82rem;
+  flex-shrink: 0;
+}
+
+.minimalTitle {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #3e382f;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+}
+
+.harvestedTitle {
+  text-decoration: line-through;
+  color: #8c8371;
+}
+
+.minimalActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.miniNoteBtn {
+  font-size: 0.7rem;
+  padding: 3px 6px;
+  border-radius: 5px;
+  background: #faf7ef;
+  border: 1px solid #dcd1bb;
+  color: #5c5039;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.miniNoteBtn:hover {
+  background: #f0e6cf;
+  border-color: #baa788;
+}
+
+.miniActionBtn {
+  font-size: 0.7rem;
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: #ebe4d5;
+  color: #4a4336;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.miniActionBtn:hover {
+  background: var(--cozy-green-header);
+  color: #ffffff;
+}
+
+.miniHarvestBtn {
+  background: #eef5e6;
+  color: #4a6635;
+  border: 1px solid #bdd4a8;
+}
+
+.miniHarvestBtn:hover {
+  background: #657d4f !important;
+  color: #ffffff !important;
+  border-color: #657d4f !important;
+}
+
+.miniDeleteBtn {
+  background: transparent;
+  color: #b85c5c;
+  padding: 3px 5px;
+}
+
+.miniDeleteBtn:hover {
+  background: #fde8e8 !important;
+  color: #d9534f !important;
+}
+
+/* Kanban Task Card (Legacy fallback) */
 .taskCard {
   background: #fbf9f4;
   border: 1.5px solid #e5decb;
