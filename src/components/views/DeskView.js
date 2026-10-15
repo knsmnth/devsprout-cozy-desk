@@ -42,13 +42,21 @@ export default function DeskView() {
   const [selectedTaskForPaper, setSelectedTaskForPaper] = useState(null);
   const [questViewMode, setQuestViewMode] = useState("bento"); // 'bento' | 'list'
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(8); // at least 8-10 quests per page
 
-  // Restore saved view preference
+  // Restore saved view and page size preferences
   useEffect(() => {
     try {
       const savedMode = localStorage.getItem("devsprout_quest_view_mode");
       if (savedMode === "bento" || savedMode === "list") {
         setQuestViewMode(savedMode);
+      }
+      const savedSize = localStorage.getItem("devsprout_quest_page_size");
+      if (savedSize) {
+        const num = parseInt(savedSize, 10);
+        if (num === 8 || num === 10) {
+          setItemsPerPage(num);
+        }
       }
     } catch (e) {
       // ignore storage errors
@@ -64,8 +72,16 @@ export default function DeskView() {
     } catch (e) {}
   };
 
-  // Pagination calculations: 4 items per page for cute bite-sized bento box layout
-  const itemsPerPage = 4;
+  const handlePageSizeChange = (size) => {
+    if (sounds) sounds.playClick();
+    setItemsPerPage(size);
+    setCurrentPage(1);
+    try {
+      localStorage.setItem("devsprout_quest_page_size", String(size));
+    } catch (e) {}
+  };
+
+  // Pagination calculations: 8-10 items per page
   const totalPages = Math.max(1, Math.ceil(tasks.length / itemsPerPage));
   const safePage = Math.min(Math.max(1, currentPage), totalPages);
   const paginatedTasks = tasks.slice((safePage - 1) * itemsPerPage, safePage * itemsPerPage);
@@ -565,7 +581,7 @@ export default function DeskView() {
           )}
 
           {/* Cute Page-by-Page Pagination Bar */}
-          {tasks.length > 0 && totalPages > 1 && (
+          {tasks.length > 0 && (
             <div className={styles.paginationRow}>
               <div className={styles.pageInfo}>
                 <span className={styles.pageInfoIcon}>🌱</span>
@@ -573,61 +589,81 @@ export default function DeskView() {
                   Page <strong>{safePage}</strong> of <strong>{totalPages}</strong>
                   <span className={styles.pageInfoCount}>({tasks.length} total)</span>
                 </span>
-              </div>
 
-              <div className={styles.paginationBtns}>
-                <button
-                  type="button"
-                  className={styles.pageNavBtn}
-                  onClick={() => {
-                    if (safePage > 1) {
-                      if (sounds) sounds.playClick();
-                      setCurrentPage((p) => Math.max(1, p - 1));
-                    }
-                  }}
-                  disabled={safePage <= 1}
-                  title="Previous Page"
-                >
-                  <ChevronLeft size={14} />
-                  <span>Prev</span>
-                </button>
-
-                <div className={styles.pagePills}>
-                  {Array.from({ length: totalPages }, (_, idx) => {
-                    const pageNum = idx + 1;
-                    const isActive = pageNum === safePage;
-                    return (
+                {/* Per Page Selector: 8 or 10 */}
+                <div className={styles.pageSizeWrapper}>
+                  <span className={styles.pageSizeLabel}>Per page:</span>
+                  <div className={styles.pageSizePills}>
+                    {[8, 10].map((size) => (
                       <button
-                        key={pageNum}
+                        key={size}
                         type="button"
-                        className={`${styles.pagePill} ${isActive ? styles.pagePillActive : ""}`}
-                        onClick={() => {
-                          if (sounds) sounds.playClick();
-                          setCurrentPage(pageNum);
-                        }}
+                        className={`${styles.pageSizeBtn} ${itemsPerPage === size ? styles.pageSizeBtnActive : ""}`}
+                        onClick={() => handlePageSizeChange(size)}
+                        title={`Show ${size} quests per page`}
                       >
-                        {pageNum}
+                        {size}
                       </button>
-                    );
-                  })}
+                    ))}
+                  </div>
                 </div>
-
-                <button
-                  type="button"
-                  className={styles.pageNavBtn}
-                  onClick={() => {
-                    if (safePage < totalPages) {
-                      if (sounds) sounds.playClick();
-                      setCurrentPage((p) => Math.min(totalPages, p + 1));
-                    }
-                  }}
-                  disabled={safePage >= totalPages}
-                  title="Next Page"
-                >
-                  <span>Next</span>
-                  <ChevronRight size={14} />
-                </button>
               </div>
+
+              {totalPages > 1 && (
+                <div className={styles.paginationBtns}>
+                  <button
+                    type="button"
+                    className={styles.pageNavBtn}
+                    onClick={() => {
+                      if (safePage > 1) {
+                        if (sounds) sounds.playClick();
+                        setCurrentPage((p) => Math.max(1, p - 1));
+                      }
+                    }}
+                    disabled={safePage <= 1}
+                    title="Previous Page"
+                  >
+                    <ChevronLeft size={14} />
+                    <span>Prev</span>
+                  </button>
+
+                  <div className={styles.pagePills}>
+                    {Array.from({ length: totalPages }, (_, idx) => {
+                      const pageNum = idx + 1;
+                      const isActive = pageNum === safePage;
+                      return (
+                        <button
+                          key={pageNum}
+                          type="button"
+                          className={`${styles.pagePill} ${isActive ? styles.pagePillActive : ""}`}
+                          onClick={() => {
+                            if (sounds) sounds.playClick();
+                            setCurrentPage(pageNum);
+                          }}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    type="button"
+                    className={styles.pageNavBtn}
+                    onClick={() => {
+                      if (safePage < totalPages) {
+                        if (sounds) sounds.playClick();
+                        setCurrentPage((p) => Math.min(totalPages, p + 1));
+                      }
+                    }}
+                    disabled={safePage >= totalPages}
+                    title="Next Page"
+                  >
+                    <span>Next</span>
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
