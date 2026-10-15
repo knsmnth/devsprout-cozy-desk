@@ -449,8 +449,8 @@
 
 /* Currently Blooming / In Focus Spotlight */
 .bloomingSpotlight {
-  background: #fffdf7;
-  border: 1.5px solid #ebd9b8;
+  background: var(--cozy-bg-warm);
+  border: 1.5px solid var(--cozy-border-soft);
   border-radius: var(--radius-card);
   padding: 14px 16px;
   box-shadow: var(--shadow-card);
@@ -459,6 +459,7 @@
   gap: 10px;
   position: relative;
   overflow: hidden;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
 .bloomingHeader {
@@ -466,7 +467,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  border-bottom: 1.5px dashed #ebd9b8;
+  border-bottom: 1.5px dashed var(--cozy-dashed-border);
   padding-bottom: 8px;
 }
 
@@ -476,7 +477,7 @@
   gap: 8px;
   font-size: 0.88rem;
   font-weight: 700;
-  color: #5c431d;
+  color: var(--cozy-text-dark);
 }
 
 .bloomingPulsingIcon {
@@ -486,19 +487,20 @@
 }
 
 .bloomingBadge {
-  background: #fdf3d8;
-  border: 1px solid #e8c880;
-  color: #8f6016;
+  background: var(--cozy-green-light);
+  border: 1px solid var(--cozy-green-border);
+  color: var(--cozy-green-dark);
   font-size: 0.7rem;
   font-weight: 700;
   padding: 2px 8px;
   border-radius: 9999px;
+  transition: all 0.25s ease;
 }
 
 .sprintJumpBtn {
   background: transparent;
-  border: 1px solid #d5c09a;
-  color: #73592c;
+  border: 1px solid var(--cozy-border-soft);
+  color: var(--cozy-text-muted);
   font-size: 0.74rem;
   font-weight: 700;
   padding: 3px 10px;
@@ -508,8 +510,9 @@
 }
 
 .sprintJumpBtn:hover {
-  background: #fbf2dc;
-  border-color: #baa074;
+  background: var(--cozy-bg-card);
+  border-color: var(--cozy-border-hard);
+  color: var(--cozy-text-dark);
 }
 
 .bloomingCardsList {
@@ -520,7 +523,7 @@
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-width: thin;
-  scrollbar-color: #e5d6bc transparent;
+  scrollbar-color: var(--cozy-border-soft) transparent;
 }
 
 .bloomingCardsList::-webkit-scrollbar {
@@ -528,7 +531,7 @@
 }
 
 .bloomingCardsList::-webkit-scrollbar-thumb {
-  background: #e5d6bc;
+  background: var(--cozy-border-soft);
   border-radius: 4px;
 }
 
@@ -537,8 +540,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  background: #ffffff;
-  border: 1.5px solid #eee2cc;
+  background: var(--cozy-bg-card);
+  border: 1.5px solid var(--cozy-border-soft);
   border-radius: 12px;
   padding: 9px 12px;
   cursor: pointer;
@@ -548,7 +551,7 @@
 
 .bloomingCard:hover {
   transform: translateY(-1px);
-  border-color: #d6be96;
+  border-color: var(--cozy-border-hard);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
 }
 
@@ -778,13 +781,13 @@
 }
 
 .bentoCardDone {
-  background: #f4f8f0;
-  border-color: #d0e0c8;
+  background: var(--cozy-green-subtle);
+  border-color: var(--cozy-green-border);
   opacity: 0.85;
 }
 
 .bentoCardDone:hover {
-  background: #edf5e8;
+  background: var(--cozy-green-light);
 }
 
 .bentoTopRow {

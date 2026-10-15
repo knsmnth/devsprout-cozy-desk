@@ -73,10 +73,6 @@ export default function SprintView() {
               key={app.id}
               className={`${styles.appTabBtn} ${selectedAppId === app.id ? styles.appTabBtnActive : ""}`}
               onClick={() => handleSelectApp(app.id)}
-              style={{
-                borderLeftColor: app.color || undefined,
-                borderLeftWidth: app.color ? "3px" : undefined,
-              }}
             >
               <span>{app.icon}</span> {app.name} ({count})
             </button>

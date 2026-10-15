@@ -393,10 +393,6 @@ export default function DeskView() {
                   <div
                     key={task.id}
                     className={styles.bloomingCard}
-                    style={{
-                      borderLeftColor: app?.color || "#e2a84a",
-                      borderLeftWidth: "4px",
-                    }}
                     onClick={() => {
                       if (sounds) sounds.playClick();
                       setSelectedTaskForPaper(task);
@@ -529,10 +525,6 @@ export default function DeskView() {
                   <div
                     key={task.id}
                     className={`${styles.bentoCard} ${isDone ? styles.bentoCardDone : ""}`}
-                    style={{
-                      borderLeftColor: app?.color || undefined,
-                      borderLeftWidth: app?.color ? "4px" : undefined,
-                    }}
                     onClick={() => {
                       if (sounds) sounds.playClick();
                       setSelectedTaskForPaper(task);
@@ -634,14 +626,7 @@ export default function DeskView() {
                 const app = apps.find((a) => a.id === task.appId);
 
                 return (
-                  <div
-                    key={task.id}
-                    className={styles.questItem}
-                    style={{
-                      borderLeftColor: app?.color || undefined,
-                      borderLeftWidth: app?.color ? "4px" : undefined,
-                    }}
-                  >
+                  <div key={task.id} className={styles.questItem}>
                     <button
                       type="button"
                       className={`${styles.questCheckbox} ${isDone ? styles.questChecked : ""}`}
