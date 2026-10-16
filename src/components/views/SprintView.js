@@ -51,6 +51,32 @@ export default function SprintView() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTaskForPaper, setSelectedTaskForPaper] = useState(null);
+  const [fallingApples, setFallingApples] = useState([]);
+  const [isBasketBouncing, setIsBasketBouncing] = useState(false);
+
+  const triggerAppleDrop = () => {
+    const appleId = Date.now() + Math.random();
+    setFallingApples((prev) => [...prev, { id: appleId }]);
+    setIsBasketBouncing(true);
+
+    setTimeout(() => {
+      setFallingApples((prev) => prev.filter((a) => a.id !== appleId));
+    }, 900);
+
+    setTimeout(() => {
+      setIsBasketBouncing(false);
+    }, 500);
+  };
+
+  const handleHarvestTask = (taskId) => {
+    if (sounds?.playHarvest) {
+      sounds.playHarvest();
+    } else if (sounds?.playPop) {
+      sounds.playPop();
+    }
+    triggerAppleDrop();
+    updateTaskStatus(taskId, "harvested");
+  };
 
   const handleOpenPaper = (task) => {
     if (sounds) sounds.playClick();
@@ -110,48 +136,109 @@ export default function SprintView() {
 
       {/* Top Sprint Banner & Quick Filters */}
       <div className={styles.topRow}>
-        {/* Sprint Hero Card */}
+        {/* Sprint Hero Card with Progress, Basket & Internal Action Bar */}
         <div className={styles.sprintHero}>
-          <div className={styles.acornBadge}>
-            <span>🌰</span>
-            <span className={styles.sprintPill}>SPRINT</span>
-          </div>
-
-          <div className={styles.sprintDetails}>
-            <div className={styles.sprintTitleRow}>
-              <h2 className={styles.sprintTitle}>
-                {currentAppObj ? `${currentAppObj.name} Quests` : "Current Workspace Sprint"}
-              </h2>
-              <span className={styles.versionTag}>(active)</span>
-              <span className={styles.daysTag}>🌿 ongoing</span>
+          <div className={styles.sprintHeroMain}>
+            <div className={styles.acornBadge}>
+              <span>🌰</span>
+              <span className={styles.sprintPill}>SPRINT</span>
             </div>
 
-            <div className={styles.progressBar}>
-              <div
-                className={styles.progressFill}
-                style={{ width: `${progressPercent}%` }}
-              >
-                {progressPercent > 8 && (
-                  <span className={styles.progressSproutEmoji}>🌱</span>
-                )}
+            <div className={styles.sprintDetails}>
+              <div className={styles.sprintTitleRow}>
+                <h2 className={styles.sprintTitle}>
+                  {currentAppObj ? `${currentAppObj.name} Quests` : "Current Workspace Sprint"}
+                </h2>
+                <span className={styles.versionTag}>(active)</span>
+                <span className={styles.daysTag}>🌿 ongoing</span>
+              </div>
+
+              <div className={styles.progressBar}>
+                <div
+                  className={styles.progressFill}
+                  style={{ width: `${progressPercent}%` }}
+                >
+                  {progressPercent > 8 && (
+                    <span className={styles.progressSproutEmoji}>🌱</span>
+                  )}
+                </div>
+              </div>
+
+              <div className={styles.sprintSubtext}>
+                🌱 {progressPercent}% sprouted & nurtured • {doneFiltered} / {totalFiltered} tasks harvested
               </div>
             </div>
 
-            <div className={styles.sprintSubtext}>
-              🌱 {progressPercent}% sprouted & nurtured • {doneFiltered} / {totalFiltered} tasks harvested
+            {/* Apple Basket with Falling Apple Reaction */}
+            <div className={`${styles.harvestJarBox} ${isBasketBouncing ? styles.basketBounce : ""}`}>
+              <div className={styles.basketTopAnimation}>
+                {fallingApples.map((apple) => (
+                  <span key={apple.id} className={styles.fallingApple}>
+                    🍎
+                  </span>
+                ))}
+              </div>
+
+              <div className={styles.basketVisual}>
+                <span className={styles.jarIcon}>🧺</span>
+                <div className={styles.applesInBasket}>
+                  {Array.from({ length: Math.min(harvestedTasks.length, 8) }).map((_, idx) => (
+                    <span
+                      key={idx}
+                      className={styles.basketApple}
+                      style={{
+                        animationDelay: `${idx * 0.04}s`,
+                        transform: `rotate(${((idx * 37) % 30) - 15}deg)`,
+                      }}
+                      title={`${harvestedTasks.length} harvested apples`}
+                    >
+                      🍎
+                    </span>
+                  ))}
+                  {harvestedTasks.length > 8 && (
+                    <span className={styles.extraApplesBadge}>
+                      +{harvestedTasks.length - 8}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <span className={styles.jarTitle}>Harvest Basket</span>
+              <span className={styles.jarSubtitle}>
+                {harvestedTasks.length} apple{harvestedTasks.length === 1 ? "" : "s"} collected
+              </span>
             </div>
           </div>
 
-          <div className={styles.harvestJarBox}>
-            <span className={styles.jarIcon}>🧺</span>
-            <span className={styles.jarTitle}>Harvest Jar</span>
-            <span className={styles.jarSubtitle}>
-              {harvestedTasks.length} task{harvestedTasks.length === 1 ? "" : "s"} harvested
-            </span>
+          {/* Action Row inside Progress Bar Card */}
+          <div className={styles.heroFooterRow}>
+            <div className={styles.boardStatusPills}>
+              <span className={`${styles.statusPill} ${styles.sproutPill}`}>
+                🌱 Sprouting <strong>{sproutingTasks.length}</strong>
+              </span>
+              <span className={`${styles.statusPill} ${styles.bloomPill}`}>
+                🌻 In Bloom <strong>{inBloomTasks.length}</strong>
+              </span>
+              <span className={`${styles.statusPill} ${styles.harvestPill}`}>
+                🍯 Harvested <strong>{harvestedTasks.length}</strong>
+              </span>
+            </div>
+
+            <button
+              className={styles.specialPlantSeedBtn}
+              onClick={() => {
+                if (sounds) sounds.playClick();
+                setIsModalOpen(true);
+              }}
+              title="Plant a new seed / quest"
+            >
+              <span className={styles.bouncySprout}>🌱</span>
+              <span>Plant New Seed</span>
+            </button>
           </div>
         </div>
 
-        {/* Quick Filters Card (Dynamic from Desk Menu categories) */}
+        {/* Quick Filters Card (Dynamic from Desk Menu categories with emojis) */}
         <div className={styles.quickFiltersCard}>
           <div className={styles.filterHeader}>
             <span>🍓 Quick Filters</span>
@@ -170,7 +257,7 @@ export default function SprintView() {
               className={`${styles.filterBtn} ${activeFilter === "all" ? styles.filterBtnActive : ""}`}
               onClick={() => setActiveFilter("all")}
             >
-              all tasks ({totalFiltered})
+              <span>🌰</span> all tasks ({totalFiltered})
             </button>
             {taskCategories && taskCategories.map((cat) => {
               const count = tasks.filter(
@@ -182,39 +269,12 @@ export default function SprintView() {
                   className={`${styles.filterBtn} ${activeFilter === cat.id ? styles.filterBtnActive : ""}`}
                   onClick={() => setActiveFilter(cat.id)}
                 >
-                  <span>{cat.icon}</span> {cat.label} ({count})
+                  <span>{cat.emoji || cat.icon || "🏷️"}</span> {cat.label} ({count})
                 </button>
               );
             })}
           </div>
         </div>
-      </div>
-
-      {/* Prominent Action Bar above columns with Special Seed Button */}
-      <div className={styles.boardTopBar}>
-        <div className={styles.boardStatusPills}>
-          <span className={`${styles.statusPill} ${styles.sproutPill}`}>
-            🌱 Sprouting <strong>{sproutingTasks.length}</strong>
-          </span>
-          <span className={`${styles.statusPill} ${styles.bloomPill}`}>
-            🌻 In Bloom <strong>{inBloomTasks.length}</strong>
-          </span>
-          <span className={`${styles.statusPill} ${styles.harvestPill}`}>
-            🍯 Harvested <strong>{harvestedTasks.length}</strong>
-          </span>
-        </div>
-
-        <button
-          className={styles.specialPlantSeedBtn}
-          onClick={() => {
-            if (sounds) sounds.playClick();
-            setIsModalOpen(true);
-          }}
-          title="Plant a new seed / quest"
-        >
-          <span className={styles.bouncySprout}>🌱</span>
-          <span>Plant New Seed</span>
-        </button>
       </div>
 
       {/* 3-Column Minimal Kanban Board with Independent Column Scroll */}
@@ -342,8 +402,7 @@ export default function SprintView() {
                         className={`${styles.miniActionBtn} ${styles.miniHarvestBtn}`}
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (sounds) sounds.playHarvest();
-                          updateTaskStatus(task.id, "harvested");
+                          handleHarvestTask(task.id);
                         }}
                         title="Harvest task"
                       >

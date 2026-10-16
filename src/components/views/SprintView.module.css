@@ -22,10 +22,28 @@
   border-radius: var(--radius-card);
   padding: 16px 20px;
   display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--shadow-card);
+}
+
+.sprintHeroMain {
+  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  box-shadow: var(--shadow-card);
+  width: 100%;
+}
+
+.heroFooterRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--cozy-border-soft);
+  flex-wrap: wrap;
+  width: 100%;
 }
 
 .acornBadge {
@@ -134,15 +152,122 @@
   border-radius: 14px;
   flex-shrink: 0;
   transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  min-width: 110px;
+  overflow: visible;
 }
 
 .harvestJarBox:hover {
   transform: scale(1.04);
 }
 
+.basketTopAnimation {
+  position: absolute;
+  top: -38px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  pointer-events: none;
+  overflow: visible;
+  display: flex;
+  justify-content: center;
+}
+
+.fallingApple {
+  position: absolute;
+  font-size: 1.6rem;
+  animation: dropIntoBasket 0.75s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+  z-index: 10;
+}
+
+.basketVisual {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 48px;
+  margin-bottom: 2px;
+}
+
 .jarIcon {
-  font-size: 1.8rem;
+  font-size: 2.2rem;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
+  position: relative;
+  z-index: 1;
+}
+
+.applesInBasket {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  max-width: 48px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.basketApple {
+  font-size: 0.95rem;
+  margin: -5px -2px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+  animation: applePop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-block;
+}
+
+.extraApplesBadge {
+  background: #e26d5c;
+  color: #ffffff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  border-radius: 9999px;
+  padding: 1px 4px;
+  margin-left: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.basketBounce {
+  animation: basketBounce 0.5s ease-out;
+}
+
+@keyframes dropIntoBasket {
+  0% {
+    transform: translateY(-40px) scale(0.6) rotate(-20deg);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1.15) rotate(12deg);
+  }
+  75% {
+    transform: translateY(18px) scale(1.05) rotate(-6deg);
+    opacity: 1;
+  }
+  88% {
+    transform: translateY(12px) scale(0.95) rotate(0deg);
+  }
+  100% {
+    transform: translateY(16px) scale(1) rotate(0deg);
+    opacity: 0;
+  }
+}
+
+@keyframes basketBounce {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.14) rotate(-3deg); }
+  65% { transform: scale(0.95) rotate(2deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes applePop {
+  0% { transform: scale(0); opacity: 0; }
+  70% { transform: scale(1.25); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 .jarTitle {

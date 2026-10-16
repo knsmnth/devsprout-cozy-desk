@@ -84,6 +84,32 @@ class CozySoundEngine {
     } catch {}
   }
 
+  // Bright apple harvest chime / pluck
+  playHarvest() {
+    if (this.muted) return;
+    try {
+      this.init();
+      if (!this.ctx) return;
+      const now = this.ctx.currentTime;
+      [659.25, 880].forEach((freq, i) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + i * 0.09);
+
+        gain.gain.setValueAtTime(0.22, now + i * 0.09);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.09 + 0.35);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now + i * 0.09);
+        osc.stop(now + i * 0.09 + 0.35);
+      });
+    } catch {}
+  }
+
   // Celebratory tea bell chime for Pomodoro completion
   playBellChime() {
     if (this.muted) return;
