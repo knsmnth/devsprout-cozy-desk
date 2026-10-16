@@ -242,14 +242,14 @@ export default function DeskView() {
           </div>
 
           <div className={styles.tipBox}>
-            🧺 <strong>Tip:</strong> check the Daily Balance meter to ensure every app gets loved!
+            🧺 <strong>Tip:</strong> check the Daily Task Goals meter to track your daily progress!
           </div>
         </div>
 
         {/* Multi-App Daily Workload Balance Card */}
         <div className={styles.appBalanceCard}>
           <div className={styles.balanceTitle}>
-            <span>⚖️ Daily App Balance</span>
+            <span>🎯 Daily Task Goals</span>
             <span style={{ fontSize: "0.75rem", color: "#657d4f" }}>
               {appBalanceData.filter((a) => a.completed > 0).length}/{apps.length} Apps Active
             </span>

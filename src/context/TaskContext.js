@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import confetti from "canvas-confetti";
@@ -59,6 +60,13 @@ const DEFAULT_SHELVES = [
   { id: "shelf-4", icon: "🍃", label: "study room playlist", action: "rain", isExternal: false },
 ];
 
+const isSameDay = (dateInput, targetDateStr) => {
+  if (!dateInput || !targetDateStr) return false;
+  const d = new Date(dateInput);
+  if (isNaN(d.getTime())) return false;
+  return d.toDateString() === targetDateStr;
+};
+
 export function TaskProvider({ children }) {
   // Active Tab
   const [activeTab, setActiveTab] = useState("desk"); // 'desk' | 'sprint' | 'notes' | 'cafe'
@@ -103,8 +111,52 @@ export function TaskProvider({ children }) {
     "Remember: Drink water, push clean commits, you are doing great! 🌸"
   );
 
+  // Midnight reset tracker for Daily Task Goals (starts empty for SSR prerender safety)
+  const [todayKey, setTodayKey] = useState("");
+
+  useEffect(() => {
+    setTodayKey(new Date().toDateString());
+
+    let timeoutId = null;
+
+    const scheduleMidnightReset = () => {
+      const now = new Date();
+      const nextMidnight = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + 1,
+        0,
+        0,
+        0,
+        100
+      );
+      const msUntilMidnight = Math.max(1000, nextMidnight.getTime() - now.getTime());
+
+      timeoutId = setTimeout(() => {
+        setTodayKey(new Date().toDateString());
+        scheduleMidnightReset();
+      }, msUntilMidnight);
+    };
+
+    scheduleMidnightReset();
+
+    // Check if day changed when tab becomes visible or gains focus (e.g., wake from sleep)
+    const handleDayCheck = () => {
+      const current = new Date().toDateString();
+      setTodayKey((prev) => (prev !== current ? current : prev));
+    };
+
+    window.addEventListener("focus", handleDayCheck);
+    document.addEventListener("visibilitychange", handleDayCheck);
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      window.removeEventListener("focus", handleDayCheck);
+      document.removeEventListener("visibilitychange", handleDayCheck);
+    };
+  }, []);
+
   // Load from LocalStorage (with version migration to purge old mock data)
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     try {
       const STORAGE_VERSION = "devsprout_v3_custom";
@@ -321,12 +373,14 @@ export function TaskProvider({ children }) {
 
   // Task Mutations
   const addTask = (newTask) => {
+    const isHarvested = newTask?.status === "harvested";
     const task = {
       id: `task-${Date.now()}`,
       ticketNumber: `#SP-${Math.floor(Math.random() * 80 + 20)}`,
       status: "sprouting",
       createdDaysAgo: 0,
       updatedAt: new Date().toISOString(),
+      completedAt: isHarvested ? new Date().toISOString() : null,
       teacups: 1,
       priority: "normal",
       type: "sprint",
@@ -341,15 +395,26 @@ export function TaskProvider({ children }) {
     setTasks((prev) =>
       prev.map((t) => {
         if (t.id === taskId) {
+          const isHarvestedTransition = updates.status === "harvested" && t.status !== "harvested";
+          const isUnharvestedTransition = updates.status && updates.status !== "harvested" && t.status === "harvested";
+
+          let completedAt = t.completedAt;
+          if (isHarvestedTransition) {
+            completedAt = new Date().toISOString();
+          } else if (isUnharvestedTransition) {
+            completedAt = null;
+          }
+
           const updated = {
             ...t,
             ...updates,
+            completedAt,
             updatedAt: new Date().toISOString(),
           };
           if (updates.type && !updates.typeLabel) {
             updated.typeLabel = updates.type.toUpperCase();
           }
-          if (updates.status === "harvested" && t.status !== "harvested") {
+          if (isHarvestedTransition) {
             if (sounds) sounds.playPop();
             confetti({
               particleCount: 35,
@@ -370,7 +435,11 @@ export function TaskProvider({ children }) {
     setTasks((prev) =>
       prev.map((t) => {
         if (t.id === taskId) {
-          if (newStatus === "harvested" && t.status !== "harvested") {
+          const wasHarvested = t.status === "harvested";
+          const isHarvested = newStatus === "harvested";
+          let completedAt = t.completedAt;
+          if (isHarvested && !wasHarvested) {
+            completedAt = new Date().toISOString();
             if (sounds) sounds.playPop();
             confetti({
               particleCount: 35,
@@ -378,8 +447,15 @@ export function TaskProvider({ children }) {
               origin: { y: 0.7 },
               colors: ["#6b8e23", "#f9d976", "#e07a5f"],
             });
+          } else if (!isHarvested && wasHarvested) {
+            completedAt = null;
           }
-          return { ...t, status: newStatus, updatedAt: new Date().toISOString() };
+          return {
+            ...t,
+            status: newStatus,
+            completedAt,
+            updatedAt: new Date().toISOString(),
+          };
         }
         return t;
       })
@@ -614,11 +690,15 @@ export function TaskProvider({ children }) {
     return t.createdDaysAgo >= 2 || (t.priority === "urgent" && t.status === "sprouting");
   });
 
-  // Daily App Balance Engine
+  // Daily Task Goals Engine (resets each day at midnight via todayKey)
   // Analyzes today's harvested tasks across apps
   const appBalanceData = apps.map((app) => {
     const appTasks = tasks.filter((t) => t.appId === app.id);
-    const completed = appTasks.filter((t) => t.status === "harvested").length;
+    const completed = appTasks.filter((t) => {
+      if (t.status !== "harvested") return false;
+      const compDate = t.completedAt || t.updatedAt;
+      return isSameDay(compDate, todayKey);
+    }).length;
     const active = appTasks.filter((t) => t.status !== "harvested").length;
     const quota = app.dailyTarget || 1;
     const metQuota = completed >= quota;

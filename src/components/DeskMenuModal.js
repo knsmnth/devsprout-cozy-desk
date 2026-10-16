@@ -500,7 +500,7 @@ export default function DeskMenuModal({ isOpen, onClose }) {
             <div>
               <div className={styles.sectionTitle}>Workspace Projects & Daily Targets</div>
               <div className={styles.sectionSubtitle}>
-                Manage your active apps and adjust daily quota targets for the Daily Balance meter.
+                Manage your active apps and adjust daily quota targets for the Daily Task Goals meter.
               </div>
 
               <div style={{ marginBottom: "16px" }}>
