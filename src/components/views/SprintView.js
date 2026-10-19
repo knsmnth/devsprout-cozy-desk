@@ -6,6 +6,7 @@ import { useTaskManager } from "@/context/TaskContext";
 import { sounds } from "@/utils/audio";
 import NewTaskModal from "@/components/NewTaskModal";
 import TaskPaperModal from "@/components/TaskPaperModal";
+import AppleBasket from "@/components/AppleBasket";
 import { Trash2 } from "lucide-react";
 
 const getPriorityEmoji = (priority) => {
@@ -180,27 +181,12 @@ export default function SprintView() {
               </div>
 
               <div className={styles.basketVisual}>
-                <span className={styles.jarIcon}>🧺</span>
-                <div className={styles.applesInBasket}>
-                  {Array.from({ length: Math.min(harvestedTasks.length, 8) }).map((_, idx) => (
-                    <span
-                      key={idx}
-                      className={styles.basketApple}
-                      style={{
-                        animationDelay: `${idx * 0.04}s`,
-                        transform: `rotate(${((idx * 37) % 30) - 15}deg)`,
-                      }}
-                      title={`${harvestedTasks.length} harvested apples`}
-                    >
-                      🍎
-                    </span>
-                  ))}
-                  {harvestedTasks.length > 8 && (
-                    <span className={styles.extraApplesBadge}>
-                      +{harvestedTasks.length - 8}
-                    </span>
-                  )}
-                </div>
+                <AppleBasket
+                  count={harvestedTasks.length}
+                  isBouncing={isBasketBouncing}
+                  width={86}
+                  height={80}
+                />
               </div>
 
               <span className={styles.jarTitle}>Harvest Basket</span>
