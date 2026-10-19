@@ -300,17 +300,6 @@ export default function SprintView() {
                     <div className={styles.minimalActions}>
                       <button
                         type="button"
-                        className={styles.miniNoteBtn}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenPaper(task);
-                        }}
-                        title="Open paper note"
-                      >
-                        📄 Note
-                      </button>
-                      <button
-                        type="button"
                         className={`${styles.miniActionBtn} ${styles.miniBloomBtn}`}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -361,17 +350,6 @@ export default function SprintView() {
                     </div>
 
                     <div className={styles.minimalActions}>
-                      <button
-                        type="button"
-                        className={styles.miniNoteBtn}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenPaper(task);
-                        }}
-                        title="Open paper note"
-                      >
-                        📄 Note
-                      </button>
                       <button
                         type="button"
                         className={`${styles.miniActionBtn} ${styles.miniBackBtn}`}
@@ -442,17 +420,6 @@ export default function SprintView() {
                     </div>
 
                     <div className={styles.minimalActions}>
-                      <button
-                        type="button"
-                        className={styles.miniNoteBtn}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenPaper(task);
-                        }}
-                        title="Open paper note"
-                      >
-                        📄 Note
-                      </button>
                       <button
                         type="button"
                         className={`${styles.miniActionBtn} ${styles.miniReopenBtn}`}

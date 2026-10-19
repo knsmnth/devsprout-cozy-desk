@@ -467,18 +467,6 @@ export default function DeskView() {
                       >
                         🍯 Harvest
                       </button>
-                      <button
-                        type="button"
-                        className={styles.bloomingNoteBtn}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (sounds) sounds.playClick();
-                          setSelectedTaskForPaper(task);
-                        }}
-                        title="Open paper note"
-                      >
-                        📄 Note
-                      </button>
                     </div>
                   </div>
                 );
@@ -579,19 +567,6 @@ export default function DeskView() {
                           {task.typeLabel || task.type?.toUpperCase()}
                         </span>
                       </div>
-
-                      <button
-                        type="button"
-                        className={`${styles.questNoteBtn} ${styles.bentoNoteBtn}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (sounds) sounds.playClick();
-                          setSelectedTaskForPaper(task);
-                        }}
-                        title="Open full paper note & edit details"
-                      >
-                        📄 Note
-                      </button>
                     </div>
 
                     {/* Middle: Title & Description Preview */}
@@ -655,25 +630,29 @@ export default function DeskView() {
                 const app = apps.find((a) => a.id === task.appId);
 
                 return (
-                  <div key={task.id} className={styles.questItem}>
+                  <div
+                    key={task.id}
+                    className={styles.questItem}
+                    onClick={() => {
+                      if (sounds) sounds.playClick();
+                      setSelectedTaskForPaper(task);
+                    }}
+                    title="Click to view full paper note & details"
+                    style={{ cursor: "pointer" }}
+                  >
                     <button
                       type="button"
                       className={`${styles.questCheckbox} ${isDone ? styles.questChecked : ""}`}
-                      onClick={() => toggleTaskDone(task.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleTaskDone(task.id);
+                      }}
                       title={isDone ? "Mark as in progress" : "Mark completed"}
                     >
                       {isDone && <Check size={14} />}
                     </button>
 
-                    <div
-                      className={styles.questBody}
-                      onClick={() => {
-                        if (sounds) sounds.playClick();
-                        setSelectedTaskForPaper(task);
-                      }}
-                      style={{ cursor: "pointer" }}
-                      title="Click to view full paper note & details"
-                    >
+                    <div className={styles.questBody}>
                       <div className={styles.questTopMeta}>
                         <span className={`${styles.tagBadge} ${getTagClass(task.type)}`}>
                           {task.typeLabel || task.type?.toUpperCase()}
@@ -705,18 +684,6 @@ export default function DeskView() {
                             🔥 URGENT
                           </span>
                         )}
-                        <button
-                          type="button"
-                          className={styles.questNoteBtn}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (sounds) sounds.playClick();
-                            setSelectedTaskForPaper(task);
-                          }}
-                          title="Open full paper note & edit details"
-                        >
-                          📄 Note
-                        </button>
                       </div>
 
                       <div
