@@ -1,26 +1,14 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./CottageGarden.module.css";
 import { sounds } from "@/utils/audio";
-import confetti from "canvas-confetti";
 import {
-  autoDetectAndFetchWeather,
-  searchCityCoordinates,
-  fetchOpenMeteoWeather,
-  getCachedWeather,
-  detectExactGPSLocation,
-} from "@/utils/weather";
-
-const WEATHER_MODES = [
-  { id: "auto", label: "Auto (Live Weather)", icon: "🌐" },
-  { id: "sunny", label: "Sunny", icon: "☀️" },
-  { id: "sunset", label: "Sunset", icon: "🌅" },
-  { id: "gloomy", label: "Gloomy", icon: "☁️" },
-  { id: "rainy", label: "Rainy", icon: "🌧️" },
-  { id: "snowy", label: "Snowy", icon: "❄️" },
-  { id: "dark", label: "Dark Night", icon: "🌙" },
-];
+  useWeatherStore,
+  useMeadowAtmosphere,
+  WEATHER_MODES,
+} from "@/store/useWeatherStore";
+import { RotateCw } from "lucide-react";
 
 const RAIN_DROPS = [
   { id: 0, left: "4%", delay: "0s", duration: "0.5s" },
@@ -61,231 +49,127 @@ const NIGHT_STARS = [
 ];
 
 export default function CottageGarden() {
-  const [weatherMode, setWeatherMode] = useState(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("devsprout_cottage_weather");
-        if (saved && WEATHER_MODES.some((m) => m.id === saved)) {
-          return saved;
-        }
-      } catch {}
-    }
-    return "auto";
-  });
+  const weatherMode = useWeatherStore((s) => s.weatherMode);
+  const weatherData = useWeatherStore((s) => s.weatherData);
+  const timeString = useWeatherStore((s) => s.timeString);
+  const gardenFlowers = useWeatherStore((s) => s.gardenFlowers);
+  const isLocationModalOpen = useWeatherStore((s) => s.isLocationModalOpen);
+  const isDetectingGps = useWeatherStore((s) => s.isDetectingGps);
+  const locationFeedback = useWeatherStore((s) => s.locationFeedback);
+  const locationError = useWeatherStore((s) => s.locationError);
+  const isLoadingWeather = useWeatherStore((s) => s.isLoadingWeather);
 
-  const [weatherData, setWeatherData] = useState(() => getCachedWeather());
-  const [timeString, setTimeString] = useState("");
-  const [currentHour, setCurrentHour] = useState(12);
-  const [gardenFlowers, setGardenFlowers] = useState(["🌷", "🍄", "🌻", "🌿"]);
+  const cycleWeatherMode = useWeatherStore((s) => s.cycleWeatherMode);
+  const updateClock = useWeatherStore((s) => s.updateClock);
+  const fetchWeather = useWeatherStore((s) => s.fetchWeather);
+  const setCity = useWeatherStore((s) => s.setCity);
+  const detectGPS = useWeatherStore((s) => s.detectGPS);
+  const tendGarden = useWeatherStore((s) => s.tendGarden);
+  const openLocationModal = useWeatherStore((s) => s.openLocationModal);
+  const closeLocationModal = useWeatherStore((s) => s.closeLocationModal);
+  const initWeatherStore = useWeatherStore((s) => s.initWeatherStore);
 
-  // Location Modal State
-  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
-  const [isDetectingGps, setIsDetectingGps] = useState(false);
-  const [locationFeedback, setLocationFeedback] = useState(null);
-  const [locationError, setLocationError] = useState(null);
+  const atmosphere = useMeadowAtmosphere();
   const [cityInput, setCityInput] = useState("");
-  const [savedCity, setSavedCity] = useState(() => {
-    if (typeof window !== "undefined") {
-      try {
-        return localStorage.getItem("devsprout_weather_city") || "";
-      } catch {}
-    }
-    return "";
-  });
 
-  // Clock Synchronization (Time of Day)
+  // Initialize store and start timers on mount
   useEffect(() => {
-    const updateClock = () => {
-      const now = new Date();
-      setCurrentHour(now.getHours());
-      setTimeString(
-        now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
-      );
-    };
-    updateClock();
-    const timer = setInterval(updateClock, 15000);
-    return () => clearInterval(timer);
-  }, []);
+    initWeatherStore();
+    const clockTimer = setInterval(updateClock, 15000);
+    const weatherTimer = setInterval(() => fetchWeather(), 15 * 60 * 1000);
 
-  // Initial weather load and 15-minute refresh
-  useEffect(() => {
-    let isCancelled = false;
-
-    const fetchWeather = async () => {
-      try {
-        const data = await autoDetectAndFetchWeather(savedCity || null);
-        if (!isCancelled && data) {
-          setWeatherData(data);
-        }
-      } catch (err) {
-        console.warn("Weather fetch fallback:", err);
-      }
-    };
-
-    fetchWeather();
-    const interval = setInterval(fetchWeather, 15 * 60 * 1000);
     return () => {
-      isCancelled = true;
-      clearInterval(interval);
+      clearInterval(clockTimer);
+      clearInterval(weatherTimer);
     };
-  }, [savedCity]);
+  }, [initWeatherStore, updateClock, fetchWeather]);
 
-  // Compute effective visual weather
-  const effectiveWeather = useMemo(() => {
-    if (weatherMode !== "auto") return weatherMode;
-    if (weatherData?.atmosphere) return weatherData.atmosphere;
-    // Fallback if offline / before load
-    if (currentHour >= 6 && currentHour < 17) return "sunny";
-    if (currentHour >= 17 && currentHour < 19) return "sunset";
-    return "dark";
-  }, [weatherMode, weatherData, currentHour]);
-
-  // Cycle weather mode
-  const handleCycleWeather = (e) => {
-    e.stopPropagation();
-    if (sounds) sounds.playClick();
-    const currentIndex = WEATHER_MODES.findIndex((m) => m.id === weatherMode);
-    const nextMode = WEATHER_MODES[(currentIndex + 1) % WEATHER_MODES.length].id;
-    setWeatherMode(nextMode);
-    try {
-      localStorage.setItem("devsprout_cottage_weather", nextMode);
-    } catch {}
-  };
-
-  // Water the garden mini-game
-  const handleTendGarden = () => {
-    if (sounds) sounds.playWaterDrop();
-    const floraList = ["🌷", "🍄", "🌻", "🌿", "🌸", "🌱", "🍓", "🌼", "🍀", "🌺"];
-    const randomFlora = floraList[Math.floor(Math.random() * floraList.length)];
-    setGardenFlowers((prev) => [...prev.slice(-4), randomFlora]);
-
-    confetti({
-      particleCount: 22,
-      spread: 40,
-      origin: { y: 0.38, x: 0.55 },
-      colors:
-        effectiveWeather === "dark"
-          ? ["#a0c4ff", "#bdb2ff", "#ffc6ff"]
-          : ["#78995a", "#f9d976", "#e07a5f", "#70a9a1"],
-    });
-  };
-
-  // Trigger browser GPS and reverse-geocode exact location
-  const handleTriggerExactGPS = async () => {
-    setIsDetectingGps(true);
-    setLocationError(null);
-    setLocationFeedback(null);
-    try {
-      const weather = await detectExactGPSLocation();
-      setWeatherData(weather);
-      setSavedCity(weather.city);
-      setLocationFeedback(`✓ Detected exact location: ${weather.city} (${weather.temp}°C)!`);
-      if (sounds) sounds.playPop();
-      setTimeout(() => {
-        setIsLocationModalOpen(false);
-        setLocationFeedback(null);
-      }, 1500);
-    } catch (err) {
-      setLocationError("Could not access GPS. Please allow location access or type your city below!");
-    } finally {
-      setIsDetectingGps(false);
-    }
-  };
-
-  // Select city by name
-  const handleSelectCity = async (name) => {
-    if (!name || !name.trim()) return;
-    setLocationError(null);
-    setLocationFeedback(null);
-    try {
-      const coord = await searchCityCoordinates(name.trim());
-      if (coord) {
-        const weather = await fetchOpenMeteoWeather(
-          coord.latitude,
-          coord.longitude,
-          coord.name
-        );
-        setWeatherData(weather);
-        setSavedCity(coord.name);
-        try {
-          localStorage.setItem("devsprout_weather_city", coord.name);
-          localStorage.removeItem("devsprout_weather_coords");
-        } catch {}
-        setLocationFeedback(`✓ Set location to ${coord.name} (${weather.temp}°C)!`);
-        if (sounds) sounds.playPop();
-        setTimeout(() => {
-          setIsLocationModalOpen(false);
-          setLocationFeedback(null);
-        }, 1200);
-      } else {
-        setLocationError(`Could not find "${name}". Try a nearby city or check spelling.`);
-      }
-    } catch {
-      setLocationError("Network error while searching city. Please try again.");
-    }
-  };
-
-  // Handle City Submission Form
-  const handleCitySubmit = (e) => {
+  const handleCitySubmit = async (e) => {
     e.preventDefault();
-    if (cityInput.trim()) {
-      handleSelectCity(cityInput.trim());
+    if (!cityInput.trim()) return;
+    const ok = await setCity(cityInput);
+    if (ok) {
+      setCityInput("");
+      setTimeout(() => closeLocationModal(), 1200);
     }
   };
 
+  const handleDetectGps = async () => {
+    const ok = await detectGPS();
+    if (ok) {
+      setTimeout(() => closeLocationModal(), 1200);
+    }
+  };
+
+  const handleRefreshWeather = (e) => {
+    e.stopPropagation();
+    if (sounds) sounds.playPop();
+    fetchWeather();
+  };
+
+  // Determine computed dynamic background class
   const getSkyClass = () => {
-    switch (effectiveWeather) {
-      case "sunny":
-        return styles.skySunny;
-      case "sunset":
-        return styles.skySunset;
-      case "gloomy":
-        return styles.skyGloomy;
-      case "rainy":
-        return styles.skyRainy;
-      case "snowy":
-        return styles.skySnowy;
-      case "dark":
-        return styles.skyDark;
-      default:
-        return styles.skySunny;
-    }
+    if (atmosphere.isThunder) return styles.skyThunderstorm;
+    if (atmosphere.isNight && atmosphere.isRaining) return styles.skyNightRainy;
+    if (atmosphere.isSunset && atmosphere.isRaining) return styles.skySunsetRainy;
+    if (atmosphere.isNight) return styles.skyDark;
+    if (atmosphere.isSunset) return styles.skySunset;
+    if (atmosphere.isRaining) return styles.skyRainy;
+    if (atmosphere.isSnowing) return styles.skySnowy;
+    if (atmosphere.isCloudy) return styles.skyGloomy;
+    return styles.skySunny;
   };
 
-  const activeModeObj =
-    WEATHER_MODES.find((m) => m.id === weatherMode) || WEATHER_MODES[0];
+  const getActiveModeDisplay = () => {
+    if (weatherMode === "auto") {
+      let condLabel = atmosphere.isRaining
+        ? atmosphere.isNight
+          ? "Rainy Night"
+          : "Rainy"
+        : atmosphere.isSnowing
+        ? atmosphere.isNight
+          ? "Snowy Night"
+          : "Snowy"
+        : atmosphere.isNight
+        ? "Clear Night"
+        : atmosphere.isSunset
+        ? "Sunset"
+        : atmosphere.isCloudy
+        ? "Overcast"
+        : "Sunny";
+
+      return `Live (${condLabel})`;
+    }
+    const found = WEATHER_MODES.find((m) => m.id === weatherMode);
+    return found ? found.label : "Custom";
+  };
 
   return (
     <div className={styles.cottageCard}>
-      {/* Header with Title, Live Time, Location, and Weather Mode Pill */}
+      {/* Header with Title, Live Clock, Location, and Weather Mode */}
       <div className={styles.cottageHeader}>
         <div className={styles.cottageTitle}>
-          <span>🏡</span> Sprout&apos;s Meadow
+          <span>🏡</span>
+          <span>Sprout&apos;s Meadow</span>
         </div>
 
         <div className={styles.headerRight}>
-          {/* Live Clock Badge */}
+          {/* Live Local Clock */}
           {timeString && (
             <span
               className={styles.timePill}
-              title={`Real-world time of day (${currentHour >= 12 ? "PM" : "AM"})`}
+              title={`Local Time: ${timeString} (${atmosphere.isNight ? "Night" : atmosphere.isSunset ? "Sunset" : "Daytime"})`}
             >
-              <span>⏰</span> {timeString}
+              <span>{atmosphere.isNight ? "🌙" : "⏰"}</span>
+              <span>{timeString}</span>
             </span>
           )}
 
-          {/* City / Location Pill (Click to open Location modal) */}
+          {/* Location Pill */}
           <button
-            className={styles.cityPill}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (sounds) sounds.playClick();
-              setIsLocationModalOpen(true);
-              setCityInput(weatherData?.city || "");
-              setLocationError(null);
-              setLocationFeedback(null);
-            }}
-            title="Click to detect exact GPS or search your city"
+            className={styles.locationPill}
+            onClick={openLocationModal}
+            title="Click to change location or use Device GPS for live weather"
           >
             <span>📍</span>
             <span>{weatherData?.city || "Set Location"}</span>
@@ -294,18 +178,29 @@ export default function CottageGarden() {
             )}
           </button>
 
-          {/* Mode Pill Toggle */}
+          {/* Mode Pill Toggle (Supports Dual-State) */}
           <button
             className={styles.weatherTogglePill}
-            onClick={handleCycleWeather}
-            title="Click to cycle weather (Auto Open-Meteo, Sunny, Sunset, Gloomy, Rainy, Snowy, Dark)"
+            onClick={cycleWeatherMode}
+            title="Click to cycle weather modes (Live Real-Time, Sunny Day, Sunset, Clear Night, Rainy Day, Rainy Night, Night Storm, Snowy)"
           >
-            <span>{weatherMode === "auto" ? weatherData?.icon || "🌐" : activeModeObj.icon}</span>
-            <span>
-              {weatherMode === "auto"
-                ? `Live (${effectiveWeather})`
-                : activeModeObj.label}
-            </span>
+            <span>{atmosphere.icon}</span>
+            <span>{getActiveModeDisplay()}</span>
+          </button>
+
+          {/* Quick Refresh Weather Button */}
+          <button
+            className={styles.refreshWeatherBtn}
+            onClick={handleRefreshWeather}
+            title="Refresh live weather radar data"
+            aria-label="Refresh live weather"
+          >
+            <RotateCw
+              size={12}
+              style={{
+                animation: isLoadingWeather ? "spin 1s linear infinite" : "none",
+              }}
+            />
           </button>
         </div>
       </div>
@@ -313,18 +208,54 @@ export default function CottageGarden() {
       {/* Interactive Weather Viewport */}
       <div
         className={`${styles.cottageViewport} ${getSkyClass()}`}
-        onClick={handleTendGarden}
-        title="Click meadow to water flowers!"
+        onClick={tendGarden}
+        title="Click meadow to water flowers and tend the garden!"
       >
-        {/* Sun in Sunny or Sunset */}
-        {effectiveWeather === "sunny" && <span className={styles.celestialSun}>☀️</span>}
-        {effectiveWeather === "sunset" && <span className={styles.celestialSun}>🌅</span>}
+        {/* Celestial Body: Sun in Day or Sunset */}
+        {atmosphere.isDay && (
+          <span className={styles.celestialSun} title="Daytime Sun">
+            ☀️
+          </span>
+        )}
+        {atmosphere.isSunset && (
+          <span className={styles.celestialSun} title="Golden Sunset">
+            🌅
+          </span>
+        )}
 
-        {/* Moon in Dark Night */}
-        {effectiveWeather === "dark" && <span className={styles.celestialMoon}>🌙</span>}
+        {/* Celestial Body: Moon in Night (Rendered even if raining, with parting clouds) */}
+        {atmosphere.isNight && (
+          <span
+            className={styles.celestialMoon}
+            title={atmosphere.isRaining ? "Night Moon behind rain clouds" : "Night Moon"}
+            style={{
+              opacity: atmosphere.isRaining ? 0.75 : 1,
+            }}
+          >
+            🌙
+          </span>
+        )}
 
-        {/* Clouds */}
-        {(effectiveWeather === "sunny" || effectiveWeather === "sunset") && (
+        {/* Stars in Night (Softly visible through clouds during night rain, twinkling when clear) */}
+        {atmosphere.isNight && (
+          <div
+            className={styles.starsContainer}
+            style={{ opacity: atmosphere.isRaining ? 0.45 : 1 }}
+          >
+            {NIGHT_STARS.map((s) => (
+              <span
+                key={s.id}
+                className={styles.star}
+                style={{ top: s.top, left: s.left, animationDelay: s.delay }}
+              >
+                ✨
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Clouds: Sunny / Sunset soft clouds */}
+        {(atmosphere.isDay || atmosphere.isSunset) && !atmosphere.isRaining && (
           <>
             <span className={styles.celestialCloud}>☁️</span>
             <span className={styles.secondCloud}>☁️</span>
@@ -332,9 +263,11 @@ export default function CottageGarden() {
         )}
 
         {/* Gloomy heavy clouds */}
-        {effectiveWeather === "gloomy" && (
+        {atmosphere.isCloudy && !atmosphere.isRaining && (
           <>
-            <span className={styles.celestialCloud} style={{ opacity: 0.95 }}>☁️</span>
+            <span className={styles.celestialCloud} style={{ opacity: 0.95 }}>
+              ☁️
+            </span>
             <span
               className={styles.secondCloud}
               style={{ top: "12px", right: "20px", fontSize: "1.2rem", opacity: 0.9 }}
@@ -344,15 +277,20 @@ export default function CottageGarden() {
           </>
         )}
 
-        {/* Rainy weather with rain clouds & animated drops */}
-        {effectiveWeather === "rainy" && (
+        {/* Rainy weather: Works simultaneously in Day, Sunset, and Night */}
+        {atmosphere.isRaining && (
           <>
-            <span className={styles.celestialCloud} style={{ opacity: 0.95 }}>🌧️</span>
+            <span
+              className={styles.celestialCloud}
+              style={{ opacity: atmosphere.isNight ? 0.85 : 0.95 }}
+            >
+              {atmosphere.isThunder ? "⛈️" : "🌧️"}
+            </span>
             <span
               className={styles.secondCloud}
               style={{ top: "8px", right: "16px", fontSize: "1.2rem" }}
             >
-              ⛈️
+              {atmosphere.isNight ? "🌧️" : "⛈️"}
             </span>
             <div className={styles.rainOverlay}>
               {RAIN_DROPS.map((drop) => (
@@ -370,10 +308,12 @@ export default function CottageGarden() {
           </>
         )}
 
-        {/* Snowy weather with falling snowflakes */}
-        {effectiveWeather === "snowy" && (
+        {/* Snowy weather: Works in Day and Night */}
+        {atmosphere.isSnowing && (
           <>
-            <span className={styles.celestialCloud} style={{ opacity: 0.95 }}>🌨️</span>
+            <span className={styles.celestialCloud} style={{ opacity: 0.9 }}>
+              🌨️
+            </span>
             <div className={styles.snowOverlay}>
               {SNOW_FLAKES.map((s) => (
                 <div
@@ -392,26 +332,20 @@ export default function CottageGarden() {
           </>
         )}
 
-        {/* Stars in Dark Mode */}
-        {effectiveWeather === "dark" && (
-          <div className={styles.starsContainer}>
-            {NIGHT_STARS.map((s) => (
-              <span
-                key={s.id}
-                className={styles.star}
-                style={{ top: s.top, left: s.left, animationDelay: s.delay }}
-              >
-                ✨
-              </span>
-            ))}
-          </div>
-        )}
-
         {/* Meadow Ground & Inhabitants */}
         <div className={styles.groundContainer}>
-          {/* Cottage House */}
+          {/* Cottage House with warm cozy window light in night */}
           <div className={styles.cottageBox}>
-            <span className={styles.cottageHouse}>🏡</span>
+            <span
+              className={styles.cottageHouse}
+              style={{
+                filter: atmosphere.isNight
+                  ? "drop-shadow(0 0 6px rgba(254, 243, 199, 0.5))"
+                  : "none",
+              }}
+            >
+              🏡
+            </span>
           </div>
 
           {/* Garden Flowers */}
@@ -436,29 +370,27 @@ export default function CottageGarden() {
           <span>tap meadow to water</span>
         </div>
         <div className={styles.weatherLabel}>
-          {weatherMode === "auto" && weatherData ? (
+          {weatherData ? (
             <span>
-              {weatherData.icon} {weatherData.temp}°C • {weatherData.description}
+              {atmosphere.icon} {weatherData.temp}°C
+              {weatherData.feelsLike !== undefined && weatherData.feelsLike !== weatherData.temp
+                ? ` (feels ${weatherData.feelsLike}°C)`
+                : ""}
+              {" • "}
+              {weatherData.description}
+              {atmosphere.isNight ? " • 🌙 night time" : ""}
             </span>
           ) : (
-            <>
-              {effectiveWeather === "sunny" && "☀️ clear & sunny"}
-              {effectiveWeather === "sunset" && "🌅 golden sunset"}
-              {effectiveWeather === "gloomy" && "☁️ cozy overcast"}
-              {effectiveWeather === "rainy" && "🌧️ gentle rainfall"}
-              {effectiveWeather === "snowy" && "❄️ gentle snowfall"}
-              {effectiveWeather === "dark" && "🌙 starry night"}
-            </>
+            <span>
+              {atmosphere.icon} {atmosphere.label}
+            </span>
           )}
         </div>
       </div>
 
-      {/* Location Picker Modal */}
+      {/* Location Picker & GPS Modal */}
       {isLocationModalOpen && (
-        <div
-          className={styles.locationModalOverlay}
-          onClick={() => setIsLocationModalOpen(false)}
-        >
+        <div className={styles.locationModalOverlay} onClick={closeLocationModal}>
           <div
             className={styles.locationModal}
             onClick={(e) => e.stopPropagation()}
@@ -471,88 +403,67 @@ export default function CottageGarden() {
               </div>
               <button
                 className={styles.locationCloseBtn}
-                onClick={() => setIsLocationModalOpen(false)}
+                onClick={closeLocationModal}
                 title="Close"
               >
                 ✕
               </button>
             </div>
 
-            {locationFeedback && (
-              <div className={styles.locationFeedback}>{locationFeedback}</div>
-            )}
-            {locationError && (
-              <div className={styles.locationError}>{locationError}</div>
-            )}
+            <p className={styles.locationSubtitle}>
+              Ensure accurate real-time weather, temperature, and day/night cycle for your desk.
+            </p>
 
-            {/* GPS Detection Button */}
-            <button
-              className={styles.gpsBtn}
-              onClick={handleTriggerExactGPS}
-              disabled={isDetectingGps}
-              title="Detect precise GPS location and reverse geocode exact town"
-            >
-              <span>🎯</span>
-              <span>
-                {isDetectingGps
-                  ? "Detecting GPS & Weather..."
-                  : "Detect My Exact GPS Location"}
-              </span>
-            </button>
-
-            <div className={styles.divider}>or search city / municipality</div>
-
-            {/* Search Input Form */}
             <form onSubmit={handleCitySubmit} className={styles.searchForm}>
               <input
                 type="text"
+                className={styles.cityInput}
+                placeholder="Type city or town (e.g. Baybay, Ormoc, Manila, Tokyo)..."
                 value={cityInput}
                 onChange={(e) => setCityInput(e.target.value)}
-                placeholder="Type city (e.g. Cebu, Davao, Manila, Iloilo...)"
-                className={styles.modalSearchInput}
                 autoFocus
               />
-              <button type="submit" className={styles.modalSearchBtn}>
+              <button type="submit" className={styles.searchBtn} disabled={isDetectingGps}>
                 Search
               </button>
             </form>
 
-            {/* Quick Preset Chips */}
-            <div>
-              <div
-                style={{
-                  fontSize: "0.7rem",
-                  color: "#8a7e6b",
-                  marginBottom: "6px",
-                  fontWeight: 700,
-                }}
-              >
-                Quick Select:
-              </div>
-              <div className={styles.presetChips}>
-                {[
-                  "Cebu City",
-                  "Davao City",
-                  "Manila",
-                  "Quezon City",
-                  "Baguio",
-                  "Iloilo City",
-                  "Bacolod",
-                  "Cagayan de Oro",
-                  "Pasig",
-                  "Tokyo",
-                  "London",
-                ].map((city) => (
-                  <button
-                    key={city}
-                    type="button"
-                    className={styles.chipBtn}
-                    onClick={() => handleSelectCity(city)}
-                  >
-                    {city}
-                  </button>
-                ))}
-              </div>
+            <div className={styles.orDivider}>
+              <span>or</span>
+            </div>
+
+            <button
+              type="button"
+              className={styles.gpsBtn}
+              onClick={handleDetectGps}
+              disabled={isDetectingGps}
+            >
+              <span>🛰️</span>
+              <span>
+                {isDetectingGps ? "Acquiring Device GPS..." : "Detect with Device GPS"}
+              </span>
+            </button>
+
+            {locationFeedback && (
+              <div className={styles.feedbackSuccess}>{locationFeedback}</div>
+            )}
+
+            {locationError && (
+              <div className={styles.feedbackError}>{locationError}</div>
+            )}
+
+            <div className={styles.quickCitiesList}>
+              <span className={styles.quickCityLabel}>Quick preset:</span>
+              {["Baybay", "Ormoc", "Tacloban", "Cebu", "Manila", "Tokyo"].map((city) => (
+                <button
+                  key={city}
+                  type="button"
+                  className={styles.quickCityBtn}
+                  onClick={() => setCity(city)}
+                >
+                  {city}
+                </button>
+              ))}
             </div>
           </div>
         </div>

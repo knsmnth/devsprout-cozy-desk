@@ -102,6 +102,32 @@
   border-color: #bcd2e0;
 }
 
+/* Dual-State Sky Gradients: Night + Rain, Sunset + Rain, Storm */
+.skyNightRainy {
+  background: linear-gradient(180deg, #0a111e 0%, #131c2d 45%, #172436 76%, #1a2a1d 100%);
+  border-color: #24354c;
+}
+
+.skySunsetRainy {
+  background: linear-gradient(180deg, #3d2334 0%, #462a3b 45%, #3a2c3a 76%, #273722 100%);
+  border-color: #4d3345;
+}
+
+.skyThunderstorm {
+  background: linear-gradient(180deg, #121824 0%, #1c2637 45%, #242d3d 76%, #1d2b1f 100%);
+  border-color: #2d3e56;
+  animation: lightningAmbient 9s infinite ease-in-out;
+}
+
+@keyframes lightningAmbient {
+  0%, 93%, 97%, 100% {
+    filter: brightness(1);
+  }
+  94%, 96% {
+    filter: brightness(1.35) drop-shadow(0 0 12px rgba(255, 255, 255, 0.4));
+  }
+}
+
 /* Midnight Theme Sky Gradients - rich dusky & twilight aesthetics */
 :global([data-theme="midnight"]) .skySunny {
   background: linear-gradient(180deg, #1b2d48 0%, #1c2b42 45%, #182635 76%, #213c28 100%);
@@ -121,6 +147,11 @@
 :global([data-theme="midnight"]) .skyRainy {
   background: linear-gradient(180deg, #131b28 0%, #192334 45%, #17212e 76%, #16241b 100%);
   border-color: #243347;
+}
+
+:global([data-theme="midnight"]) .skyNightRainy {
+  background: linear-gradient(180deg, #090e18 0%, #101826 45%, #141e2e 76%, #131f17 100%);
+  border-color: #1f2d40;
 }
 
 :global([data-theme="midnight"]) .skySnowy {
@@ -155,7 +186,8 @@
   white-space: nowrap;
 }
 
-.cityPill {
+.cityPill,
+.locationPill {
   font-size: 0.72rem;
   font-weight: 600;
   color: var(--cozy-text-dark, #3e382f);
@@ -171,10 +203,33 @@
   white-space: nowrap;
 }
 
-.cityPill:hover {
+.cityPill:hover,
+.locationPill:hover {
   background: var(--cozy-bg-panel);
   border-color: var(--cozy-green-header, #5f7a49);
   color: var(--cozy-text-dark);
+}
+
+.refreshWeatherBtn {
+  background: var(--cozy-bg-warm, #faf7ef);
+  border: 1px solid var(--cozy-border-soft, #dfd7c6);
+  color: var(--cozy-text-muted, #797163);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.refreshWeatherBtn:hover {
+  background: var(--cozy-bg-panel);
+  border-color: var(--cozy-green-header, #5f7a49);
+  color: var(--cozy-text-dark);
+  transform: rotate(45deg);
 }
 
 .cityInputBox {
