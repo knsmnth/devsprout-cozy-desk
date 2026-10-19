@@ -107,6 +107,8 @@ export default function DeskMenuModal({ isOpen, onClose }) {
     resetDailyStats,
     exportWorkspaceData,
     importWorkspaceData,
+    levelData,
+    XP_REWARDS,
   } = useTaskManager();
 
   // Profile Form Local State
@@ -296,6 +298,49 @@ export default function DeskMenuModal({ isOpen, onClose }) {
           {/* TAB 1: PROFILE */}
           {deskMenuTab === "profile" && (
             <form onSubmit={handleSaveProfile}>
+              {/* Cozy Developer Level & Progression Hub */}
+              <div className={styles.levelHubCard}>
+                <div className={styles.levelHubHeader}>
+                  <div className={styles.levelHubBadge}>
+                    <span className={styles.levelHubEmoji}>{levelData?.icon || "🌱"}</span>
+                    <div>
+                      <div className={styles.levelHubTitle}>
+                        Level {levelData?.level || 1}: {levelData?.title || "Cozy Sprout"}
+                      </div>
+                      <div className={styles.levelHubSub}>
+                        Total Progression: <strong>{levelData?.totalXp || 0} XP</strong>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={styles.levelHubNextPill}>
+                    {levelData?.nextTier
+                      ? `${(levelData.neededForNext || 100) - (levelData.currentLevelXp || 0)} XP to ${levelData.nextTier.title}`
+                      : "Max Mythic Tier Reached! ✨"}
+                  </div>
+                </div>
+
+                <div className={styles.levelHubProgressBar}>
+                  <div
+                    className={styles.levelHubProgressFill}
+                    style={{ width: `${levelData?.progressPercent || 0}%` }}
+                  />
+                </div>
+                <div className={styles.levelHubProgressLabels}>
+                  <span>Progress to Next Tier</span>
+                  <span>
+                    {levelData?.progressPercent || 0}% ({levelData?.currentLevelXp || 0} / {levelData?.neededForNext || 100} XP)
+                  </span>
+                </div>
+
+                <div className={styles.xpSourcesRow}>
+                  <span className={styles.xpSourceTag}>🌱 Task Harvested: +{XP_REWARDS?.HARVEST_TASK || 20} XP</span>
+                  <span className={styles.xpSourceTag}>☕ Mindful Pomodoro: +{XP_REWARDS?.FOCUS_SESSION || 15} XP</span>
+                  <span className={styles.xpSourceTag}>📝 Micro-Learning: +{XP_REWARDS?.LEARNING_NOTE || 10} XP</span>
+                  <span className={styles.xpSourceTag}>🍵 Hydration Sip: +{XP_REWARDS?.SIP_WATER || 5} XP</span>
+                  <span className={styles.xpSourceTag}>✨ Desk Stamp: +{XP_REWARDS?.STAMP || 2} XP</span>
+                </div>
+              </div>
+
               <div className={styles.sectionTitle}>Mascot Avatar & Identity</div>
               <div className={styles.sectionSubtitle}>Choose your companion avatar and how you appear on your desk.</div>
 

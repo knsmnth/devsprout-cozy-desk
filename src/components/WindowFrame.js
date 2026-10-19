@@ -19,6 +19,8 @@ export default function WindowFrame({ children }) {
     openDeskMenu,
     closeDeskMenu,
     theme,
+    levelUpToast,
+    dismissLevelUpToast,
   } = useTaskManager();
 
   const [isPlayingLoFi, setIsPlayingLoFi] = useState(false);
@@ -254,6 +256,30 @@ export default function WindowFrame({ children }) {
           </div>
         </div>
       </div>
+
+      {/* Celebratory Level Up Banner */}
+      {levelUpToast && (
+        <div className={styles.levelUpToast}>
+          <div className={styles.levelUpToastContent}>
+            <span className={styles.levelUpToastIcon}>{levelUpToast.icon || "🌱"}</span>
+            <div className={styles.levelUpToastText}>
+              <div className={styles.levelUpToastHeading}>
+                ✨ Level Up! Reached Level {levelUpToast.level} ✨
+              </div>
+              <div className={styles.levelUpToastSub}>
+                Unlocked title <strong>{levelUpToast.title}</strong>! {levelUpToast.reason ? `(${levelUpToast.reason})` : ""}
+              </div>
+            </div>
+            <button
+              className={styles.levelUpToastClose}
+              onClick={dismissLevelUpToast}
+              title="Dismiss celebration"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Comprehensive Desk Customization Hub Modal */}
       <DeskMenuModal isOpen={isDeskMenuOpen} onClose={closeDeskMenu} />

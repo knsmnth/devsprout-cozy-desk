@@ -37,6 +37,7 @@ export default function DeskView() {
     userProfile,
     shelves,
     openDeskMenu,
+    levelData,
   } = useTaskManager();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -149,7 +150,7 @@ export default function DeskView() {
               title="Click to customize avatar"
             >
               <span className="cute-bounce">{userProfile?.avatar || "🧸"}</span>
-              <span className={styles.lvlBadge}>Lv. 1</span>
+              <span className={styles.lvlBadge}>Lv. {levelData?.level || 1}</span>
             </div>
             <div className={styles.profileInfo}>
               <h3>
@@ -161,6 +162,34 @@ export default function DeskView() {
                 <span className={styles.statusDot}></span>
                 {userProfile?.mood || "in the coding flow"}
               </p>
+            </div>
+          </div>
+
+          {/* Cozy Developer Level Progression */}
+          <div
+            className={styles.levelCard}
+            onClick={() => {
+              if (sounds) sounds.playPop();
+              openDeskMenu("profile");
+            }}
+            title="Click to view level progression & rewards"
+          >
+            <div className={styles.levelCardHeader}>
+              <div className={styles.levelTitleRow}>
+                <span className={styles.levelIcon}>{levelData?.icon || "🌱"}</span>
+                <span className={styles.levelName}>
+                  Lv. {levelData?.level || 1} • {levelData?.title || "Cozy Sprout"}
+                </span>
+              </div>
+              <span className={styles.levelXpText}>
+                {levelData?.currentLevelXp ?? 0} / {levelData?.neededForNext ?? 100} XP
+              </span>
+            </div>
+            <div className={styles.levelProgressBar}>
+              <div
+                className={styles.levelProgressFill}
+                style={{ width: `${levelData?.progressPercent ?? 0}%` }}
+              />
             </div>
           </div>
 

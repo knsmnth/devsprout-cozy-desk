@@ -4,6 +4,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import confetti from "canvas-confetti";
 import { sounds } from "@/utils/audio";
+import { calculateLevel, XP_REWARDS, LEVEL_TIERS } from "@/utils/levelSystem";
 
 const TaskContext = createContext(null);
 
@@ -95,6 +96,10 @@ export function TaskProvider({ children }) {
   const [scratchpadCode, setScratchpadCode] = useState("");
   const [learnings, setLearnings] = useState(INITIAL_LEARNINGS);
   const [stamps, setStamps] = useState({ bear: 0, strawberry: 0, matcha: 0, sparkle: 0 });
+
+  // Developer Level & Progression
+  const [userXp, setUserXp] = useState(0);
+  const [levelUpToast, setLevelUpToast] = useState(null);
 
   // Cafe Pomodoro
   const [pomodoroDuration, setPomodoroDuration] = useState(25 * 60);
@@ -226,6 +231,27 @@ export function TaskProvider({ children }) {
 
       const savedLogs = localStorage.getItem("devsprout_session_logs");
       if (savedLogs) setSessionLogs(JSON.parse(savedLogs));
+
+      const savedXp = localStorage.getItem("devsprout_user_xp");
+      if (savedXp !== null) {
+        setUserXp(Number(savedXp));
+      } else {
+        // Bootstrap initial XP from existing harvested tasks and water
+        let bootstrapXp = 0;
+        if (savedTasks) {
+          try {
+            const parsed = JSON.parse(savedTasks);
+            const harvestedCount = parsed.filter((t) => t.status === "harvested").length;
+            bootstrapXp += harvestedCount * XP_REWARDS.HARVEST_TASK;
+          } catch {}
+        }
+        if (savedWater !== null) {
+          bootstrapXp += Number(savedWater) * XP_REWARDS.SIP_WATER;
+        }
+        if (bootstrapXp > 0) {
+          setUserXp(bootstrapXp);
+        }
+      }
     } catch {
       // Local storage unavailable or SSR
     }
@@ -290,6 +316,20 @@ export function TaskProvider({ children }) {
 
   useEffect(() => {
     try {
+      localStorage.setItem("devsprout_user_xp", String(userXp));
+    } catch {}
+  }, [userXp]);
+
+  useEffect(() => {
+    if (!levelUpToast) return;
+    const timer = setTimeout(() => {
+      setLevelUpToast(null);
+    }, 4500);
+    return () => clearTimeout(timer);
+  }, [levelUpToast]);
+
+  useEffect(() => {
+    try {
       localStorage.setItem("devsprout_cafe_stamps", JSON.stringify(cafeStamps));
     } catch {}
   }, [cafeStamps]);
@@ -311,6 +351,38 @@ export function TaskProvider({ children }) {
       localStorage.setItem("devsprout_categories", JSON.stringify(taskCategories));
     } catch {}
   }, [taskCategories]);
+
+  const levelData = calculateLevel(userXp);
+
+  const addXp = useCallback((amount, reason = "") => {
+    if (!amount || amount <= 0) return;
+    setUserXp((prevXp) => {
+      const oldLevelData = calculateLevel(prevXp);
+      const newXp = prevXp + amount;
+      const newLevelData = calculateLevel(newXp);
+
+      if (newLevelData.level > oldLevelData.level) {
+        if (sounds) sounds.playBellChime();
+        confetti({
+          particleCount: 50,
+          spread: 70,
+          origin: { y: 0.5 },
+          colors: ["#78995a", "#f8df8c", "#e26d5c", "#ffd166"],
+        });
+        setLevelUpToast({
+          level: newLevelData.level,
+          title: newLevelData.title,
+          icon: newLevelData.icon,
+          reason,
+        });
+      }
+      return newXp;
+    });
+  }, []);
+
+  const dismissLevelUpToast = useCallback(() => {
+    setLevelUpToast(null);
+  }, []);
 
   const handlePomodoroComplete = useCallback(() => {
     if (sounds) sounds.playBellChime();
@@ -337,6 +409,8 @@ export function TaskProvider({ children }) {
       return prev;
     });
 
+    addXp(XP_REWARDS.FOCUS_SESSION, "Mindful Pomodoro");
+
     // Add session log
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -355,7 +429,7 @@ export function TaskProvider({ children }) {
 
     setTimerIntervalCount((prev) => prev + 1);
     setTimeLeft(pomodoroDuration);
-  }, [currentBeverage, pomodoroDuration, selectedAppId, timerIntervalCount]);
+  }, [currentBeverage, pomodoroDuration, selectedAppId, timerIntervalCount, addXp]);
 
   // Pomodoro Interval Timer
   useEffect(() => {
@@ -388,6 +462,9 @@ export function TaskProvider({ children }) {
       ...newTask,
     };
     setTasks((prev) => [task, ...prev]);
+    if (isHarvested) {
+      addXp(XP_REWARDS.HARVEST_TASK, "Harvested Task");
+    }
     if (sounds) sounds.playClick();
   };
 
@@ -415,6 +492,7 @@ export function TaskProvider({ children }) {
             updated.typeLabel = updates.type.toUpperCase();
           }
           if (isHarvestedTransition) {
+            addXp(XP_REWARDS.HARVEST_TASK, "Harvested Task");
             if (sounds) sounds.playPop();
             confetti({
               particleCount: 35,
@@ -440,6 +518,7 @@ export function TaskProvider({ children }) {
           let completedAt = t.completedAt;
           if (isHarvested && !wasHarvested) {
             completedAt = new Date().toISOString();
+            addXp(XP_REWARDS.HARVEST_TASK, "Harvested Task");
             if (sounds) sounds.playPop();
             confetti({
               particleCount: 35,
@@ -616,6 +695,7 @@ export function TaskProvider({ children }) {
       tasks,
       waterCups,
       maxWaterCups,
+      userXp,
       learnings,
       scratchpadCode,
       sessionLogs,
@@ -649,6 +729,7 @@ export function TaskProvider({ children }) {
       if (data.tasks) setTasks(data.tasks);
       if (typeof data.waterCups === "number") setWaterCups(data.waterCups);
       if (typeof data.maxWaterCups === "number") setMaxWaterCups(data.maxWaterCups);
+      if (typeof data.userXp === "number") setUserXp(data.userXp);
       if (data.learnings) setLearnings(data.learnings);
       if (data.scratchpadCode) setScratchpadCode(data.scratchpadCode);
       if (data.sessionLogs) setSessionLogs(data.sessionLogs);
@@ -675,12 +756,14 @@ export function TaskProvider({ children }) {
   const sipWater = () => {
     if (sounds) sounds.playWaterDrop();
     setWaterCups((prev) => (prev >= maxWaterCups ? 1 : prev + 1));
+    addXp(XP_REWARDS.SIP_WATER, "Hydration Sip");
   };
 
   // Stamp Reaction Clicker
   const addStamp = (type) => {
     if (sounds) sounds.playPop();
     setStamps((prev) => ({ ...prev, [type]: (prev[type] || 0) + 1 }));
+    addXp(XP_REWARDS.STAMP, "Desk Reaction");
   };
 
   // Stale Task Analyzer
@@ -768,7 +851,14 @@ export function TaskProvider({ children }) {
         resetDailyStats,
         exportWorkspaceData,
         importWorkspaceData,
-        // Trackers
+        // Trackers & Progression
+        userXp,
+        levelData,
+        addXp,
+        levelUpToast,
+        dismissLevelUpToast,
+        LEVEL_TIERS,
+        XP_REWARDS,
         waterCups,
         maxWaterCups,
         sipWater,

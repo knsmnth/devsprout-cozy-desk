@@ -469,6 +469,102 @@
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+/* Level Hub Card */
+.levelHubCard {
+  background: var(--cozy-bg-warm, #ffffff);
+  border: 1.5px solid var(--cozy-border-soft, #e2dac8);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 22px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.levelHubHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.levelHubBadge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.levelHubEmoji {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.levelHubTitle {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--cozy-text-dark, #2d2621);
+}
+
+.levelHubSub {
+  font-size: 0.8rem;
+  color: var(--cozy-text-muted, #7a7065);
+  margin-top: 2px;
+}
+
+.levelHubNextPill {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--cozy-green-header, #5F7A49);
+  background: var(--cozy-bg-panel, #f4efe6);
+  border: 1px solid var(--cozy-border-soft, #e2dac8);
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+.levelHubProgressBar {
+  width: 100%;
+  height: 8px;
+  background: var(--cozy-bg-panel, #f4efe6);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--cozy-border-soft, #e2dac8);
+}
+
+.levelHubProgressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cozy-green-header, #5F7A49), var(--cozy-green-accent, #78995a));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.levelHubProgressLabels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--cozy-text-muted, #7a7065);
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+
+.xpSourcesRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-top: 1px dashed var(--cozy-border-soft, #e2dac8);
+  padding-top: 10px;
+}
+
+.xpSourceTag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  background: var(--cozy-bg-panel, #f4efe6);
+  color: var(--cozy-text-dark, #2d2621);
+  border-radius: 6px;
+  border: 1px solid var(--cozy-border-soft, #e2dac8);
+}
+
 @media (max-width: 600px) {
   .row {
     grid-template-columns: 1fr;

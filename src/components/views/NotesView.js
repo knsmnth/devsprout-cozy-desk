@@ -16,6 +16,8 @@ export default function NotesView() {
     stamps,
     addStamp,
     mascotQuote,
+    addXp,
+    XP_REWARDS,
   } = useTaskManager();
 
   const [activeTag, setActiveTag] = useState("daily");
@@ -32,7 +34,16 @@ export default function NotesView() {
   const toggleLearning = (id) => {
     if (sounds) sounds.playPop();
     setLearnings((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, done: !item.done } : item))
+      prev.map((item) => {
+        if (item.id === id) {
+          const nextDone = !item.done;
+          if (nextDone && addXp && XP_REWARDS) {
+            addXp(XP_REWARDS.LEARNING_NOTE, "Learning Completed");
+          }
+          return { ...item, done: nextDone };
+        }
+        return item;
+      })
     );
   };
 
@@ -40,6 +51,9 @@ export default function NotesView() {
     e.preventDefault();
     if (!newLearningText.trim()) return;
     if (sounds) sounds.playClick();
+    if (addXp && XP_REWARDS) {
+      addXp(XP_REWARDS.LEARNING_NOTE, "Micro Learning");
+    }
     setLearnings((prev) => [
       ...prev,
       { id: `l-${Date.now()}`, text: newLearningText.trim(), done: false },

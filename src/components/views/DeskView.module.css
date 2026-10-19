@@ -58,6 +58,67 @@
   transition: background-color 0.25s ease;
 }
 
+.levelCard {
+  margin: 10px 0 12px;
+  padding: 8px 10px;
+  background: var(--cozy-bg-warm);
+  border: 1px dashed var(--cozy-dashed-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.levelCard:hover {
+  border-color: var(--cozy-green-header);
+  transform: translateY(-1px);
+}
+
+.levelCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.levelTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.levelIcon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.levelName {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--cozy-text-dark);
+}
+
+.levelXpText {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--cozy-green-header);
+}
+
+.levelProgressBar {
+  width: 100%;
+  height: 6px;
+  background: var(--cozy-bg-panel);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--cozy-border-soft);
+}
+
+.levelProgressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cozy-green-header), var(--cozy-green-accent));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
 .profileInfo h3 {
   font-size: 0.95rem;
   color: var(--cozy-text-dark);
