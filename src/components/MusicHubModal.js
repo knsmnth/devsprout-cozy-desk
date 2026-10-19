@@ -64,22 +64,9 @@ export default function MusicHubModal() {
   const searchQuery = useMusicStore((state) => state.searchQuery);
   const setSearchQuery = useMusicStore((state) => state.setSearchQuery);
 
-  // Task Store ambient noises & sound effects
+  // Task Store sounds
   const sounds = useTaskStore((state) => state.sounds);
-  const [activeAmbient, setActiveAmbient] = useState(null);
-
   const scrubberRef = useRef(null);
-
-  const handleToggleAmbient = (type) => {
-    if (!sounds) return;
-    if (activeAmbient === type) {
-      sounds.stopAmbient();
-      setActiveAmbient(null);
-    } else {
-      sounds.playAmbient(type);
-      setActiveAmbient(type);
-    }
-  };
 
   // Filtered tracks
   const filteredTracks = useMemo(() => {
@@ -605,25 +592,6 @@ export default function MusicHubModal() {
                     className={styles.volumeSlider}
                     title={`Volume: ${Math.round(volume * 100)}%`}
                   />
-                </div>
-
-                <div className={styles.ambientQuickToggles}>
-                  <button
-                    type="button"
-                    className={`${styles.ambientMiniBtn} ${activeAmbient === "rain" ? styles.ambientMiniActive : ""}`}
-                    onClick={() => handleToggleAmbient("rain")}
-                    title="Toggle Rooftop Rain Layer"
-                  >
-                    🌧️ Rain
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.ambientMiniBtn} ${activeAmbient === "cafe" ? styles.ambientMiniActive : ""}`}
-                    onClick={() => handleToggleAmbient("cafe")}
-                    title="Toggle Warm Cafe Layer"
-                  >
-                    ☕ Cafe
-                  </button>
                 </div>
               </div>
 

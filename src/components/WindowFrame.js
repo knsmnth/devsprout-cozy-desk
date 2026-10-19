@@ -50,7 +50,6 @@ export default function WindowFrame({ children }) {
   const seekMusic = useMusicStore((state) => state.seek);
   const openMusicHub = useMusicStore((state) => state.openMusicHub);
 
-  const [activeAmbient, setActiveAmbient] = useState(null);
   const [showYoutube, setShowYoutube] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -58,13 +57,6 @@ export default function WindowFrame({ children }) {
   const handleTabClick = (tabId) => {
     if (sounds) sounds.playClick();
     setActiveTab(tabId);
-  };
-
-  // Ambient sound handler
-  const handleToggleAmbient = (type) => {
-    if (!sounds) return;
-    const isNowActive = sounds.toggleAmbient(type);
-    setActiveAmbient(isNowActive ? type : null);
   };
 
   return (
@@ -206,24 +198,6 @@ export default function WindowFrame({ children }) {
             >
               {isPlayingMusic ? <Pause size={15} /> : <Play size={15} style={{ marginLeft: 1 }} />}
             </button>
-
-            {/* Ambient Sound Toggles */}
-            <div className={styles.ambientPills}>
-              <button
-                type="button"
-                className={`${styles.ambientBtn} ${activeAmbient === "rain" ? styles.ambientBtnActive : ""}`}
-                onClick={() => handleToggleAmbient("rain")}
-              >
-                🌧️ Rain
-              </button>
-              <button
-                type="button"
-                className={`${styles.ambientBtn} ${activeAmbient === "cafe" ? styles.ambientBtnActive : ""}`}
-                onClick={() => handleToggleAmbient("cafe")}
-              >
-                ☕ Cafe
-              </button>
-            </div>
 
             {/* YouTube Lo-Fi Player Drawer Toggle */}
             <button
