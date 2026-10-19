@@ -146,17 +146,117 @@
   align-items: center;
   gap: 8px;
   font-weight: 600;
+  border-radius: 9999px;
+  padding: 2px 8px;
+  transition: all 0.2s ease;
+}
+
+.mediaTitle:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.mediaTitleText {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 320px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.barLiveBadge {
+  background: #f07167;
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 6px;
+  margin-left: 4px;
+}
+
+.openMusicHubBtn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  margin-left: 4px;
+}
+
+.openMusicHubBtn:hover {
+  background: #f9d976;
+  color: #3e382f;
+  border-color: #f9d976;
+  transform: translateY(-1px);
 }
 
 .musicNote {
   font-size: 1rem;
   color: #f9d976;
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.musicNotePlaying {
+  animation: notePulse 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes notePulse {
+  from { transform: scale(1) rotate(-6deg); }
+  to { transform: scale(1.25) rotate(6deg); }
 }
 
 .mediaControls {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
+}
+
+.barSkipBtn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.15s ease;
+}
+
+.barSkipBtn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.1);
+}
+
+.barPlayBtn {
+  background: #f9d976;
+  border: none;
+  color: #3e382f;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.barPlayBtn:hover {
+  transform: scale(1.1);
+  background: #ffea9f;
 }
 
 .timeDisplay {
@@ -196,6 +296,7 @@
   border-radius: 9999px;
   font-size: 0.78rem;
   font-weight: 600;
+  cursor: pointer;
 }
 
 .ambientBtnActive {
@@ -213,6 +314,7 @@
   font-weight: 700;
   display: flex;
   align-items: center;
+  cursor: pointer;
   gap: 4px;
 }
 

@@ -5,7 +5,23 @@ import styles from "./WindowFrame.module.css";
 import { useTaskManager } from "@/context/TaskContext";
 import { sounds } from "@/utils/audio";
 import DeskMenuModal from "@/components/DeskMenuModal";
-import { Play, Pause, Bell, Droplets, Moon, Sun, Tv, X } from "lucide-react";
+import AudioStreamController from "@/components/AudioStreamController";
+import MusicHubModal from "@/components/MusicHubModal";
+import { useMusicStore } from "@/store/useMusicStore";
+import { formatAudioTime } from "@/utils/musicCatalog";
+import {
+  Play,
+  Pause,
+  Bell,
+  Droplets,
+  Moon,
+  Sun,
+  Tv,
+  X,
+  SkipForward,
+  SkipBack,
+  Music,
+} from "lucide-react";
 
 export default function WindowFrame({ children }) {
   const {
@@ -23,10 +39,19 @@ export default function WindowFrame({ children }) {
     dismissLevelUpToast,
   } = useTaskManager();
 
-  const [isPlayingLoFi, setIsPlayingLoFi] = useState(false);
+  // Music Streaming Store
+  const currentTrack = useMusicStore((state) => state.currentTrack);
+  const isPlayingMusic = useMusicStore((state) => state.isPlaying);
+  const musicCurrentTime = useMusicStore((state) => state.currentTime);
+  const musicDuration = useMusicStore((state) => state.duration);
+  const togglePlayMusic = useMusicStore((state) => state.togglePlay);
+  const nextMusicTrack = useMusicStore((state) => state.nextTrack);
+  const prevMusicTrack = useMusicStore((state) => state.prevTrack);
+  const seekMusic = useMusicStore((state) => state.seek);
+  const openMusicHub = useMusicStore((state) => state.openMusicHub);
+
   const [activeAmbient, setActiveAmbient] = useState(null);
   const [showYoutube, setShowYoutube] = useState(false);
-  const [mediaTime, setMediaTime] = useState(65); // 01:05
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Switch tabs
@@ -40,23 +65,6 @@ export default function WindowFrame({ children }) {
     if (!sounds) return;
     const isNowActive = sounds.toggleAmbient(type);
     setActiveAmbient(isNowActive ? type : null);
-  };
-
-  // Timer simulation for Lo-Fi bar
-  useEffect(() => {
-    let interval = null;
-    if (isPlayingLoFi || activeAmbient) {
-      interval = setInterval(() => {
-        setMediaTime((prev) => (prev >= 252 ? 0 : prev + 1));
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isPlayingLoFi, activeAmbient]);
-
-  const formatMediaTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `0${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
   return (
@@ -104,59 +112,112 @@ export default function WindowFrame({ children }) {
           </div>
         </header>
 
-        {/* Persistent Audio & Lo-Fi Media Bar */}
+        {/* Persistent Audio & Lo-Fi Media Bar with Real Streaming & Music Hub Access */}
         <div className={styles.mediaBar}>
-          <div className={styles.mediaTitle}>
-            <span className={styles.musicNote}>♫</span>
-            <span>
+          <div
+            className={styles.mediaTitle}
+            onClick={() => {
+              if (sounds) sounds.playClick();
+              openMusicHub("player");
+            }}
+            title="Click to open Cozy Music Hub & Player"
+            style={{ cursor: "pointer" }}
+          >
+            <span className={`${styles.musicNote} ${isPlayingMusic ? styles.musicNotePlaying : ""}`}>♫</span>
+            <span className={styles.mediaTitleText}>
               Now Playing –{" "}
-              {activeAmbient === "rain"
-                ? "Gentle Rooftop Rain & Distant Thunder"
-                : activeAmbient === "cafe"
-                ? "Ambient Cafe Chimes & Rainy Jazz"
-                : "Warm Tea & Code (by Chocoberry)"}
+              <strong>
+                {currentTrack ? `${currentTrack.title} (${currentTrack.artist})` : "Warm Tea & Code"}
+              </strong>
+              {currentTrack?.isLive && <span className={styles.barLiveBadge}>📻 LIVE</span>}
             </span>
+
+            <button
+              type="button"
+              className={styles.openMusicHubBtn}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (sounds) sounds.playClick();
+                openMusicHub("browse");
+              }}
+              title="Browse Songs & Artists"
+            >
+              <Music size={12} />
+              <span>Browse</span>
+            </button>
           </div>
 
           <div className={styles.mediaControls}>
+            <button
+              type="button"
+              className={styles.barSkipBtn}
+              onClick={() => {
+                if (sounds) sounds.playClick();
+                prevMusicTrack();
+              }}
+              title="Previous Track"
+            >
+              <SkipBack size={13} />
+            </button>
+
             <span className={styles.timeDisplay}>
-              {formatMediaTime(mediaTime)}
+              {currentTrack?.isLive ? "LIVE" : formatAudioTime(musicCurrentTime)}
             </span>
+
             <div
               className={styles.timeSlider}
-              onClick={() => setMediaTime((prev) => (prev + 30) % 252)}
+              onClick={(e) => {
+                if (!musicDuration || currentTrack?.isLive) return;
+                const rect = e.currentTarget.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+                seekMusic(ratio * musicDuration);
+              }}
+              title={currentTrack?.isLive ? "Live Stream" : "Seek track"}
             >
               <div
                 className={styles.timeProgress}
-                style={{ width: `${(mediaTime / 252) * 100}%` }}
+                style={{
+                  width: `${currentTrack?.isLive ? 100 : musicDuration > 0 ? (musicCurrentTime / musicDuration) * 100 : 0}%`,
+                }}
               />
             </div>
 
             <button
+              type="button"
+              className={styles.barSkipBtn}
               onClick={() => {
-                if (activeAmbient) {
-                  sounds && sounds.stopAmbient();
-                  setActiveAmbient(null);
-                } else {
-                  handleToggleAmbient("rain");
-                }
-                setIsPlayingLoFi(!isPlayingLoFi);
+                if (sounds) sounds.playClick();
+                nextMusicTrack();
               }}
-              title="Play / Pause"
-              style={{ color: "#fff" }}
+              title="Next Track"
             >
-              {isPlayingLoFi || activeAmbient ? <Pause size={17} /> : <Play size={17} />}
+              <SkipForward size={13} />
+            </button>
+
+            <button
+              type="button"
+              className={styles.barPlayBtn}
+              onClick={() => {
+                if (sounds) sounds.playClick();
+                togglePlayMusic();
+              }}
+              title={isPlayingMusic ? "Pause" : "Play"}
+            >
+              {isPlayingMusic ? <Pause size={15} /> : <Play size={15} style={{ marginLeft: 1 }} />}
             </button>
 
             {/* Ambient Sound Toggles */}
             <div className={styles.ambientPills}>
               <button
+                type="button"
                 className={`${styles.ambientBtn} ${activeAmbient === "rain" ? styles.ambientBtnActive : ""}`}
                 onClick={() => handleToggleAmbient("rain")}
               >
                 🌧️ Rain
               </button>
               <button
+                type="button"
                 className={`${styles.ambientBtn} ${activeAmbient === "cafe" ? styles.ambientBtnActive : ""}`}
                 onClick={() => handleToggleAmbient("cafe")}
               >
@@ -166,6 +227,7 @@ export default function WindowFrame({ children }) {
 
             {/* YouTube Lo-Fi Player Drawer Toggle */}
             <button
+              type="button"
               className={styles.ytToggleBtn}
               onClick={() => setShowYoutube(!showYoutube)}
             >
@@ -283,6 +345,12 @@ export default function WindowFrame({ children }) {
 
       {/* Comprehensive Desk Customization Hub Modal */}
       <DeskMenuModal isOpen={isDeskMenuOpen} onClose={closeDeskMenu} />
+
+      {/* Headless Audio Streaming Controller */}
+      <AudioStreamController />
+
+      {/* Cozy Music Streaming Hub & Player Modal */}
+      <MusicHubModal />
     </div>
   );
 }
