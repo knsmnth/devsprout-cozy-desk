@@ -17,7 +17,7 @@
 }
 
 .sprintHero {
-  background: #ffffff;
+  background: var(--cozy-bg-card);
   border: 1.5px solid var(--cozy-border-soft);
   border-radius: var(--radius-card);
   padding: 16px 20px;
@@ -50,8 +50,8 @@
 .acornBadge {
   width: 58px;
   height: 58px;
-  background: #fdfaf3;
-  border: 1.5px solid #e2d9c8;
+  background: var(--cozy-bg-panel);
+  border: 1.5px solid var(--cozy-border-soft);
   border-radius: 14px;
   display: flex;
   flex-direction: column;
@@ -554,13 +554,13 @@
 .minimalTaskCard:hover {
   transform: translateY(-2px);
   border-color: var(--cozy-border-hard);
-  box-shadow: 0 4px 12px rgba(95, 78, 55, 0.09);
-  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: var(--cozy-bg-panel);
 }
 
 .minimalCardBloom {
-  background: #fffdf7;
-  border-color: #ecdab9;
+  background: var(--cozy-bg-warm);
+  border-color: var(--cozy-border-hard);
   box-shadow: 0 1px 4px rgba(212, 139, 56, 0.07);
 }
 
@@ -571,8 +571,8 @@
 
 .minimalCardHarvested {
   opacity: 0.88;
-  background: #faf8f3;
-  border-color: #e5ded0;
+  background: var(--cozy-bg-panel);
+  border-color: var(--cozy-border-soft);
 }
 
 .minimalLeft {
@@ -657,9 +657,9 @@
   font-size: 0.68rem;
   padding: 2.5px 6px;
   border-radius: 6px;
-  background: #faf7ef;
-  border: 1.2px solid #ded5bf;
-  color: #5c4e36;
+  background: var(--cozy-bg-warm);
+  border: 1.2px solid var(--cozy-border-soft);
+  color: var(--cozy-text-dark);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -667,8 +667,8 @@
 }
 
 .miniNoteBtn:hover {
-  background: #f2e7cd;
-  border-color: #c9bc9e;
+  background: var(--cozy-bg-panel);
+  border-color: var(--cozy-border-hard);
   transform: translateY(-1px);
 }
 
@@ -776,9 +776,9 @@
   gap: 6px;
   font-size: 0.72rem;
   font-weight: 600;
-  color: #7d6b53;
-  background: #faf4e6;
-  border: 1.2px dashed #ded0b4;
+  color: var(--cozy-text-muted);
+  background: var(--cozy-bg-panel);
+  border: 1.2px dashed var(--cozy-dashed-border);
   border-radius: 8px;
   padding: 6px 10px;
   margin-top: auto;
@@ -792,8 +792,8 @@
 
 /* Kanban Task Card (Legacy fallback) */
 .taskCard {
-  background: #fbf9f4;
-  border: 1.5px solid #e5decb;
+  background: var(--cozy-bg-card);
+  border: 1.5px solid var(--cozy-border-soft);
   border-radius: 14px;
   padding: 12px;
   display: flex;
@@ -825,19 +825,19 @@
 .ticketId {
   font-size: 0.74rem;
   font-weight: 700;
-  color: #8c8371;
+  color: var(--cozy-text-muted);
 }
 
 .cardTitle {
   font-size: 0.92rem;
   font-weight: 700;
-  color: #3e382f;
+  color: var(--cozy-text-dark);
   line-height: 1.35;
 }
 
 .cardDesc {
   font-size: 0.78rem;
-  color: #797163;
+  color: var(--cozy-text-muted);
   line-height: 1.4;
 }
 
@@ -847,9 +847,9 @@
   justify-content: space-between;
   margin-top: 4px;
   padding-top: 6px;
-  border-top: 1px dashed #e8e2d4;
+  border-top: 1px dashed var(--cozy-border-soft);
   font-size: 0.75rem;
-  color: #8c8371;
+  color: var(--cozy-text-muted);
 }
 
 .cardActions {
@@ -861,8 +861,8 @@
   font-size: 0.72rem;
   padding: 3px 8px;
   border-radius: 6px;
-  background: #ebe4d5;
-  color: #4a4336;
+  background: var(--cozy-bg-panel);
+  color: var(--cozy-text-dark);
   font-weight: 700;
   cursor: pointer;
   border: none;
@@ -870,7 +870,7 @@
 }
 
 .actionBtn:hover {
-  background: #657d4f;
+  background: var(--cozy-green-header);
   color: #ffffff;
 }
 
@@ -878,9 +878,9 @@
   font-size: 0.72rem;
   padding: 3px 8px;
   border-radius: 6px;
-  background: #ffffff;
-  color: #5c5039;
-  border: 1px solid #dcd1bb;
+  background: var(--cozy-bg-card);
+  color: var(--cozy-text-dark);
+  border: 1px solid var(--cozy-border-soft);
   font-weight: 700;
   display: inline-flex;
   align-items: center;
@@ -890,38 +890,38 @@
 }
 
 .paperBtn:hover {
-  background: #f5edda;
-  color: #2e2617;
-  border-color: #bfae90;
+  background: var(--cozy-bg-panel);
+  color: var(--cozy-text-dark);
+  border-color: var(--cozy-border-hard);
   transform: translateY(-1px);
 }
 
 .addSeedBtn {
-  border: 1.5px dashed #ded6c5;
-  background: #faf7ef;
+  border: 1.5px dashed var(--cozy-dashed-border);
+  background: var(--cozy-bg-panel);
   border-radius: 12px;
   padding: 10px;
   font-size: 0.82rem;
   font-weight: 700;
-  color: #657d4f;
+  color: var(--cozy-green-header);
   text-align: center;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .addSeedBtn:hover {
-  background: #eef5e6;
-  border-color: #657d4f;
+  background: var(--cozy-bg-warm);
+  border-color: var(--cozy-green-header);
 }
 
 .emptyColMessage {
   padding: 36px 14px;
   text-align: center;
-  color: #8c8371;
+  color: var(--cozy-text-muted);
   font-size: 0.84rem;
   font-style: italic;
-  background: #faf7ef;
-  border: 1.5px dashed #ded6c5;
+  background: var(--cozy-bg-panel);
+  border: 1.5px dashed var(--cozy-dashed-border);
   border-radius: 12px;
   margin-top: 4px;
 }

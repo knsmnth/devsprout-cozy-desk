@@ -12,7 +12,7 @@
 }
 
 .card {
-  background: #ffffff;
+  background: var(--cozy-bg-card);
   border: 1.5px solid var(--cozy-border-soft);
   border-radius: var(--radius-card);
   padding: 16px;
@@ -121,12 +121,12 @@
 }
 
 .editCardBtn {
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px dashed #cfc5b0;
+  background: var(--cozy-bg-panel);
+  border: 1px dashed var(--cozy-border-soft);
   border-radius: 8px;
   font-size: 0.72rem;
   font-weight: 600;
-  color: #6a614e;
+  color: var(--cozy-text-muted);
   padding: 3px 8px;
   cursor: pointer;
   display: inline-flex;
@@ -136,9 +136,9 @@
 }
 
 .editCardBtn:hover {
-  background: #ffffff;
-  border-color: #657d4f;
-  color: #4a6337;
+  background: var(--cozy-bg-card);
+  border-color: var(--cozy-green-header);
+  color: var(--cozy-green-header);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
@@ -264,7 +264,7 @@
 
 /* Cottage Mini-Game */
 .cottageCard {
-  background: #ffffff;
+  background: var(--cozy-bg-card);
   border: 1.5px solid var(--cozy-border-soft);
   border-radius: var(--radius-card);
   padding: 12px;
@@ -326,7 +326,7 @@
 .cottageFooterLabel {
   font-size: 0.78rem;
   font-weight: 600;
-  color: #797163;
+  color: var(--cozy-text-muted);
   margin-top: 8px;
 }
 
@@ -592,7 +592,7 @@
 
 .bloomingDesc {
   font-size: 0.76rem;
-  color: #797163;
+  color: var(--cozy-text-muted);
   margin: 0;
   line-height: 1.35;
   white-space: nowrap;
@@ -633,9 +633,9 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  background: #faf7ef;
-  color: #5c5039;
-  border: 1px solid #dcd1bb;
+  background: var(--cozy-bg-panel);
+  color: var(--cozy-text-dark);
+  border: 1px solid var(--cozy-border-soft);
   font-size: 0.74rem;
   font-weight: 700;
   padding: 4px 8px;
@@ -645,7 +645,7 @@
 }
 
 .bloomingNoteBtn:hover {
-  background: #f0e6cf;
+  background: var(--cozy-bg-warm);
 }
 
 /* Quests & Checklist Section */
@@ -834,7 +834,7 @@
 .bentoTitle {
   font-size: 0.88rem;
   font-weight: 700;
-  color: #3e382f;
+  color: var(--cozy-text-dark);
   line-height: 1.32;
   margin-bottom: 3px;
   word-break: break-word;
@@ -842,7 +842,7 @@
 
 .bentoDesc {
   font-size: 0.74rem;
-  color: #797163;
+  color: var(--cozy-text-muted);
   line-height: 1.35;
   margin: 0;
   display: -webkit-box;
@@ -860,7 +860,7 @@
   padding-top: 6px;
   border-top: 1px dashed var(--cozy-border-soft);
   font-size: 0.72rem;
-  color: #8c8371;
+  color: var(--cozy-text-muted);
 }
 
 .bentoAppPill {
@@ -873,7 +873,7 @@
 
 .bentoAppName {
   font-weight: 600;
-  color: #6d6453;
+  color: var(--cozy-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -902,7 +902,7 @@
 
 .bentoTicket {
   font-size: 0.7rem;
-  color: #948b7a;
+  color: var(--cozy-text-muted);
   white-space: nowrap;
   font-weight: 600;
 }
@@ -978,15 +978,15 @@
 .appTagPill {
   font-size: 0.72rem;
   font-weight: 600;
-  color: #797163;
+  color: var(--cozy-text-muted);
 }
 
 .questNoteBtn {
   font-size: 0.72rem;
   font-weight: 700;
-  color: #5c5039;
-  background: #ffffff;
-  border: 1px solid #dcd1bb;
+  color: var(--cozy-text-dark);
+  background: var(--cozy-bg-panel);
+  border: 1px solid var(--cozy-border-soft);
   padding: 3px 8px;
   border-radius: 6px;
   display: inline-flex;
@@ -998,16 +998,16 @@
 }
 
 .questNoteBtn:hover {
-  background: #f5edda;
-  border-color: #bfae90;
-  color: #2e2617;
+  background: var(--cozy-bg-warm);
+  border-color: var(--cozy-border-hard);
+  color: var(--cozy-text-dark);
   transform: translateY(-1px);
 }
 
 .questTitleText {
   font-size: 0.94rem;
   font-weight: 700;
-  color: #3e382f;
+  color: var(--cozy-text-dark);
 }
 
 .questDoneText {
@@ -1017,14 +1017,14 @@
 
 .questDesc {
   font-size: 0.8rem;
-  color: #797163;
+  color: var(--cozy-text-muted);
   margin-top: 3px;
   line-height: 1.4;
 }
 
 .taskTeacups {
   font-size: 0.74rem;
-  color: #8c8371;
+  color: var(--cozy-text-muted);
   margin-top: 4px;
   display: flex;
   align-items: center;
@@ -1032,8 +1032,8 @@
 }
 
 .emptyQuests {
-  background: #fdfbf7;
-  border: 1.5px dashed #dfd8c7;
+  background: var(--cozy-bg-panel);
+  border: 1.5px dashed var(--cozy-dashed-border);
   border-radius: var(--radius-card);
   padding: 40px 20px;
   text-align: center;
@@ -1051,12 +1051,12 @@
 .emptyTitle {
   font-size: 1.05rem;
   font-weight: 700;
-  color: #4f633d;
+  color: var(--cozy-green-header);
 }
 
 .emptyDesc {
   font-size: 0.85rem;
-  color: #797163;
+  color: var(--cozy-text-muted);
   max-width: 380px;
   line-height: 1.45;
 }

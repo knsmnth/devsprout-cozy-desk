@@ -12,7 +12,7 @@
 }
 
 .modal {
-  background: #ffffff;
+  background: var(--cozy-bg-card, #ffffff);
   border: 2px solid var(--cozy-border-hard, #c8bea9);
   border-radius: var(--radius-card, 18px);
   width: 100%;
@@ -20,7 +20,7 @@
   max-height: 88vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 16px 40px rgba(45, 55, 35, 0.25);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
   overflow: hidden;
   animation: popIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -94,9 +94,9 @@
 }
 
 .tabBtnActive {
-  background: #ffffff !important;
+  background: var(--cozy-bg-card, #ffffff) !important;
   color: var(--cozy-text-dark, #3e382f) !important;
-  border-color: #ffffff !important;
+  border-color: var(--cozy-bg-card, #ffffff) !important;
   box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.06);
 }
 
@@ -108,7 +108,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background: #ffffff;
+  background: var(--cozy-bg-card, #ffffff);
 }
 
 .sectionTitle {
@@ -151,7 +151,7 @@
 .input:focus, .textarea:focus, .select:focus {
   outline: none;
   border-color: var(--cozy-green-accent, #78995a);
-  background: #ffffff;
+  background: var(--cozy-bg-panel, #ffffff);
 }
 
 .row {
@@ -184,12 +184,12 @@
 
 .avatarItem:hover {
   transform: scale(1.1);
-  background: #ffffff;
+  background: var(--cozy-bg-panel, #ffffff);
 }
 
 .avatarItemActive {
-  border-color: var(--cozy-green-header, #50683a) !important;
-  background: #ffffff !important;
+  border-color: var(--cozy-green-accent, #50683a) !important;
+  background: var(--cozy-bg-panel, #ffffff) !important;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   transform: scale(1.08);
 }
@@ -259,7 +259,7 @@
   flex-direction: column;
   gap: 8px;
   transition: all 0.15s ease;
-  background: #faf8f3;
+  background: var(--cozy-bg-warm, #faf8f3);
 }
 
 .themeCard:hover {
@@ -268,8 +268,8 @@
 }
 
 .themeCardActive {
-  border-color: var(--cozy-green-header, #50683a) !important;
-  background: #ffffff !important;
+  border-color: var(--cozy-green-accent, #50683a) !important;
+  background: var(--cozy-bg-card, #ffffff) !important;
   box-shadow: 0 4px 12px rgba(80, 104, 58, 0.18);
 }
 
@@ -289,7 +289,7 @@
 .themeName {
   font-size: 0.84rem;
   font-weight: 700;
-  color: #3e382f;
+  color: var(--cozy-text-dark, #3e382f);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -325,7 +325,7 @@
 }
 
 .secondaryBtn {
-  background: #ffffff;
+  background: var(--cozy-bg-panel, #ffffff);
   border: 1.5px solid var(--cozy-border-soft, #e2d9c8);
   color: var(--cozy-text-dark, #3e382f);
   padding: 7px 16px;
@@ -336,7 +336,7 @@
 }
 
 .secondaryBtn:hover {
-  background: #f4eee2;
+  background: var(--cozy-bg-warm, #f4eee2);
 }
 
 .dangerBtn {
@@ -394,12 +394,12 @@
   margin-bottom: 6px;
   font-size: 0.76rem;
   font-weight: 700;
-  color: #554d3f;
+  color: var(--cozy-text-dark, #554d3f);
 }
 
 .emojiHint {
   font-weight: normal;
-  color: #8c8371;
+  color: var(--cozy-text-muted, #8c8371);
   font-size: 0.72rem;
 }
 
@@ -407,7 +407,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  background: #ffffff;
+  background: var(--cozy-bg-warm, #ffffff);
   padding: 8px;
   border-radius: 10px;
   border: 1px solid var(--cozy-border-soft, #e2d9c8);
@@ -417,8 +417,8 @@
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: var(--cozy-bg-warm, #faf7ef);
-  border: 1px solid #dfd7c5;
+  background: var(--cozy-bg-panel, #faf7ef);
+  border: 1px solid var(--cozy-border-soft, #dfd7c5);
   font-size: 1.15rem;
   display: flex;
   align-items: center;
@@ -429,20 +429,20 @@
 
 .emojiQuickBtn:hover {
   transform: scale(1.15);
-  background: #ffffff;
+  background: var(--cozy-bg-card, #ffffff);
   border-color: var(--cozy-green-header, #50683a);
 }
 
 .emojiQuickBtnActive {
-  background: #eef5e6 !important;
-  border-color: #78995a !important;
+  background: var(--cozy-green-light, #eef5e6) !important;
+  border-color: var(--cozy-green-accent, #78995a) !important;
   transform: scale(1.12);
   box-shadow: 0 2px 6px rgba(120, 153, 90, 0.25);
 }
 
 .appIconChangeBtn {
   background: none;
-  border: 1px dashed #d1c8b4;
+  border: 1px dashed var(--cozy-border-soft, #d1c8b4);
   border-radius: 8px;
   font-size: 1.25rem;
   cursor: pointer;
@@ -454,8 +454,8 @@
 }
 
 .appIconChangeBtn:hover {
-  background: #ffffff;
-  border-color: #78995a;
+  background: var(--cozy-bg-warm, #ffffff);
+  border-color: var(--cozy-green-accent, #78995a);
   transform: scale(1.1);
 }
 

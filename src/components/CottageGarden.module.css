@@ -127,7 +127,7 @@
 .cityPill {
   font-size: 0.72rem;
   font-weight: 600;
-  color: #615643;
+  color: var(--cozy-text-dark, #3e382f);
   background: var(--cozy-bg-warm, #faf7ef);
   border: 1px solid var(--cozy-border-soft, #dfd7c6);
   padding: 3px 8px;
@@ -141,9 +141,9 @@
 }
 
 .cityPill:hover {
-  background: #ffffff;
+  background: var(--cozy-bg-panel);
   border-color: var(--cozy-green-header, #5f7a49);
-  color: #2e2617;
+  color: var(--cozy-text-dark);
 }
 
 .cityInputBox {
@@ -419,7 +419,7 @@
 .locationTitle {
   font-size: 0.92rem;
   font-weight: 700;
-  color: #3e382f;
+  color: var(--cozy-text-dark, #3e382f);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -435,13 +435,13 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #797163;
+  color: var(--cozy-text-muted, #797163);
   font-size: 0.85rem;
 }
 
 .locationCloseBtn:hover {
-  background: #ede5d5;
-  color: #2b2316;
+  background: var(--cozy-bg-panel);
+  color: var(--cozy-text-dark);
 }
 
 .gpsBtn {
@@ -477,7 +477,7 @@
   display: flex;
   align-items: center;
   text-align: center;
-  color: #a09581;
+  color: var(--cozy-text-muted);
   font-size: 0.72rem;
   font-weight: 600;
   gap: 10px;
@@ -487,7 +487,7 @@
 .divider::after {
   content: "";
   flex: 1;
-  border-bottom: 1px dashed #dcd3c1;
+  border-bottom: 1px dashed var(--cozy-dashed-border);
 }
 
 .searchForm {
@@ -503,13 +503,13 @@
   font-size: 0.82rem;
   outline: none;
   font-family: inherit;
-  color: #3e382f;
-  background: #faf7ef;
+  color: var(--cozy-text-dark);
+  background: var(--cozy-bg-panel);
 }
 
 .modalSearchInput:focus {
   border-color: var(--cozy-green-header, #5f7a49);
-  background: #ffffff;
+  background: var(--cozy-bg-card);
 }
 
 .modalSearchBtn {
@@ -519,14 +519,13 @@
   border-radius: 8px;
   font-size: 0.78rem;
   font-weight: 700;
-  color: #5c5039;
+  color: var(--cozy-text-dark);
   cursor: pointer;
 }
 
 .modalSearchBtn:hover {
-  background: #ffffff;
+  background: var(--cozy-bg-card);
   border-color: var(--cozy-green-header, #5f7a49);
-  color: #2b2316;
 }
 
 .presetChips {
@@ -538,7 +537,7 @@
 .chipBtn {
   font-size: 0.72rem;
   font-weight: 600;
-  color: #5c5039;
+  color: var(--cozy-text-dark);
   background: var(--cozy-bg-warm, #faf7ef);
   border: 1px solid var(--cozy-border-soft, #dfd7c6);
   padding: 3px 8px;
@@ -548,9 +547,8 @@
 }
 
 .chipBtn:hover {
-  background: #ffffff;
+  background: var(--cozy-bg-card);
   border-color: var(--cozy-green-header, #5f7a49);
-  color: #2b2316;
 }
 
 .locationFeedback {
