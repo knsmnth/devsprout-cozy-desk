@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useRef } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import {
   Play,
   Pause,
@@ -15,13 +15,13 @@ import {
   X,
   ChevronLeft,
   Sparkles,
+  Loader2,
 } from "lucide-react";
 import { useMusicStore } from "@/store/useMusicStore";
 import { useTaskStore } from "@/store/useTaskStore";
 import {
-  COZY_ARTISTS,
-  COZY_PLAYLISTS,
-  COZY_TRACKS,
+  ALL_MUSIC_ARTISTS,
+  ALL_MUSIC_PLAYLISTS,
   formatAudioTime,
 } from "@/utils/musicCatalog";
 import styles from "./MusicHubModal.module.css";
@@ -32,10 +32,12 @@ export default function MusicHubModal() {
   const activeHubTab = useMusicStore((state) => state.activeHubTab);
   const setActiveHubTab = useMusicStore((state) => state.setActiveHubTab);
 
-  // Playback state
+  // Tracks & Playback state
+  const tracks = useMusicStore((state) => state.tracks);
   const currentTrack = useMusicStore((state) => state.currentTrack);
   const isPlaying = useMusicStore((state) => state.isPlaying);
   const isLoading = useMusicStore((state) => state.isLoading);
+  const isSearching = useMusicStore((state) => state.isSearching);
   const currentTime = useMusicStore((state) => state.currentTime);
   const duration = useMusicStore((state) => state.duration);
   const volume = useMusicStore((state) => state.volume);
@@ -56,33 +58,36 @@ export default function MusicHubModal() {
   const cycleRepeat = useMusicStore((state) => state.cycleRepeat);
   const toggleFavorite = useMusicStore((state) => state.toggleFavorite);
 
-  // Filters
+  // Filters & Search
   const selectedArtistId = useMusicStore((state) => state.selectedArtistId);
   const setSelectedArtistId = useMusicStore((state) => state.setSelectedArtistId);
   const selectedPlaylistId = useMusicStore((state) => state.selectedPlaylistId);
   const setSelectedPlaylistId = useMusicStore((state) => state.setSelectedPlaylistId);
+  const showOnlyFavorites = useMusicStore((state) => state.showOnlyFavorites);
+  const toggleShowFavoritesOnly = useMusicStore((state) => state.toggleShowFavoritesOnly);
   const searchQuery = useMusicStore((state) => state.searchQuery);
   const setSearchQuery = useMusicStore((state) => state.setSearchQuery);
+  const searchSongsOnline = useMusicStore((state) => state.searchSongsOnline);
 
-  // Task Store sounds
   const sounds = useTaskStore((state) => state.sounds);
   const scrubberRef = useRef(null);
 
+  // Debounced live search across all artists and songs
+  useEffect(() => {
+    if (!searchQuery.trim()) return;
+    const timer = setTimeout(() => {
+      searchSongsOnline(searchQuery);
+    }, 450);
+    return () => clearTimeout(timer);
+  }, [searchQuery, searchSongsOnline]);
+
   // Filtered tracks
-  const filteredTracks = useMemo(() => {
-    return COZY_TRACKS.filter((track) => {
-      if (selectedArtistId && track.artistId !== selectedArtistId) return false;
-      if (selectedPlaylistId && track.playlistId !== selectedPlaylistId) return false;
-      if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase();
-        const matchesTitle = track.title.toLowerCase().includes(query);
-        const matchesArtist = track.artist.toLowerCase().includes(query);
-        const matchesMood = track.mood.toLowerCase().includes(query);
-        return matchesTitle || matchesArtist || matchesMood;
-      }
-      return true;
-    });
-  }, [selectedArtistId, selectedPlaylistId, searchQuery]);
+  const displayedTracks = useMemo(() => {
+    if (showOnlyFavorites) {
+      return tracks.filter((t) => favorites.includes(t.id));
+    }
+    return tracks;
+  }, [tracks, showOnlyFavorites, favorites]);
 
   if (!isMusicHubOpen) return null;
 
@@ -118,8 +123,8 @@ export default function MusicHubModal() {
               </button>
             ) : (
               <div className={styles.headerTitle}>
-                <span>🍯</span>
-                <span>Sprout Audio</span>
+                <span>🎵</span>
+                <span>Sprout Music</span>
               </div>
             )}
 
@@ -165,24 +170,28 @@ export default function MusicHubModal() {
         <div className={styles.modalBody}>
           {activeHubTab === "browse" ? (
             /* ======================================================== */
-            /* VIEW A: DISCOVER & BROWSE (Right Phone Inspiration)      */
+            /* VIEW A: DISCOVER & BROWSE ALL SONGS & ARTISTS             */
             /* ======================================================== */
             <>
               {/* Cozy Greeting Card */}
               <div className={styles.greetingCard}>
                 <span className={styles.greetingStars}>✨⭐️</span>
-                <div className={styles.greetingTitle}>Hello, Cozy Dev!</div>
+                <div className={styles.greetingTitle}>Hello, Music Lover!</div>
                 <p className={styles.greetingSubtitle}>
-                  Let&apos;s listen to something cool and relaxing today 🍯
+                  Search and stream any song, artist, album, or genre across all music 🎧
                 </p>
 
                 {/* Search Bar */}
                 <div className={styles.searchBox}>
-                  <Search size={14} color="#8c7865" />
+                  {isSearching ? (
+                    <Loader2 size={15} color="#d9a406" className={styles.miniDiscRotating} />
+                  ) : (
+                    <Search size={14} color="#8c7865" />
+                  )}
                   <input
                     type="text"
                     className={styles.searchInput}
-                    placeholder="Search songs, artists, or moods..."
+                    placeholder="Search any song, artist (e.g. Lemon Tree, Taylor Swift, Coldplay)..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -190,7 +199,11 @@ export default function MusicHubModal() {
                     <button
                       type="button"
                       style={{ background: "transparent", border: "none", cursor: "pointer" }}
-                      onClick={() => setSearchQuery("")}
+                      onClick={() => {
+                        setSearchQuery("");
+                        searchSongsOnline("");
+                      }}
+                      title="Clear Search"
                     >
                       <X size={13} color="#8c7865" />
                     </button>
@@ -202,13 +215,13 @@ export default function MusicHubModal() {
               <div>
                 <div className={styles.sectionHeader}>
                   <div className={styles.sectionTitle}>
-                    <span>🎨</span> Your Favorite Artists
+                    <span>🎨</span> Featured Artists
                   </div>
                   {selectedArtistId && (
                     <button
                       type="button"
                       className={styles.clearFilterBtn}
-                      onClick={() => setSelectedArtistId(null)}
+                      onClick={() => setSelectedArtistId(selectedArtistId)}
                     >
                       Show All
                     </button>
@@ -216,7 +229,7 @@ export default function MusicHubModal() {
                 </div>
 
                 <div className={styles.artistAvatarScroll}>
-                  {COZY_ARTISTS.map((artist) => {
+                  {ALL_MUSIC_ARTISTS.map((artist) => {
                     const isActive = selectedArtistId === artist.id;
                     return (
                       <button
@@ -249,13 +262,13 @@ export default function MusicHubModal() {
               <div>
                 <div className={styles.sectionHeader}>
                   <div className={styles.sectionTitle}>
-                    <span>☕</span> Mixed for you
+                    <span>☕</span> Mixed for you &amp; Genres
                   </div>
                   {selectedPlaylistId && (
                     <button
                       type="button"
                       className={styles.clearFilterBtn}
-                      onClick={() => setSelectedPlaylistId(null)}
+                      onClick={() => setSelectedPlaylistId(selectedPlaylistId)}
                     >
                       Show All
                     </button>
@@ -263,7 +276,7 @@ export default function MusicHubModal() {
                 </div>
 
                 <div className={styles.playlistCardsScroll}>
-                  {COZY_PLAYLISTS.map((pl) => {
+                  {ALL_MUSIC_PLAYLISTS.map((pl) => {
                     const isActive = selectedPlaylistId === pl.id;
                     return (
                       <div
@@ -297,75 +310,121 @@ export default function MusicHubModal() {
                 </div>
               </div>
 
-              {/* Section 3: Song Catalog */}
+              {/* Section 3: Song Catalog & Quick Favorites Filter */}
               <div>
                 <div className={styles.sectionHeader}>
                   <div className={styles.sectionTitle}>
-                    <span>🎵</span> Cozy Tracklist ({filteredTracks.length})
+                    <span>🎵</span> Available Songs ({displayedTracks.length})
                   </div>
+
+                  <button
+                    type="button"
+                    className={`${styles.clearFilterBtn} ${showOnlyFavorites ? styles.heartBtnActive : ""}`}
+                    onClick={() => {
+                      if (sounds) sounds.playClick();
+                      toggleShowFavoritesOnly();
+                    }}
+                    style={{ display: "flex", alignItems: "center", gap: 4 }}
+                  >
+                    <Heart size={12} fill={showOnlyFavorites ? "currentColor" : "none"} />
+                    <span>{showOnlyFavorites ? "Show All Songs" : "Liked Songs"}</span>
+                  </button>
                 </div>
 
-                <div className={styles.trackList}>
-                  {filteredTracks.map((track) => {
-                    const isTrackCurrent = currentTrack?.id === track.id;
-                    const isTrackPlaying = isTrackCurrent && isPlaying;
-                    const isFav = favorites.includes(track.id);
+                {isSearching ? (
+                  <div style={{ textAlign: "center", padding: "24px 0", color: "#857567", fontSize: "0.85rem" }}>
+                    <Loader2 size={24} className={styles.miniDiscRotating} style={{ margin: "0 auto 8px" }} />
+                    <div>Searching songs &amp; artists worldwide... 🎵</div>
+                  </div>
+                ) : displayedTracks.length === 0 ? (
+                  <div style={{ textAlign: "center", padding: "28px 0", color: "#857567", fontSize: "0.85rem" }}>
+                    <div>No songs found matching your search.</div>
+                    <button
+                      type="button"
+                      className={styles.clearFilterBtn}
+                      onClick={() => {
+                        setSearchQuery("");
+                        searchSongsOnline("");
+                      }}
+                      style={{ marginTop: 8 }}
+                    >
+                      Reset to all songs
+                    </button>
+                  </div>
+                ) : (
+                  <div className={styles.trackList}>
+                    {displayedTracks.map((track) => {
+                      const isTrackCurrent = currentTrack?.id === track.id;
+                      const isTrackPlaying = isTrackCurrent && isPlaying;
+                      const isFav = favorites.includes(track.id);
 
-                    return (
-                      <div
-                        key={track.id}
-                        className={`${styles.trackRow} ${isTrackCurrent ? styles.trackRowActive : ""}`}
-                        onClick={() => {
-                          if (sounds) sounds.playClick();
-                          playTrack(track);
-                        }}
-                      >
-                        <div className={styles.trackLeft}>
-                          <div
-                            className={styles.trackCoverThumb}
-                            style={{
-                              backgroundColor: track.cover.primaryColor,
-                              borderColor: track.cover.accentColor,
-                            }}
-                          >
-                            {track.cover.icon}
-                          </div>
-                          <div className={styles.trackMeta}>
-                            <div className={styles.trackTitle}>
-                              {isTrackPlaying && <span>♫ </span>}
-                              {track.title}
-                            </div>
-                            <div className={styles.trackArtist}>
-                              <span>{track.artist}</span>
-                              {track.isLive && (
-                                <span className={styles.liveBadge}>LIVE</span>
+                      return (
+                        <div
+                          key={track.id}
+                          className={`${styles.trackRow} ${isTrackCurrent ? styles.trackRowActive : ""}`}
+                          onClick={() => {
+                            if (sounds) sounds.playClick();
+                            playTrack(track);
+                          }}
+                        >
+                          <div className={styles.trackLeft}>
+                            <div
+                              className={styles.trackCoverThumb}
+                              style={{
+                                backgroundColor: track.cover?.primaryColor || "#fef9c3",
+                                borderColor: track.cover?.accentColor || "#eab308",
+                              }}
+                            >
+                              {track.artwork ? (
+                                <img
+                                  src={track.artwork}
+                                  alt={track.title}
+                                  className={styles.trackCoverImg}
+                                />
+                              ) : (
+                                track.cover?.icon || "🎵"
                               )}
                             </div>
+                            <div className={styles.trackMeta}>
+                              <div className={styles.trackTitle}>
+                                {isTrackPlaying && <span>♫ </span>}
+                                {track.title}
+                              </div>
+                              <div className={styles.trackArtist}>
+                                <span>{track.artist}</span>
+                                {track.genre && (
+                                  <span className={styles.genreBadge}>{track.genre}</span>
+                                )}
+                                {track.isLive && (
+                                  <span className={styles.liveBadge}>LIVE</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className={styles.trackRight}>
+                            <span className={styles.trackDuration}>
+                              {track.isLive ? "Stream" : formatAudioTime(track.duration)}
+                            </span>
+
+                            <button
+                              type="button"
+                              className={`${styles.heartBtn} ${isFav ? styles.heartBtnActive : ""}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (sounds) sounds.playPop();
+                                toggleFavorite(track.id);
+                              }}
+                              title={isFav ? "Remove from favorites" : "Add to favorites"}
+                            >
+                              <Heart size={15} fill={isFav ? "currentColor" : "none"} />
+                            </button>
                           </div>
                         </div>
-
-                        <div className={styles.trackRight}>
-                          <span className={styles.trackDuration}>
-                            {track.isLive ? "Stream" : formatAudioTime(track.duration)}
-                          </span>
-
-                          <button
-                            type="button"
-                            className={`${styles.heartBtn} ${isFav ? styles.heartBtnActive : ""}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (sounds) sounds.playPop();
-                              toggleFavorite(track.id);
-                            }}
-                            title={isFav ? "Remove from favorites" : "Add to favorites"}
-                          >
-                            <Heart size={15} fill={isFav ? "currentColor" : "none"} />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               {/* Floating Bottom Mini Player Arch (Inspired by Reference Image) */}
@@ -394,7 +453,20 @@ export default function MusicHubModal() {
                     <div
                       className={`${styles.miniDiscThumb} ${isPlaying ? styles.miniDiscRotating : ""}`}
                     >
-                      {currentTrack.cover.icon}
+                      {currentTrack.artwork ? (
+                        <img
+                          src={currentTrack.artwork}
+                          alt=""
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                          }}
+                        />
+                      ) : (
+                        currentTrack.cover?.icon || "🎵"
+                      )}
                     </div>
 
                     <div className={styles.miniArchInfo}>
@@ -427,7 +499,7 @@ export default function MusicHubModal() {
               <div
                 className={styles.albumFrame}
                 style={{
-                  background: `linear-gradient(145deg, ${currentTrack?.cover.primaryColor || "#fff9e6"} 0%, #fff1ba 100%)`,
+                  background: `linear-gradient(145deg, ${currentTrack?.cover?.primaryColor || "#fff9e6"} 0%, #fff1ba 100%)`,
                 }}
               >
                 <div className={styles.albumDoodleStars}>
@@ -436,12 +508,21 @@ export default function MusicHubModal() {
                   <span className={styles.starDoodle3}>⭐️</span>
                 </div>
 
-                <div className={styles.albumCenterIcon}>
-                  {currentTrack?.cover.icon || "🍋"}
-                </div>
+                {currentTrack?.artwork ? (
+                  <img
+                    src={currentTrack.artwork}
+                    alt={currentTrack.title}
+                    className={styles.albumArtworkImg}
+                  />
+                ) : (
+                  <div className={styles.albumCenterIcon}>
+                    {currentTrack?.cover?.icon || "🍋"}
+                  </div>
+                )}
 
                 <div className={styles.albumMoodBadge}>
-                  {currentTrack?.mood || "Cozy Music"}
+                  {currentTrack?.genre ? `${currentTrack.genre} • ` : ""}
+                  {currentTrack?.mood || "Music Track"}
                 </div>
               </div>
 
@@ -571,7 +652,7 @@ export default function MusicHubModal() {
                 </button>
               </div>
 
-              {/* Volume Slider & Ambient Mix Overlay */}
+              {/* Clean Volume Control Row */}
               <div className={styles.volumeAndAmbientRow}>
                 <div className={styles.volumeGroup}>
                   <button
@@ -599,7 +680,7 @@ export default function MusicHubModal() {
               <div className={styles.bottomDecorativeArch}>
                 <div className={styles.citrusArch}>
                   <span>✨</span>
-                  <span>{currentTrack?.cover.icon || "🍋"}</span>
+                  <span>{currentTrack?.cover?.icon || "🍋"}</span>
                   <span>✨</span>
                 </div>
               </div>

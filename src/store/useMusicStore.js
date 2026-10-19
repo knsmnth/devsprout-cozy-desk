@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { COZY_TRACKS } from "@/utils/musicCatalog";
+import { INITIAL_TRACKS, ALL_MUSIC_ARTISTS, ALL_MUSIC_PLAYLISTS } from "@/utils/musicCatalog";
 
 const STORAGE_KEY_FAVORITES = "devsprout_music_favorites";
 const STORAGE_KEY_VOLUME = "devsprout_music_volume";
@@ -11,9 +11,9 @@ const getSavedFavorites = () => {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY_FAVORITES);
-    return raw ? JSON.parse(raw) : ["track-lemon-tree", "track-algorithms"];
+    return raw ? JSON.parse(raw) : ["track-lemon-tree", "track-yellow-coldplay"];
   } catch {
-    return ["track-lemon-tree", "track-algorithms"];
+    return ["track-lemon-tree", "track-yellow-coldplay"];
   }
 };
 
@@ -29,12 +29,13 @@ const getSavedVolume = () => {
 
 export const useMusicStore = create((set, get) => ({
   // Core Track & Playback State
-  tracks: COZY_TRACKS,
-  currentTrack: COZY_TRACKS[0],
+  tracks: INITIAL_TRACKS,
+  currentTrack: INITIAL_TRACKS[0],
   isPlaying: false,
   isLoading: false,
+  isSearching: false,
   currentTime: 0,
-  duration: COZY_TRACKS[0].duration || 172,
+  duration: INITIAL_TRACKS[0].duration || 191,
   volume: getSavedVolume(),
   isMuted: false,
   isShuffle: false,
@@ -46,6 +47,7 @@ export const useMusicStore = create((set, get) => ({
   activeHubTab: "browse", // "browse" | "player"
   selectedArtistId: null,
   selectedPlaylistId: null,
+  showOnlyFavorites: false,
   searchQuery: "",
 
   // Actions
@@ -62,12 +64,17 @@ export const useMusicStore = create((set, get) => ({
   },
 
   playTrack: (track) => {
-    const { currentTrack, isPlaying } = get();
+    const { currentTrack, isPlaying, tracks } = get();
+    // Ensure track is in queue
+    const trackExists = tracks.some((t) => t.id === track.id);
+    const updatedTracks = trackExists ? tracks : [track, ...tracks];
+
     if (currentTrack && currentTrack.id === track.id) {
       // Toggle play if same track
       set({ isPlaying: !isPlaying });
     } else {
       set({
+        tracks: updatedTracks,
         currentTrack: track,
         currentTime: 0,
         duration: track.duration || 0,
@@ -78,9 +85,9 @@ export const useMusicStore = create((set, get) => ({
   },
 
   togglePlay: () => {
-    const { isPlaying, currentTrack } = get();
-    if (!currentTrack && COZY_TRACKS.length > 0) {
-      set({ currentTrack: COZY_TRACKS[0], isPlaying: true, currentTime: 0 });
+    const { isPlaying, currentTrack, tracks } = get();
+    if (!currentTrack && tracks.length > 0) {
+      set({ currentTrack: tracks[0], isPlaying: true, currentTime: 0 });
     } else {
       set({ isPlaying: !isPlaying });
     }
@@ -150,7 +157,6 @@ export const useMusicStore = create((set, get) => ({
     const { duration } = get();
     const clamped = Math.max(0, Math.min(seconds, duration || 0));
     set({ currentTime: clamped });
-    // Signal to controller to update audio.currentTime
     if (typeof window !== "undefined" && window.__devsprout_audio_el) {
       window.__devsprout_audio_el.currentTime = clamped;
     }
@@ -205,22 +211,80 @@ export const useMusicStore = create((set, get) => ({
     } catch {}
   },
 
-  setSelectedArtistId: (artistId) => {
+  toggleShowFavoritesOnly: () => {
     set((state) => ({
-      selectedArtistId: state.selectedArtistId === artistId ? null : artistId,
-      selectedPlaylistId: null, // clear playlist filter when filtering artist
+      showOnlyFavorites: !state.showOnlyFavorites,
+      selectedArtistId: null,
+      selectedPlaylistId: null,
     }));
   },
 
+  setSelectedArtistId: (artistId) => {
+    const isDeselecting = get().selectedArtistId === artistId;
+    if (isDeselecting) {
+      set({ selectedArtistId: null, tracks: INITIAL_TRACKS });
+    } else {
+      set({
+        selectedArtistId: artistId,
+        selectedPlaylistId: null,
+        showOnlyFavorites: false,
+      });
+
+      // Find artist search term and fetch online
+      const artist = ALL_MUSIC_ARTISTS.find((a) => a.id === artistId);
+      if (artist?.searchTerm) {
+        get().searchSongsOnline(artist.searchTerm);
+      }
+    }
+  },
+
   setSelectedPlaylistId: (playlistId) => {
-    set((state) => ({
-      selectedPlaylistId: state.selectedPlaylistId === playlistId ? null : playlistId,
-      selectedArtistId: null, // clear artist filter when filtering playlist
-    }));
+    const isDeselecting = get().selectedPlaylistId === playlistId;
+    if (isDeselecting) {
+      set({ selectedPlaylistId: null, tracks: INITIAL_TRACKS });
+    } else {
+      set({
+        selectedPlaylistId: playlistId,
+        selectedArtistId: null,
+        showOnlyFavorites: false,
+      });
+
+      const playlist = ALL_MUSIC_PLAYLISTS.find((p) => p.id === playlistId);
+      if (playlist?.query) {
+        get().searchSongsOnline(playlist.query);
+      }
+    }
   },
 
   setSearchQuery: (query) => {
     set({ searchQuery: query });
+  },
+
+  // Online Search Action across all songs & artists globally
+  searchSongsOnline: async (query) => {
+    if (!query || !query.trim()) {
+      set({ tracks: INITIAL_TRACKS, isSearching: false });
+      return;
+    }
+
+    set({ isSearching: true });
+    try {
+      const res = await fetch(`/api/music/search?q=${encodeURIComponent(query)}&limit=30`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.songs && data.songs.length > 0) {
+          set({
+            tracks: data.songs,
+            isSearching: false,
+          });
+          return;
+        }
+      }
+      set({ isSearching: false });
+    } catch (err) {
+      console.warn("Failed searching songs online, using initial tracks:", err);
+      set({ isSearching: false });
+    }
   },
 
   // Internal callbacks for Audio Controller
