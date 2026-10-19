@@ -184,8 +184,8 @@ export default function SprintView() {
                 <AppleBasket
                   count={harvestedTasks.length}
                   isBouncing={isBasketBouncing}
-                  width={86}
-                  height={80}
+                  width={76}
+                  height={70}
                 />
               </div>
 
