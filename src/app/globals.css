@@ -101,38 +101,42 @@
   --cozy-text-light: #9e8a7f;
 }
 
-/* Theme: Midnight Lo-Fi 🌙 */
+/* Theme: Midnight Lo-Fi 🌙 (Rich Twilight Slate Navy inspired by modern dark UI) */
 [data-theme="midnight"] {
-  --cozy-green-header: #181f2c;
-  --cozy-green-dark: #0f141d;
-  --cozy-green-bar: #232c3d;
-  --cozy-green-light: #253347;
-  --cozy-green-subtle: #1a2332;
-  --cozy-green-accent: #5b79a8;
-  --cozy-green-border: #3d4d6b;
-  --cozy-terracotta: #232c3d;
-  --cozy-terracotta-dark: #181f2c;
-  --cozy-honey: #e8a23d;
-  --cozy-honey-light: #2b2518;
-  --cozy-butter: #e2ba59;
-  --cozy-strawberry: #e26d5c;
-  --cozy-strawberry-light: #321c1a;
-  --cozy-matcha: #7ea356;
-  --cozy-matcha-light: #1f2e1c;
-  --cozy-sky: #6ea8a0;
-  --cozy-sky-light: #1c2b29;
-  --cozy-bg-outer: #0a0d14;
-  --cozy-bg-dot: #252f44;
-  --cozy-bg-canvas: #0e121a;
-  --cozy-bg-card: #181e2b;
-  --cozy-bg-warm: #202737;
-  --cozy-bg-panel: #131722;
-  --cozy-border-soft: #2a354b;
-  --cozy-border-hard: #3c4b69;
-  --cozy-dashed-border: #3c4b69;
-  --cozy-text-dark: #f0f4fc;
-  --cozy-text-muted: #a6b5cc;
-  --cozy-text-light: #7c8da6;
+  --cozy-green-header: #1b2438;
+  --cozy-green-dark: #121927;
+  --cozy-green-bar: #161e30;
+  --cozy-green-light: #25334c;
+  --cozy-green-subtle: #1c273a;
+  --cozy-green-accent: #3b82f6;
+  --cozy-green-border: #324364;
+  --cozy-terracotta: #161e30;
+  --cozy-terracotta-dark: #101624;
+  --cozy-honey: #fbbf24;
+  --cozy-honey-light: #2c2517;
+  --cozy-butter: #fcd34d;
+  --cozy-strawberry: #f87171;
+  --cozy-strawberry-light: #331d20;
+  --cozy-matcha: #34d399;
+  --cozy-matcha-light: #162c23;
+  --cozy-sky: #38bdf8;
+  --cozy-sky-light: #152b36;
+
+  /* Rich, atmospheric slate navy base - elevated and smooth, not pitch black */
+  --cozy-bg-outer: #111726;
+  --cozy-bg-dot: #2a3854;
+  --cozy-bg-canvas: #151d2f;
+  --cozy-bg-card: #1d263b;
+  --cozy-bg-warm: #232d44;
+  --cozy-bg-panel: #202b40;
+
+  --cozy-border-soft: #2b3954;
+  --cozy-border-hard: #3c4f73;
+  --cozy-dashed-border: #38496a;
+
+  --cozy-text-dark: #f8fafc;
+  --cozy-text-muted: #94a3b8;
+  --cozy-text-light: #64748b;
 }
 
 /* Theme: Sunset Terracotta 🍊 */
@@ -268,35 +272,35 @@ input, textarea, select {
 
 /* Midnight Task Paper Modal - Dark Cozy Stationery Sheet */
 [data-theme="midnight"] [class*="paperSheet"] {
-  background-color: #171d2b !important;
+  background-color: #1d263b !important;
   background-image: repeating-linear-gradient(
     transparent,
     transparent 27px,
-    rgba(61, 77, 107, 0.28) 28px
+    rgba(71, 92, 128, 0.22) 28px
   ) !important;
-  border-color: #2e3a52 !important;
-  color: #e2e8f0 !important;
-  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.55), 0 8px 18px rgba(0, 0, 0, 0.3) !important;
+  border-color: #2e3e5c !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.45), 0 8px 18px rgba(0, 0, 0, 0.25) !important;
 }
 
 [data-theme="midnight"] [class*="washiTape"] {
-  background: rgba(37, 47, 68, 0.9) !important;
-  color: #a6b5cc !important;
-  border-color: rgba(91, 121, 168, 0.4) !important;
+  background: rgba(37, 51, 77, 0.92) !important;
+  color: #cbd5e1 !important;
+  border-color: rgba(91, 121, 168, 0.45) !important;
 }
 
 [data-theme="midnight"] [class*="paperTopBar"] {
-  background: rgba(23, 29, 43, 0.92) !important;
+  background: rgba(29, 38, 59, 0.95) !important;
   border-bottom-color: rgba(61, 77, 107, 0.5) !important;
 }
 
 [data-theme="midnight"] [class*="taskTitle"] {
-  color: #f1f5f9 !important;
+  color: #f8fafc !important;
 }
 
 [data-theme="midnight"] [class*="notesPaperBox"] {
-  background: rgba(19, 24, 34, 0.75) !important;
-  border-color: #384661 !important;
+  background: rgba(21, 29, 46, 0.8) !important;
+  border-color: #3b4d70 !important;
 }
 
 [data-theme="midnight"] [class*="notesText"] {
@@ -307,30 +311,75 @@ input, textarea, select {
 [data-theme="midnight"] [class*="appPill"],
 [data-theme="midnight"] [class*="typePill"],
 [data-theme="midnight"] [class*="teacupsPill"] {
-  background: #232c3d !important;
-  border-color: #36445d !important;
+  background: #25334d !important;
+  border-color: #3b4d70 !important;
   color: #cbd5e1 !important;
 }
 
 [data-theme="midnight"] [class*="quickStatusBox"] {
-  background: #1a2130 !important;
-  border-color: #2e3a52 !important;
+  background: #232f48 !important;
+  border-color: #324364 !important;
 }
 
-[data-theme="midnight"] [class*="statusOptionBtn"] {
-  background: #232c3d !important;
-  border-color: #36445d !important;
-  color: #cbd5e1 !important;
+[data-theme="midnight"] [class*="statusOptionBtn"],
+[data-theme="midnight"] [class*="statusMoveBtn"] {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  color: #e2e8f0 !important;
+}
+
+[data-theme="midnight"] [class*="statusMoveBtn"]:hover {
+  background: rgba(255, 255, 255, 0.18) !important;
+  color: #ffffff !important;
+}
+
+[data-theme="midnight"] [class*="btnBloom"] {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  color: #fbbf24 !important;
+}
+
+[data-theme="midnight"] [class*="btnHarvest"] {
+  background: rgba(16, 185, 129, 0.16) !important;
+  border-color: rgba(16, 185, 129, 0.38) !important;
+  color: #34d399 !important;
 }
 
 [data-theme="midnight"] [class*="closeBtn"] {
-  background: #232c3d !important;
-  border-color: #36445d !important;
+  background: #25334d !important;
+  border-color: #3b4d70 !important;
   color: #cbd5e1 !important;
 }
 
 [data-theme="midnight"] [class*="notesSectionLabel"] {
   color: #94a3b8 !important;
+}
+
+[data-theme="midnight"] [class*="paperInput"],
+[data-theme="midnight"] [class*="paperTextarea"],
+[data-theme="midnight"] [class*="paperSelect"] {
+  background: #243048 !important;
+  border-color: #3b4d70 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="midnight"] [class*="paperInput"]:focus,
+[data-theme="midnight"] [class*="paperTextarea"]:focus,
+[data-theme="midnight"] [class*="paperSelect"]:focus {
+  background: #293753 !important;
+  border-color: #3b82f6 !important;
+}
+
+[data-theme="midnight"] [class*="foldPaperBtn"],
+[data-theme="midnight"] [class*="cancelBtn"] {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="midnight"] [class*="editModeHeader"],
+[data-theme="midnight"] [class*="fieldLabel"] {
+  color: #f1f5f9 !important;
 }
 
 /* Desk View & Sprint View Dark Adaptive Badges & Tints */
@@ -399,17 +448,88 @@ input, textarea, select {
 
 [data-theme="midnight"] [class*="miniNoteBtn"],
 [data-theme="midnight"] [class*="questNoteBtn"],
+[data-theme="midnight"] [class*="bentoNoteBtn"],
+[data-theme="midnight"] [class*="bloomingNoteBtn"],
 [data-theme="midnight"] [class*="paperBtn"] {
-  background: var(--cozy-bg-warm) !important;
-  border-color: var(--cozy-border-soft) !important;
-  color: var(--cozy-text-dark) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #e2e8f0 !important;
 }
 
 [data-theme="midnight"] [class*="miniNoteBtn"]:hover,
 [data-theme="midnight"] [class*="questNoteBtn"]:hover,
+[data-theme="midnight"] [class*="bentoNoteBtn"]:hover,
+[data-theme="midnight"] [class*="bloomingNoteBtn"]:hover,
 [data-theme="midnight"] [class*="paperBtn"]:hover {
-  background: var(--cozy-bg-panel) !important;
-  border-color: var(--cozy-border-hard) !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+}
+
+/* Modern Dark-Adapted Action Pills */
+[data-theme="midnight"] [class*="miniBloomBtn"] {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border: 1.2px solid rgba(245, 158, 11, 0.35) !important;
+  color: #fbbf24 !important;
+}
+
+[data-theme="midnight"] [class*="miniBloomBtn"]:hover {
+  background: rgba(245, 158, 11, 0.28) !important;
+  border-color: #f59e0b !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3) !important;
+}
+
+[data-theme="midnight"] [class*="miniHarvestBtn"],
+[data-theme="midnight"] [class*="bloomingHarvestBtn"] {
+  background: rgba(16, 185, 129, 0.16) !important;
+  border: 1.2px solid rgba(16, 185, 129, 0.38) !important;
+  color: #34d399 !important;
+}
+
+[data-theme="midnight"] [class*="miniHarvestBtn"]:hover,
+[data-theme="midnight"] [class*="bloomingHarvestBtn"]:hover {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.45) !important;
+}
+
+[data-theme="midnight"] [class*="miniReopenBtn"] {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border: 1.2px solid rgba(59, 130, 246, 0.35) !important;
+  color: #60a5fa !important;
+}
+
+[data-theme="midnight"] [class*="miniReopenBtn"]:hover {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(37, 99, 235, 0.4) !important;
+}
+
+[data-theme="midnight"] [class*="miniDeleteBtn"] {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border: 1.2px solid rgba(239, 68, 68, 0.35) !important;
+  color: #f87171 !important;
+}
+
+[data-theme="midnight"] [class*="miniDeleteBtn"]:hover {
+  background: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.4) !important;
+}
+
+[data-theme="midnight"] [class*="miniBackBtn"] {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1.2px solid rgba(255, 255, 255, 0.15) !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="midnight"] [class*="miniBackBtn"]:hover {
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #ffffff !important;
 }
 
 [data-theme="midnight"] [class*="deskMenuBtn"],
@@ -417,4 +537,26 @@ input, textarea, select {
   background: var(--cozy-bg-card) !important;
   color: var(--cozy-text-dark) !important;
   border: 1px solid var(--cozy-border-hard) !important;
+}
+
+/* Electric indigo accent buttons in midnight */
+[data-theme="midnight"] [class*="specialPlantSeedBtn"],
+[data-theme="midnight"] [class*="newQuestBtn"] {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4) !important;
+}
+
+[data-theme="midnight"] [class*="specialPlantSeedBtn"]:hover,
+[data-theme="midnight"] [class*="newQuestBtn"]:hover {
+  filter: brightness(1.1) !important;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.55) !important;
+}
+
+/* High-contrast status chips */
+[data-theme="midnight"] [class*="miniAppBadge"] {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #cbd5e1 !important;
 }

@@ -392,6 +392,24 @@
   color: #7d4f30;
 }
 
+:global([data-theme="midnight"]) .sproutPill {
+  background: rgba(52, 211, 153, 0.14);
+  border-color: rgba(52, 211, 153, 0.35);
+  color: #34d399;
+}
+
+:global([data-theme="midnight"]) .bloomPill {
+  background: rgba(251, 191, 36, 0.14);
+  border-color: rgba(251, 191, 36, 0.35);
+  color: #fbbf24;
+}
+
+:global([data-theme="midnight"]) .harvestPill {
+  background: rgba(148, 163, 184, 0.14);
+  border-color: rgba(148, 163, 184, 0.35);
+  color: #cbd5e1;
+}
+
 .statusPill strong {
   font-weight: 800;
 }
@@ -504,6 +522,24 @@
   background: #f7ede3;
   color: #7f512c;
   border-color: #e7d1bf;
+}
+
+:global([data-theme="midnight"]) .sproutBadge {
+  background: rgba(52, 211, 153, 0.16);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.35);
+}
+
+:global([data-theme="midnight"]) .bloomBadge {
+  background: rgba(251, 191, 36, 0.16);
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.35);
+}
+
+:global([data-theme="midnight"]) .harvestBadge {
+  background: rgba(148, 163, 184, 0.16);
+  color: #cbd5e1;
+  border-color: rgba(148, 163, 184, 0.35);
 }
 
 .cardsList {
@@ -767,6 +803,77 @@
 .miniDeleteBtn:hover {
   background: #fcdcdc;
   transform: translateY(-1px);
+}
+
+:global([data-theme="midnight"]) .miniNoteBtn {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #e2e8f0;
+}
+
+:global([data-theme="midnight"]) .miniNoteBtn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+}
+
+:global([data-theme="midnight"]) .miniBloomBtn {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+}
+
+:global([data-theme="midnight"]) .miniBloomBtn:hover {
+  background: rgba(245, 158, 11, 0.3);
+  border-color: #f59e0b;
+  color: #ffffff;
+}
+
+:global([data-theme="midnight"]) .miniBackBtn {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #cbd5e1;
+}
+
+:global([data-theme="midnight"]) .miniBackBtn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+:global([data-theme="midnight"]) .miniHarvestBtn {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.38);
+  color: #34d399;
+}
+
+:global([data-theme="midnight"]) .miniHarvestBtn:hover {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+  color: #ffffff !important;
+}
+
+:global([data-theme="midnight"]) .miniReopenBtn {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.35);
+  color: #60a5fa;
+}
+
+:global([data-theme="midnight"]) .miniReopenBtn:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+:global([data-theme="midnight"]) .miniDeleteBtn {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
+
+:global([data-theme="midnight"]) .miniDeleteBtn:hover {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
 }
 
 .cozyTipBox {

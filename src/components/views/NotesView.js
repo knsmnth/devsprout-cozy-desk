@@ -192,7 +192,7 @@ export default function NotesView() {
 
           <div className={styles.learnList}>
             {learnings.length === 0 ? (
-              <div style={{ padding: "16px", color: "#8c8371", fontSize: "0.82rem", fontStyle: "italic", textAlign: "center", background: "#faf8f2", borderRadius: "8px", border: "1px dashed #e2dac9" }}>
+              <div className={styles.emptyLearned}>
                 No micro-learnings jotted down yet today! Add one below 🍓
               </div>
             ) : (
@@ -218,25 +218,11 @@ export default function NotesView() {
               placeholder="+ jot down one cute micro-learning..."
               value={newLearningText}
               onChange={(e) => setNewLearningText(e.target.value)}
-              style={{
-                flex: 1,
-                padding: "6px 12px",
-                borderRadius: "8px",
-                border: "1.5px solid #ded6c5",
-                fontSize: "0.82rem",
-                background: "#faf8f2",
-              }}
+              className={styles.learningInput}
             />
             <button
               type="submit"
-              style={{
-                background: "#657d4f",
-                color: "#fff",
-                padding: "6px 14px",
-                borderRadius: "8px",
-                fontSize: "0.78rem",
-                fontWeight: 700,
-              }}
+              className={styles.learningAddBtn}
             >
               Add
             </button>

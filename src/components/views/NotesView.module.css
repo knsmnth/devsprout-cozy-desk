@@ -384,6 +384,49 @@
   border-color: var(--cozy-border-hard);
 }
 
+.emptyLearned {
+  padding: 16px;
+  color: var(--cozy-text-muted);
+  font-size: 0.82rem;
+  font-style: italic;
+  text-align: center;
+  background: var(--cozy-bg-panel);
+  border-radius: 8px;
+  border: 1px dashed var(--cozy-dashed-border);
+}
+
+.learningInput {
+  flex: 1;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--cozy-border-soft);
+  font-size: 0.82rem;
+  background: var(--cozy-bg-panel);
+  color: var(--cozy-text-dark);
+  outline: none;
+  font-family: inherit;
+}
+
+.learningInput:focus {
+  border-color: var(--cozy-green-header);
+  background: var(--cozy-bg-warm);
+}
+
+.learningAddBtn {
+  background: var(--cozy-green-header);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.learningAddBtn:hover {
+  background: var(--cozy-green-dark);
+}
+
 .autosaveBadge {
   font-size: 0.78rem;
   color: #587d4f;

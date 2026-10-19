@@ -102,6 +102,37 @@
   border-color: #bcd2e0;
 }
 
+/* Midnight Theme Sky Gradients - rich dusky & twilight aesthetics */
+:global([data-theme="midnight"]) .skySunny {
+  background: linear-gradient(180deg, #1b2d48 0%, #1c2b42 45%, #182635 76%, #213c28 100%);
+  border-color: #2b3e5a;
+}
+
+:global([data-theme="midnight"]) .skySunset {
+  background: linear-gradient(180deg, #3d2338 0%, #352134 45%, #251d2c 75%, #1e2c22 100%);
+  border-color: #442a42;
+}
+
+:global([data-theme="midnight"]) .skyGloomy {
+  background: linear-gradient(180deg, #182232 0%, #212c3e 45%, #1b2433 76%, #1a2820 100%);
+  border-color: #2b394f;
+}
+
+:global([data-theme="midnight"]) .skyRainy {
+  background: linear-gradient(180deg, #131b28 0%, #192334 45%, #17212e 76%, #16241b 100%);
+  border-color: #243347;
+}
+
+:global([data-theme="midnight"]) .skySnowy {
+  background: linear-gradient(180deg, #1e2a3c 0%, #253347 45%, #243042 76%, #233427 100%);
+  border-color: #2f4058;
+}
+
+:global([data-theme="midnight"]) .skyDark {
+  background: linear-gradient(180deg, #0f1524 0%, #151d30 45%, #182338 76%, #1b2a22 100%);
+  border-color: #28374f;
+}
+
 .headerRight {
   display: flex;
   align-items: center;
@@ -150,7 +181,7 @@
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  background: #ffffff;
+  background: var(--cozy-bg-panel);
   border: 1px solid var(--cozy-green-header, #5f7a49);
   border-radius: 9999px;
   padding: 1px 6px;
@@ -163,7 +194,7 @@
   font-size: 0.68rem;
   width: 78px;
   outline: none;
-  color: #3e382f;
+  color: var(--cozy-text-dark);
   font-family: inherit;
   padding: 1px 0;
 }

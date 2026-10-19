@@ -290,12 +290,12 @@ export default function DeskView() {
             <div
               style={{
                 marginTop: "10px",
-                background: "#fff9ea",
-                border: "1px dashed #e8c878",
+                background: "var(--cozy-honey-light, #fff9ea)",
+                border: "1px dashed var(--cozy-honey, #e8c878)",
                 borderRadius: "8px",
                 padding: "8px",
                 fontSize: "0.74rem",
-                color: "#7e5e1a",
+                color: "var(--cozy-text-dark, #7e5e1a)",
                 lineHeight: 1.35,
               }}
             >

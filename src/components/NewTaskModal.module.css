@@ -84,8 +84,8 @@
 
 .input:focus, .textarea:focus, .select:focus {
   outline: none;
-  border-color: var(--cozy-green-header);
-  background: #ffffff;
+  border-color: var(--cozy-green-accent, var(--cozy-green-header));
+  background: var(--cozy-bg-warm);
 }
 
 .row {

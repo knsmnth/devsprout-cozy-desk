@@ -629,6 +629,18 @@
   transform: translateY(-1px);
 }
 
+:global([data-theme="midnight"]) .bloomingHarvestBtn {
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.38);
+  color: #34d399;
+}
+
+:global([data-theme="midnight"]) .bloomingHarvestBtn:hover {
+  background: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+}
+
 .bloomingNoteBtn {
   display: inline-flex;
   align-items: center;
@@ -646,6 +658,17 @@
 
 .bloomingNoteBtn:hover {
   background: var(--cozy-bg-warm);
+}
+
+:global([data-theme="midnight"]) .bloomingNoteBtn {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #e2e8f0;
+}
+
+:global([data-theme="midnight"]) .bloomingNoteBtn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
 }
 
 /* Quests & Checklist Section */
@@ -1002,6 +1025,20 @@
   border-color: var(--cozy-border-hard);
   color: var(--cozy-text-dark);
   transform: translateY(-1px);
+}
+
+:global([data-theme="midnight"]) .questNoteBtn,
+:global([data-theme="midnight"]) .bentoNoteBtn {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #e2e8f0;
+}
+
+:global([data-theme="midnight"]) .questNoteBtn:hover,
+:global([data-theme="midnight"]) .bentoNoteBtn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
 }
 
 .questTitleText {

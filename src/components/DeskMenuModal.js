@@ -427,12 +427,12 @@ export default function DeskMenuModal({ isOpen, onClose }) {
               </div>
 
               {/* Add New Bookmark Form */}
-              <form onSubmit={handleAddShelf} style={{ background: "#faf7ef", padding: "14px", borderRadius: "12px", border: "1px dashed #dcd3be" }}>
+              <form onSubmit={handleAddShelf} style={{ background: "var(--cozy-bg-panel)", padding: "14px", borderRadius: "12px", border: "1px dashed var(--cozy-dashed-border)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                  <span style={{ fontSize: "0.84rem", fontWeight: 700, color: "#4f633d" }}>
+                  <span style={{ fontSize: "0.84rem", fontWeight: 700, color: "var(--cozy-green-header)" }}>
                     + Add New Shelf Link
                   </span>
-                  <span style={{ fontSize: "0.74rem", color: "#8c8371" }}>
+                  <span style={{ fontSize: "0.74rem", color: "var(--cozy-text-muted)" }}>
                     Selected Icon: <strong style={{ fontSize: "1rem" }}>{newShelfIcon}</strong>
                   </span>
                 </div>
@@ -577,12 +577,12 @@ export default function DeskMenuModal({ isOpen, onClose }) {
               </div>
 
               {/* Add New App Form */}
-              <form onSubmit={handleAddApp} style={{ background: "#faf7ef", padding: "14px", borderRadius: "12px", border: "1px dashed #dcd3be" }}>
+              <form onSubmit={handleAddApp} style={{ background: "var(--cozy-bg-panel)", padding: "14px", borderRadius: "12px", border: "1px dashed var(--cozy-dashed-border)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                  <span style={{ fontSize: "0.84rem", fontWeight: 700, color: "#4f633d" }}>
+                  <span style={{ fontSize: "0.84rem", fontWeight: 700, color: "var(--cozy-green-header)" }}>
                     + Add New Project / App
                   </span>
-                  <span style={{ fontSize: "0.74rem", color: "#8c8371" }}>
+                  <span style={{ fontSize: "0.74rem", color: "var(--cozy-text-muted)" }}>
                     Selected Icon: <strong style={{ fontSize: "1rem" }}>{newAppIcon}</strong>
                   </span>
                 </div>
@@ -722,12 +722,12 @@ export default function DeskMenuModal({ isOpen, onClose }) {
               </div>
 
               {/* Add New Tag / Filter Form */}
-              <form onSubmit={handleAddCategory} style={{ background: "#faf7ef", padding: "14px", borderRadius: "12px", border: "1px dashed #dcd3be" }}>
+              <form onSubmit={handleAddCategory} style={{ background: "var(--cozy-bg-panel)", padding: "14px", borderRadius: "12px", border: "1px dashed var(--cozy-dashed-border)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                  <span style={{ fontSize: "0.84rem", fontWeight: 700, color: "#4f633d" }}>
+                  <span style={{ fontSize: "0.84rem", fontWeight: 700, color: "var(--cozy-green-header)" }}>
                     + Add New Category Filter
                   </span>
-                  <span style={{ fontSize: "0.74rem", color: "#8c8371" }}>
+                  <span style={{ fontSize: "0.74rem", color: "var(--cozy-text-muted)" }}>
                     Icon: <strong style={{ fontSize: "1rem" }}>{newCatEmoji}</strong>
                   </span>
                 </div>
