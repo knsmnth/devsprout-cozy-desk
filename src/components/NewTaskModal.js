@@ -5,8 +5,8 @@ import styles from "./NewTaskModal.module.css";
 import { useTaskManager } from "@/context/TaskContext";
 import { X } from "lucide-react";
 
-export default function NewTaskModal({ isOpen, onClose }) {
-  const { apps, addTask, taskCategories } = useTaskManager();
+export default function NewTaskModal({ isOpen, onClose, defaultAppId }) {
+  const { apps, addTask, taskCategories, selectedAppId: storeSelectedAppId } = useTaskManager();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -15,9 +15,29 @@ export default function NewTaskModal({ isOpen, onClose }) {
   const [type, setType] = useState(taskCategories?.[0]?.id || "ui-flower");
   const [teacups, setTeacups] = useState(1);
 
+  // Sync selected project whenever modal opens or defaults change
+  React.useEffect(() => {
+    if (isOpen) {
+      const preferredId =
+        defaultAppId && defaultAppId !== "all"
+          ? defaultAppId
+          : storeSelectedAppId && storeSelectedAppId !== "all"
+          ? storeSelectedAppId
+          : apps[0]?.id || "main-workspace";
+
+      if (apps.some((a) => a.id === preferredId)) {
+        setSelectedAppId(preferredId);
+      } else if (apps[0]?.id) {
+        setSelectedAppId(apps[0].id);
+      }
+    }
+  }, [isOpen, defaultAppId, storeSelectedAppId, apps]);
+
   const activeAppId =
     selectedAppId && apps.some((a) => a.id === selectedAppId)
       ? selectedAppId
+      : storeSelectedAppId && storeSelectedAppId !== "all" && apps.some((a) => a.id === storeSelectedAppId)
+      ? storeSelectedAppId
       : apps[0]?.id || "main-workspace";
 
   if (!isOpen) return null;
@@ -58,7 +78,7 @@ export default function NewTaskModal({ isOpen, onClose }) {
 
         <form onSubmit={handleSubmit} className={styles.modalBody}>
           <div className={styles.formGroup}>
-            <label className={styles.label}>Which App / Website?</label>
+            <label className={styles.label}>Project</label>
             <select
               value={activeAppId}
               onChange={(e) => setSelectedAppId(e.target.value)}
@@ -66,7 +86,7 @@ export default function NewTaskModal({ isOpen, onClose }) {
             >
               {apps.map((app) => (
                 <option key={app.id} value={app.id}>
-                  {app.icon} {app.name} ({app.tag})
+                  {app.icon} {app.name}{app.tag ? ` (${app.tag})` : ""}
                 </option>
               ))}
             </select>

@@ -158,10 +158,13 @@ export default function SprintView() {
             className={`${styles.appTabBtn} ${selectedAppId === "all" ? styles.appTabBtnActive : ""}`}
             onClick={(e) => handleSelectApp("all", e)}
           >
-            <span>🌐</span> All Apps & Portals ({tasks.length})
+            <span>🌐</span> All Projects & Tasks (
+            {tasks.filter((t) => t.status !== "harvested").length})
           </button>
           {apps.map((app) => {
-            const count = tasks.filter((t) => t.appId === app.id).length;
+            const count = tasks.filter(
+              (t) => t.appId === app.id && (t.status === "sprouting" || t.status === "in-bloom")
+            ).length;
             return (
               <button
                 key={app.id}
@@ -501,7 +504,11 @@ export default function SprintView() {
         </div>
       </div>
 
-      <NewTaskModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <NewTaskModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        defaultAppId={selectedAppId}
+      />
       <TaskPaperModal
         task={selectedTaskForPaper}
         isOpen={Boolean(selectedTaskForPaper)}

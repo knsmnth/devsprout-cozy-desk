@@ -126,7 +126,7 @@ export default function DeskMenuModal({ isOpen, onClose }) {
   // New App Form
   const [newAppName, setNewAppName] = useState("");
   const [newAppIcon, setNewAppIcon] = useState("🌱");
-  const [newAppTag, setNewAppTag] = useState("Web App");
+  const [newAppTag, setNewAppTag] = useState("Project");
   const [newAppColor, setNewAppColor] = useState("#5F7A49");
   const [newAppQuota, setNewAppQuota] = useState(2);
 
@@ -229,7 +229,7 @@ export default function DeskMenuModal({ isOpen, onClose }) {
     });
 
     setNewAppName("");
-    setNewAppTag("Web App");
+    setNewAppTag("Project");
     setNewAppColor("#5F7A49");
     setNewAppQuota(2);
   };
@@ -599,14 +599,14 @@ export default function DeskMenuModal({ isOpen, onClose }) {
             <div>
               <div className={styles.sectionTitle}>Workspace Projects & Daily Targets</div>
               <div className={styles.sectionSubtitle}>
-                Manage your active apps and adjust daily quota targets for the Daily Task Goals meter.
+                Manage your active projects and adjust daily quota targets for the Daily Task Goals meter.
               </div>
 
               {/* Add New App Form - Positioned ABOVE the list */}
               <form onSubmit={handleAddApp} className={styles.addFormCard}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
                   <span style={{ fontSize: "0.84rem", fontWeight: 700, color: "var(--cozy-green-header)" }}>
-                    + Add New Project / App
+                    + Add New Project
                   </span>
                   <span style={{ fontSize: "0.74rem", color: "var(--cozy-text-muted)" }}>
                     Selected Icon: <strong style={{ fontSize: "1rem" }}>{newAppIcon}</strong>
