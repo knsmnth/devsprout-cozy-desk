@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import styles from "./SprintView.module.css";
 import { useTaskManager } from "@/context/TaskContext";
 import { sounds } from "@/utils/audio";
 import NewTaskModal from "@/components/NewTaskModal";
 import TaskPaperModal from "@/components/TaskPaperModal";
 import AppleBasket from "@/components/AppleBasket";
-import { Trash2 } from "lucide-react";
+import { Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 
 const getPriorityEmoji = (priority) => {
   switch (priority) {
@@ -100,39 +100,89 @@ export default function SprintView() {
   const progressPercent = totalFiltered > 0 ? Math.round((doneFiltered / totalFiltered) * 100) : 0;
 
   const currentAppObj = apps.find((a) => a.id === selectedAppId);
+  const appTabsRef = useRef(null);
 
-  // Helper to switch app and project theme
-  const handleSelectApp = (appId) => {
+  // Helper to switch app and handle auto-scroll slide
+  const handleSelectApp = (appId, event) => {
     if (sounds) sounds.playClick();
     if (typeof selectAppWithTheme === "function") {
       selectAppWithTheme(appId);
     } else {
       setSelectedAppId(appId);
     }
+
+    if (event?.currentTarget && appTabsRef.current) {
+      const container = appTabsRef.current;
+      const tab = event.currentTarget;
+      const tabLeft = tab.offsetLeft;
+      const tabWidth = tab.offsetWidth;
+      const containerLeft = container.scrollLeft;
+      const containerWidth = container.clientWidth;
+
+      if (tabLeft + tabWidth >= containerLeft + containerWidth - 30) {
+        container.scrollTo({ left: tabLeft, behavior: "smooth" });
+      } else if (tabLeft < containerLeft + 30) {
+        container.scrollTo({ left: Math.max(0, tabLeft - 20), behavior: "smooth" });
+      }
+    }
+  };
+
+  const handleScrollAppTabs = (direction) => {
+    if (sounds) sounds.playPop();
+    if (!appTabsRef.current) return;
+    const container = appTabsRef.current;
+    const scrollAmount = Math.max(160, Math.floor(container.clientWidth * 0.65));
+    if (direction === "left") {
+      container.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+    } else {
+      container.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
   };
 
   return (
     <div className={styles.sprintContainer}>
-      {/* Multi-App Filter Bar with Theme Association */}
-      <div className={styles.appTabsBar}>
+      {/* Multi-App Filter Bar with Sliding Navigation */}
+      <div className={styles.appTabsWrapper}>
         <button
-          className={`${styles.appTabBtn} ${selectedAppId === "all" ? styles.appTabBtnActive : ""}`}
-          onClick={() => handleSelectApp("all")}
+          type="button"
+          className={styles.tabsScrollBtn}
+          onClick={() => handleScrollAppTabs("left")}
+          title="Scroll projects left"
+          aria-label="Scroll projects left"
         >
-          <span>🌐</span> All Apps & Portals ({tasks.length})
+          <ChevronLeft size={15} />
         </button>
-        {apps.map((app) => {
-          const count = tasks.filter((t) => t.appId === app.id).length;
-          return (
-            <button
-              key={app.id}
-              className={`${styles.appTabBtn} ${selectedAppId === app.id ? styles.appTabBtnActive : ""}`}
-              onClick={() => handleSelectApp(app.id)}
-            >
-              <span>{app.icon}</span> {app.name} ({count})
-            </button>
-          );
-        })}
+
+        <div className={styles.appTabsBar} ref={appTabsRef}>
+          <button
+            className={`${styles.appTabBtn} ${selectedAppId === "all" ? styles.appTabBtnActive : ""}`}
+            onClick={(e) => handleSelectApp("all", e)}
+          >
+            <span>🌐</span> All Apps & Portals ({tasks.length})
+          </button>
+          {apps.map((app) => {
+            const count = tasks.filter((t) => t.appId === app.id).length;
+            return (
+              <button
+                key={app.id}
+                className={`${styles.appTabBtn} ${selectedAppId === app.id ? styles.appTabBtnActive : ""}`}
+                onClick={(e) => handleSelectApp(app.id, e)}
+              >
+                <span>{app.icon}</span> {app.name} ({count})
+              </button>
+            );
+          })}
+        </div>
+
+        <button
+          type="button"
+          className={styles.tabsScrollBtn}
+          onClick={() => handleScrollAppTabs("right")}
+          title="Scroll projects right"
+          aria-label="Scroll projects right"
+        >
+          <ChevronRight size={15} />
+        </button>
       </div>
 
       {/* Top Sprint Banner & Quick Filters */}

@@ -79,6 +79,14 @@
   height: 100%;
   padding-top: 10px;
   overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.navTabs::-webkit-scrollbar {
+  display: none;
 }
 
 .tab {

@@ -22,6 +22,8 @@ import {
   Clock,
   Sparkles,
   Tag,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -87,6 +89,7 @@ export default function DeskMenuModal({ isOpen, onClose }) {
     shelves,
     addShelf,
     deleteShelf,
+    updateShelves,
     apps,
     addApp,
     updateApp,
@@ -125,7 +128,6 @@ export default function DeskMenuModal({ isOpen, onClose }) {
   const [newAppIcon, setNewAppIcon] = useState("🌱");
   const [newAppTag, setNewAppTag] = useState("Web App");
   const [newAppColor, setNewAppColor] = useState("#5F7A49");
-  const [newAppTheme, setNewAppTheme] = useState("matcha");
   const [newAppQuota, setNewAppQuota] = useState(2);
 
   // New Tag / Filter Form
@@ -134,6 +136,7 @@ export default function DeskMenuModal({ isOpen, onClose }) {
   const [newCatColor, setNewCatColor] = useState("#5F7A49");
 
   const fileInputRef = useRef(null);
+  const tabsNavRef = useRef(null);
 
   // Sync profile form when modal opens or userProfile changes
   React.useEffect(() => {
@@ -144,9 +147,39 @@ export default function DeskMenuModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  const handleTabChange = (tabId) => {
+  const handleTabChange = (tabId, event) => {
     if (sounds) sounds.playClick();
     setDeskMenuTab(tabId);
+
+    // Auto-scroll logic: If clicked tab is at or near the right boundary, slide it to be the first!
+    if (event?.currentTarget && tabsNavRef.current) {
+      const container = tabsNavRef.current;
+      const tab = event.currentTarget;
+      const tabLeft = tab.offsetLeft;
+      const tabWidth = tab.offsetWidth;
+      const containerLeft = container.scrollLeft;
+      const containerWidth = container.clientWidth;
+
+      // When clicking the last tab(s) shown on the screen (near right edge),
+      // auto-scroll so the clicked tab slides to the beginning of the viewport (becomes first)
+      if (tabLeft + tabWidth >= containerLeft + containerWidth - 30) {
+        container.scrollTo({ left: tabLeft, behavior: "smooth" });
+      } else if (tabLeft < containerLeft + 30) {
+        container.scrollTo({ left: Math.max(0, tabLeft - 20), behavior: "smooth" });
+      }
+    }
+  };
+
+  const handleScrollTabs = (direction) => {
+    if (sounds) sounds.playPop();
+    if (!tabsNavRef.current) return;
+    const container = tabsNavRef.current;
+    const scrollAmount = Math.max(160, Math.floor(container.clientWidth * 0.65));
+    if (direction === "left") {
+      container.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+    } else {
+      container.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
   };
 
   const handleSaveProfile = (e) => {
@@ -192,14 +225,12 @@ export default function DeskMenuModal({ isOpen, onClose }) {
       icon: newAppIcon || "🌱",
       tag: newAppTag.trim() || "Project",
       color: newAppColor || "#5F7A49",
-      theme: newAppTheme || "matcha",
       dailyTarget: Number(newAppQuota) || 2,
     });
 
     setNewAppName("");
     setNewAppTag("Web App");
     setNewAppColor("#5F7A49");
-    setNewAppTheme("matcha");
     setNewAppQuota(2);
   };
 
@@ -253,43 +284,65 @@ export default function DeskMenuModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        {/* Tab Navigation */}
-        <div className={styles.tabsNav}>
+        {/* Tab Navigation with Left/Right Arrows & Hidden Scrollbars */}
+        <div className={styles.tabsNavWrapper}>
           <button
-            className={`${styles.tabBtn} ${deskMenuTab === "profile" ? styles.tabBtnActive : ""}`}
-            onClick={() => handleTabChange("profile")}
+            type="button"
+            className={styles.tabsScrollBtn}
+            onClick={() => handleScrollTabs("left")}
+            title="Scroll tabs left"
+            aria-label="Scroll tabs left"
           >
-            <User size={14} /> Profile
+            <ChevronLeft size={16} />
           </button>
+
+          <div className={styles.tabsNav} ref={tabsNavRef}>
+            <button
+              className={`${styles.tabBtn} ${deskMenuTab === "profile" ? styles.tabBtnActive : ""}`}
+              onClick={(e) => handleTabChange("profile", e)}
+            >
+              <User size={14} /> Profile
+            </button>
+            <button
+              className={`${styles.tabBtn} ${deskMenuTab === "shelves" ? styles.tabBtnActive : ""}`}
+              onClick={(e) => handleTabChange("shelves", e)}
+            >
+              <Bookmark size={14} /> Shelves
+            </button>
+            <button
+              className={`${styles.tabBtn} ${deskMenuTab === "apps" ? styles.tabBtnActive : ""}`}
+              onClick={(e) => handleTabChange("apps", e)}
+            >
+              <FolderKanban size={14} /> Projects & Quotas
+            </button>
+            <button
+              className={`${styles.tabBtn} ${deskMenuTab === "tags" ? styles.tabBtnActive : ""}`}
+              onClick={(e) => handleTabChange("tags", e)}
+            >
+              <Tag size={14} /> Task Filters & Tags
+            </button>
+            <button
+              className={`${styles.tabBtn} ${deskMenuTab === "theme" ? styles.tabBtnActive : ""}`}
+              onClick={(e) => handleTabChange("theme", e)}
+            >
+              <Palette size={14} /> Themes & Ambience
+            </button>
+            <button
+              className={`${styles.tabBtn} ${deskMenuTab === "data" ? styles.tabBtnActive : ""}`}
+              onClick={(e) => handleTabChange("data", e)}
+            >
+              <Database size={14} /> Data & Backup
+            </button>
+          </div>
+
           <button
-            className={`${styles.tabBtn} ${deskMenuTab === "shelves" ? styles.tabBtnActive : ""}`}
-            onClick={() => handleTabChange("shelves")}
+            type="button"
+            className={styles.tabsScrollBtn}
+            onClick={() => handleScrollTabs("right")}
+            title="Scroll tabs right"
+            aria-label="Scroll tabs right"
           >
-            <Bookmark size={14} /> Shelves
-          </button>
-          <button
-            className={`${styles.tabBtn} ${deskMenuTab === "apps" ? styles.tabBtnActive : ""}`}
-            onClick={() => handleTabChange("apps")}
-          >
-            <FolderKanban size={14} /> Projects & Quotas
-          </button>
-          <button
-            className={`${styles.tabBtn} ${deskMenuTab === "tags" ? styles.tabBtnActive : ""}`}
-            onClick={() => handleTabChange("tags")}
-          >
-            <Tag size={14} /> Task Filters & Tags
-          </button>
-          <button
-            className={`${styles.tabBtn} ${deskMenuTab === "theme" ? styles.tabBtnActive : ""}`}
-            onClick={() => handleTabChange("theme")}
-          >
-            <Palette size={14} /> Themes & Ambience
-          </button>
-          <button
-            className={`${styles.tabBtn} ${deskMenuTab === "data" ? styles.tabBtnActive : ""}`}
-            onClick={() => handleTabChange("data")}
-          >
-            <Database size={14} /> Data & Backup
+            <ChevronRight size={16} />
           </button>
         </div>
 
@@ -438,41 +491,8 @@ export default function DeskMenuModal({ isOpen, onClose }) {
                 Add links to your actual GitHub repos, Figma files, Jira sprint boards, or playlists.
               </div>
 
-              <div style={{ marginBottom: "16px" }}>
-                {shelves.map((shelf) => (
-                  <div key={shelf.id} className={styles.shelfRow}>
-                    <div className={styles.shelfInfo}>
-                      <button
-                        type="button"
-                        className={styles.appIconChangeBtn}
-                        title="Click to cycle icon"
-                        onClick={() => {
-                          if (sounds) sounds.playPop();
-                          const curIdx = SHELF_EMOJI_OPTIONS.indexOf(shelf.icon);
-                          const nextEmoji = SHELF_EMOJI_OPTIONS[(curIdx + 1) % SHELF_EMOJI_OPTIONS.length] || "🔖";
-                          updateShelves(shelves.map((s) => (s.id === shelf.id ? { ...s, icon: nextEmoji } : s)));
-                        }}
-                      >
-                        {shelf.icon || "🔖"}
-                      </button>
-                      <span>{shelf.label}</span>
-                      <span className={styles.shelfUrl}>{shelf.url || "ambient sound"}</span>
-                    </div>
-                    {shelves.length > 1 && (
-                      <button
-                        className={styles.deleteBtn}
-                        onClick={() => deleteShelf(shelf.id)}
-                        title="Delete bookmark"
-                      >
-                        <Trash2 size={13} />
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Add New Bookmark Form */}
-              <form onSubmit={handleAddShelf} style={{ background: "var(--cozy-bg-panel)", padding: "14px", borderRadius: "12px", border: "1px dashed var(--cozy-dashed-border)" }}>
+              {/* Add New Bookmark Form - Positioned ABOVE the list */}
+              <form onSubmit={handleAddShelf} className={styles.addFormCard}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
                   <span style={{ fontSize: "0.84rem", fontWeight: 700, color: "var(--cozy-green-header)" }}>
                     + Add New Shelf Link
@@ -537,6 +557,40 @@ export default function DeskMenuModal({ isOpen, onClose }) {
                   </button>
                 </div>
               </form>
+
+              {/* Current Shelves List */}
+              <div style={{ marginBottom: "16px" }}>
+                {shelves.map((shelf) => (
+                  <div key={shelf.id} className={styles.shelfRow}>
+                    <div className={styles.shelfInfo}>
+                      <button
+                        type="button"
+                        className={styles.appIconChangeBtn}
+                        title="Click to cycle icon"
+                        onClick={() => {
+                          if (sounds) sounds.playPop();
+                          const curIdx = SHELF_EMOJI_OPTIONS.indexOf(shelf.icon);
+                          const nextEmoji = SHELF_EMOJI_OPTIONS[(curIdx + 1) % SHELF_EMOJI_OPTIONS.length] || "🔖";
+                          updateShelves(shelves.map((s) => (s.id === shelf.id ? { ...s, icon: nextEmoji } : s)));
+                        }}
+                      >
+                        {shelf.icon || "🔖"}
+                      </button>
+                      <span>{shelf.label}</span>
+                      <span className={styles.shelfUrl}>{shelf.url || "ambient sound"}</span>
+                    </div>
+                    {shelves.length > 1 && (
+                      <button
+                        className={styles.deleteBtn}
+                        onClick={() => deleteShelf(shelf.id)}
+                        title="Delete bookmark"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
@@ -548,81 +602,8 @@ export default function DeskMenuModal({ isOpen, onClose }) {
                 Manage your active apps and adjust daily quota targets for the Daily Task Goals meter.
               </div>
 
-              <div style={{ marginBottom: "16px" }}>
-                {apps.map((app) => (
-                  <div key={app.id} className={styles.shelfRow} style={{ flexWrap: "wrap" }}>
-                    <div className={styles.shelfInfo}>
-                      <button
-                        type="button"
-                        className={styles.appIconChangeBtn}
-                        title="Click to cycle project icon"
-                        onClick={() => {
-                          if (sounds) sounds.playPop();
-                          const curIdx = PROJECT_EMOJI_OPTIONS.indexOf(app.icon);
-                          const nextEmoji = PROJECT_EMOJI_OPTIONS[(curIdx + 1) % PROJECT_EMOJI_OPTIONS.length] || "🌱";
-                          updateApp(app.id, { icon: nextEmoji });
-                        }}
-                      >
-                        {app.icon || "🌱"}
-                      </button>
-                      <div>
-                        <div>{app.name} <span style={{ fontSize: "0.75rem", opacity: 0.7 }}>({app.tag})</span></div>
-                        <div style={{ fontSize: "0.74rem", color: "#8c8371" }}>
-                          Daily Target: {app.dailyTarget || 1} tasks/day • <em>click icon to cycle</em>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                      {/* Project Theme Selector */}
-                      <select
-                        value={app.theme || "matcha"}
-                        onChange={(e) => updateApp(app.id, { theme: e.target.value })}
-                        className={styles.select}
-                        style={{ padding: "4px 8px", fontSize: "0.76rem", borderRadius: "6px", maxWidth: "115px" }}
-                        title="Project Theme (auto-applies when switching to this project)"
-                      >
-                        <option value="matcha">🍵 Matcha</option>
-                        <option value="sakura">🌸 Sakura</option>
-                        <option value="coffee">☕ Coffee</option>
-                        <option value="midnight">🌙 Midnight</option>
-                        <option value="terracotta">🍊 Sunset</option>
-                      </select>
-
-                      {/* Project Accent Color */}
-                      <input
-                        type="color"
-                        value={app.color || "#5F7A49"}
-                        onChange={(e) => updateApp(app.id, { color: e.target.value })}
-                        title="Project Identification Color (seen on cards & checklist)"
-                        style={{ width: "24px", height: "24px", border: "none", borderRadius: "50%", cursor: "pointer", background: "none" }}
-                      />
-
-                      <input
-                        type="number"
-                        min={1}
-                        max={10}
-                        value={app.dailyTarget || 1}
-                        onChange={(e) => updateApp(app.id, { dailyTarget: Number(e.target.value) || 1 })}
-                        title="Daily target tasks"
-                        style={{ width: "42px", padding: "4px", borderRadius: "6px", border: "1px solid #ccc", textAlign: "center" }}
-                      />
-                      {apps.length > 1 && (
-                        <button
-                          className={styles.deleteBtn}
-                          onClick={() => deleteApp(app.id)}
-                          title="Delete app"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Add New App Form */}
-              <form onSubmit={handleAddApp} style={{ background: "var(--cozy-bg-panel)", padding: "14px", borderRadius: "12px", border: "1px dashed var(--cozy-dashed-border)" }}>
+              {/* Add New App Form - Positioned ABOVE the list */}
+              <form onSubmit={handleAddApp} className={styles.addFormCard}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
                   <span style={{ fontSize: "0.84rem", fontWeight: 700, color: "var(--cozy-green-header)" }}>
                     + Add New Project / App
@@ -656,7 +637,7 @@ export default function DeskMenuModal({ isOpen, onClose }) {
                   </div>
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "48px 1.2fr 1fr 100px 36px 45px auto", gap: "8px", alignItems: "center" }}>
+                <div className={styles.addAppInputsGrid}>
                   <input
                     type="text"
                     maxLength={2}
@@ -676,30 +657,17 @@ export default function DeskMenuModal({ isOpen, onClose }) {
                   />
                   <input
                     type="text"
-                    placeholder="Tag (e.g. Mobile)"
+                    placeholder="Tag (e.g. Mobile, Web)"
                     className={styles.input}
                     value={newAppTag}
                     onChange={(e) => setNewAppTag(e.target.value)}
                   />
-                  <select
-                    value={newAppTheme}
-                    onChange={(e) => setNewAppTheme(e.target.value)}
-                    className={styles.select}
-                    style={{ padding: "6px 8px", fontSize: "0.76rem", borderRadius: "8px" }}
-                    title="Default Project Theme"
-                  >
-                    <option value="matcha">🍵 Matcha</option>
-                    <option value="sakura">🌸 Sakura</option>
-                    <option value="coffee">☕ Coffee</option>
-                    <option value="midnight">🌙 Midnight</option>
-                    <option value="terracotta">🍊 Sunset</option>
-                  </select>
                   <input
                     type="color"
                     value={newAppColor}
                     onChange={(e) => setNewAppColor(e.target.value)}
                     title="Project Color"
-                    style={{ width: "32px", height: "32px", border: "none", borderRadius: "6px", cursor: "pointer", background: "none" }}
+                    style={{ width: "34px", height: "34px", border: "none", borderRadius: "8px", cursor: "pointer", background: "none" }}
                   />
                   <input
                     type="number"
@@ -707,14 +675,73 @@ export default function DeskMenuModal({ isOpen, onClose }) {
                     max={10}
                     value={newAppQuota}
                     onChange={(e) => setNewAppQuota(Number(e.target.value))}
-                    title="Daily Target"
+                    title="Daily Target (tasks/day)"
                     style={{ width: "100%", padding: "6px 4px", borderRadius: "8px", border: "1px solid #ccc", textAlign: "center" }}
                   />
-                  <button type="submit" className={styles.primaryBtn} style={{ padding: "8px 14px" }}>
+                  <button type="submit" className={styles.primaryBtn} style={{ padding: "8px 14px", whiteSpace: "nowrap" }}>
                     <Plus size={15} /> Add
                   </button>
                 </div>
               </form>
+
+              {/* Current Projects List */}
+              <div style={{ marginBottom: "16px" }}>
+                {apps.map((app) => (
+                  <div key={app.id} className={styles.shelfRow} style={{ flexWrap: "wrap" }}>
+                    <div className={styles.shelfInfo}>
+                      <button
+                        type="button"
+                        className={styles.appIconChangeBtn}
+                        title="Click to cycle project icon"
+                        onClick={() => {
+                          if (sounds) sounds.playPop();
+                          const curIdx = PROJECT_EMOJI_OPTIONS.indexOf(app.icon);
+                          const nextEmoji = PROJECT_EMOJI_OPTIONS[(curIdx + 1) % PROJECT_EMOJI_OPTIONS.length] || "🌱";
+                          updateApp(app.id, { icon: nextEmoji });
+                        }}
+                      >
+                        {app.icon || "🌱"}
+                      </button>
+                      <div>
+                        <div>{app.name} <span style={{ fontSize: "0.75rem", opacity: 0.7 }}>({app.tag})</span></div>
+                        <div style={{ fontSize: "0.74rem", color: "#8c8371" }}>
+                          Daily Target: {app.dailyTarget || 1} tasks/day • <em>click icon to cycle</em>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                      {/* Project Accent Color */}
+                      <input
+                        type="color"
+                        value={app.color || "#5F7A49"}
+                        onChange={(e) => updateApp(app.id, { color: e.target.value })}
+                        title="Project Identification Color (seen on cards & checklist)"
+                        style={{ width: "24px", height: "24px", border: "none", borderRadius: "50%", cursor: "pointer", background: "none" }}
+                      />
+
+                      <input
+                        type="number"
+                        min={1}
+                        max={10}
+                        value={app.dailyTarget || 1}
+                        onChange={(e) => updateApp(app.id, { dailyTarget: Number(e.target.value) || 1 })}
+                        title="Daily target tasks"
+                        style={{ width: "42px", padding: "4px", borderRadius: "6px", border: "1px solid #ccc", textAlign: "center" }}
+                      />
+                      {apps.length > 1 && (
+                        <button
+                          className={styles.deleteBtn}
+                          onClick={() => deleteApp(app.id)}
+                          title="Delete app"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
@@ -726,48 +753,8 @@ export default function DeskMenuModal({ isOpen, onClose }) {
                 Customize quick filter tags used across your sprint board and quest creation.
               </div>
 
-              <div style={{ marginBottom: "16px" }}>
-                {taskCategories.map((cat) => (
-                  <div key={cat.id} className={styles.shelfRow}>
-                    <div className={styles.shelfInfo}>
-                      <span style={{ fontSize: "1.2rem" }}>{cat.emoji || "🏷️"}</span>
-                      <div>
-                        <div style={{ fontWeight: 600 }}>{cat.label}</div>
-                        <div style={{ fontSize: "0.74rem", color: "#8c8371" }}>
-                          Filter Key: <code>{cat.id}</code>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                      <span
-                        style={{
-                          width: "18px",
-                          height: "18px",
-                          borderRadius: "50%",
-                          backgroundColor: cat.color || "#657d4f",
-                          display: "inline-block",
-                          border: "1px solid rgba(0,0,0,0.15)",
-                        }}
-                        title={`Color: ${cat.color}`}
-                      />
-                      {taskCategories.length > 1 && (
-                        <button
-                          type="button"
-                          className={styles.deleteBtn}
-                          onClick={() => deleteCategory(cat.id)}
-                          title="Delete tag"
-                        >
-                          <Trash2 size={13} />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Add New Tag / Filter Form */}
-              <form onSubmit={handleAddCategory} style={{ background: "var(--cozy-bg-panel)", padding: "14px", borderRadius: "12px", border: "1px dashed var(--cozy-dashed-border)" }}>
+              {/* Add New Tag / Filter Form - Positioned ABOVE the list */}
+              <form onSubmit={handleAddCategory} className={styles.addFormCard}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
                   <span style={{ fontSize: "0.84rem", fontWeight: 700, color: "var(--cozy-green-header)" }}>
                     + Add New Category Filter
@@ -807,6 +794,47 @@ export default function DeskMenuModal({ isOpen, onClose }) {
                   </button>
                 </div>
               </form>
+
+              {/* Categories List */}
+              <div style={{ marginBottom: "16px" }}>
+                {taskCategories.map((cat) => (
+                  <div key={cat.id} className={styles.shelfRow}>
+                    <div className={styles.shelfInfo}>
+                      <span style={{ fontSize: "1.2rem" }}>{cat.emoji || "🏷️"}</span>
+                      <div>
+                        <div style={{ fontWeight: 600 }}>{cat.label}</div>
+                        <div style={{ fontSize: "0.74rem", color: "#8c8371" }}>
+                          Filter Key: <code>{cat.id}</code>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                      <span
+                        style={{
+                          width: "18px",
+                          height: "18px",
+                          borderRadius: "50%",
+                          backgroundColor: cat.color || "#657d4f",
+                          display: "inline-block",
+                          border: "1px solid rgba(0,0,0,0.15)",
+                        }}
+                        title={`Color: ${cat.color}`}
+                      />
+                      {taskCategories.length > 1 && (
+                        <button
+                          type="button"
+                          className={styles.deleteBtn}
+                          onClick={() => deleteCategory(cat.id)}
+                          title="Delete tag"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

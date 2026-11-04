@@ -247,12 +247,7 @@ export const useTaskStore = create((set, get) => ({
     if (sounds) sounds.playClick();
   },
   selectAppWithTheme: (appId) => {
-    const { apps, updateTheme } = get();
     set({ selectedAppId: appId });
-    if (appId !== "all") {
-      const app = apps.find((a) => a.id === appId);
-      if (app?.theme) updateTheme(app.theme);
-    }
   },
 
   // Task Categories

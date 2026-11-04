@@ -306,12 +306,55 @@
 }
 
 /* Multi-App Selector Tabs */
+.appTabsWrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  width: 100%;
+}
+
 .appTabsBar {
   display: flex;
   align-items: center;
   gap: 8px;
   overflow-x: auto;
-  padding-bottom: 2px;
+  padding: 4px 0;
+  flex: 1;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.appTabsBar::-webkit-scrollbar {
+  display: none;
+}
+
+.tabsScrollBtn {
+  background: var(--cozy-bg-card, #ffffff);
+  border: 1.5px solid var(--cozy-border-soft, #e2d9c8);
+  color: var(--cozy-text-dark, #3e382f);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.15s ease;
+}
+
+.tabsScrollBtn:hover {
+  background: var(--cozy-bg-panel, #f4eee2);
+  border-color: var(--cozy-green-header, #50683a);
+  transform: scale(1.08);
+}
+
+.tabsScrollBtn:active {
+  transform: scale(0.95);
 }
 
 .appTabBtn {

@@ -15,9 +15,9 @@
   background: var(--cozy-bg-card, #ffffff);
   border: 2px solid var(--cozy-border-hard, #c8bea9);
   border-radius: var(--radius-card, 18px);
-  width: 100%;
-  max-width: 680px;
-  max-height: 88vh;
+  width: min(740px, calc(100vw - 32px));
+  height: min(650px, calc(100vh - 48px));
+  min-height: 520px;
   display: flex;
   flex-direction: column;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
@@ -61,14 +61,55 @@
   transform: rotate(90deg);
 }
 
-/* Tabs Bar */
+/* Tabs Bar Wrapper & Sliding Navigation */
+.tabsNavWrapper {
+  display: flex;
+  align-items: center;
+  background: var(--cozy-green-bar, #607b4b);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+  position: relative;
+  padding: 0 6px;
+  gap: 4px;
+}
+
 .tabsNav {
   display: flex;
-  background: var(--cozy-green-bar, #607b4b);
-  padding: 6px 16px 0;
+  padding: 6px 4px 0;
   gap: 6px;
   overflow-x: auto;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.08);
+  flex: 1;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tabsNav::-webkit-scrollbar {
+  display: none;
+}
+
+.tabsScrollBtn {
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.tabsScrollBtn:hover {
+  background: rgba(255, 255, 255, 0.32);
+  transform: scale(1.08);
+}
+
+.tabsScrollBtn:active {
+  transform: scale(0.95);
 }
 
 .tabBtn {
@@ -104,6 +145,7 @@
 .body {
   padding: 20px 24px;
   overflow-y: auto;
+  overflow-x: hidden;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -565,12 +607,32 @@
   border: 1px solid var(--cozy-border-soft, #e2dac8);
 }
 
+/* Add Item Form Card & Grid */
+.addFormCard {
+  background: var(--cozy-bg-panel, #faf7ef);
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px dashed var(--cozy-dashed-border, #cfc6b2);
+  margin-bottom: 16px;
+}
+
+.addAppInputsGrid {
+  display: grid;
+  grid-template-columns: 44px minmax(130px, 1.5fr) minmax(90px, 1fr) 36px 52px auto;
+  gap: 8px;
+  align-items: center;
+}
+
 @media (max-width: 600px) {
+  .modal {
+    height: 94vh;
+    min-height: unset;
+  }
   .row {
     grid-template-columns: 1fr;
   }
   .tabsNav {
-    padding: 4px 8px 0;
+    padding: 4px 4px 0;
   }
   .tabBtn {
     padding: 6px 10px;
@@ -578,5 +640,8 @@
   }
   .body {
     padding: 16px;
+  }
+  .addAppInputsGrid {
+    grid-template-columns: 44px 1fr 1fr;
   }
 }
