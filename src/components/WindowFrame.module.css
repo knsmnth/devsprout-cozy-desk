@@ -121,17 +121,175 @@
 .navRight {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: flex-end;
+  margin-left: auto;
+  gap: 8px;
+}
+
+.cloudAuthBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #fffdf9;
+  border: 1.5px solid rgba(60, 80, 40, 0.22);
+  color: #344622;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  transition: all 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.cloudAuthBtn:hover {
+  background: #ffffff;
+  color: #273618;
+  border-color: rgba(60, 80, 40, 0.4);
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12), inset 0 1px 0 #ffffff;
+}
+
+.cloudAuthBtn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.cloudAuthBtnActive {
+  background: #f4f8f0;
+  border-color: rgba(74, 98, 52, 0.38);
+  color: #2c3a1e;
+}
+
+.cloudDotOnline {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.85);
+}
+
+.syncSpin {
+  animation: spin 1.4s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .madeWithBadge {
+  display: none;
+}
+
+.userMenuWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.menuChevron {
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  opacity: 0.7;
+}
+
+.menuChevronOpen {
+  transform: rotate(180deg);
+}
+
+.accountPopover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 230px;
+  background-color: #fffdf9;
+  border: 1.5px solid rgba(60, 80, 40, 0.22);
+  border-radius: 18px;
+  box-shadow: 0 14px 36px rgba(30, 45, 18, 0.2), inset 0 1px 0 #ffffff;
+  padding: 8px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  animation: popoverFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.popoverHeader {
+  padding: 8px 10px 6px;
+}
+
+.popoverEmail {
   font-size: 0.82rem;
+  font-weight: 700;
+  color: #273618;
+  word-break: break-all;
+  line-height: 1.3;
+}
+
+.popoverStatus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  color: #607353;
+  margin-top: 4px;
+}
+
+.popoverDivider {
+  height: 1px;
+  background: rgba(70, 95, 48, 0.12);
+  margin: 6px 4px;
+}
+
+.popoverItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  font-size: 0.81rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
-  white-space: nowrap;
-  background: rgba(255, 255, 255, 0.15);
-  padding: 4px 12px;
-  border-radius: 9999px;
+  color: #354724;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.popoverItem:hover:not(:disabled) {
+  background: #f1f6ec;
+  color: #1e2a14;
+}
+
+.popoverItem:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.popoverItemDanger {
+  color: #a84738;
+}
+
+.popoverItemDanger:hover:not(:disabled) {
+  background: #fdf2f0;
+  color: #923425;
 }
 
 /* Media Player Bar */
@@ -535,6 +693,59 @@
   color: var(--cozy-text-dark);
 }
 
+/* Cozy Auth & Logout Feedback Toast */
+.authToast {
+  position: fixed;
+  bottom: 84px;
+  right: 24px;
+  z-index: 9999;
+  animation: slideInToast 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.authToastContent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fffdf9;
+  border: 1.5px solid rgba(70, 95, 48, 0.28);
+  box-shadow: 0 12px 32px rgba(35, 50, 22, 0.22);
+  border-radius: 14px;
+  padding: 10px 16px;
+  max-width: 420px;
+}
+
+.authToastIcon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.authToastText {
+  flex: 1;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #273618;
+  line-height: 1.35;
+}
+
+.authToastClose {
+  background: transparent;
+  border: none;
+  color: #7a8c6e;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.authToastClose:hover {
+  background: rgba(70, 95, 48, 0.12);
+  color: #273618;
+}
+
 @media (max-width: 768px) {
   .tabsBar {
     padding: 8px 14px;
@@ -542,8 +753,9 @@
   .mainCanvas {
     padding: 16px 12px 96px;
   }
-  .navRight {
-    display: none;
+  .navRight .cloudAuthBtn {
+    padding: 4px 10px;
+    font-size: 0.76rem;
   }
   .footerCenterQuote {
     display: none;

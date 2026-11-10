@@ -1,0 +1,279 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(28, 40, 22, 0.52);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 16px;
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modalCard {
+  width: 440px;
+  max-width: 94vw;
+  background-color: #fffdf9;
+  border: 2px solid rgba(70, 95, 48, 0.22);
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(35, 50, 22, 0.28), inset 0 1px 0 #ffffff;
+  padding: 28px 24px 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  animation: popScale 0.24s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popScale {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.closeBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  color: #7a8c6e;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.closeBtn:hover:not(:disabled) {
+  background: rgba(70, 95, 48, 0.1);
+  color: #344622;
+  transform: rotate(90deg);
+}
+
+.closeBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Header */
+.headerArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.avatarBadge {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #eef6e6 0%, #d8ebd0 100%);
+  border: 2px solid rgba(80, 110, 55, 0.24);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 12px rgba(60, 85, 40, 0.12);
+}
+
+.badgeEmoji {
+  font-size: 1.85rem;
+}
+
+.badgeWave {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  font-size: 1.25rem;
+  animation: gentleWave 2s infinite ease-in-out;
+  transform-origin: 70% 70%;
+}
+
+@keyframes gentleWave {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  20%, 60% {
+    transform: rotate(14deg);
+  }
+  40%, 80% {
+    transform: rotate(-6deg);
+  }
+}
+
+.title {
+  margin: 0 0 6px;
+  font-size: 1.28rem;
+  font-weight: 800;
+  color: #273618;
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #6a7c5c;
+}
+
+.userEmail {
+  color: #384d24;
+  font-weight: 700;
+  word-break: break-all;
+}
+
+/* Reassurance Card */
+.reassuranceCard {
+  background: #f4f8f0;
+  border: 1px solid rgba(80, 110, 55, 0.18);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.reassuranceItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.safeIcon {
+  color: #3b7c35;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.guestIcon {
+  color: #7b6534;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.reassuranceText strong {
+  display: block;
+  font-size: 0.84rem;
+  color: #2b391d;
+  margin-bottom: 2px;
+}
+
+.reassuranceText p {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #556748;
+  line-height: 1.38;
+}
+
+/* Actions */
+.actionButtons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cancelBtn {
+  background: #fff;
+  border: 1.5px solid rgba(70, 95, 48, 0.25);
+  color: #41552d;
+  padding: 9px 18px;
+  border-radius: 9999px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.cancelBtn:hover:not(:disabled) {
+  background: #f8fbf5;
+  border-color: rgba(70, 95, 48, 0.45);
+  color: #273618;
+  transform: translateY(-1px);
+}
+
+.cancelBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.signOutBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #b85444;
+  border: 1.5px solid #a34637;
+  color: #ffffff;
+  padding: 9px 20px;
+  border-radius: 9999px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: 0 3px 10px rgba(184, 84, 68, 0.28);
+}
+
+.signOutBtn:hover:not(:disabled) {
+  background: #a84738;
+  border-color: #933b2e;
+  transform: translateY(-1.5px);
+  box-shadow: 0 5px 14px rgba(184, 84, 68, 0.35);
+}
+
+.signOutBtn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.signOutBtn:disabled {
+  opacity: 0.75;
+  cursor: wait;
+}
+
+.syncSpin {
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Card Footer */
+.cardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: 0.74rem;
+  color: #7b8e6f;
+  border-top: 1px dashed rgba(80, 110, 55, 0.18);
+  padding-top: 12px;
+}
+

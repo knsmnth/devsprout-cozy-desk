@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from "./WindowFrame.module.css";
 import { useTaskManager } from "@/context/TaskContext";
 import { sounds } from "@/utils/audio";
 import DeskMenuModal from "@/components/DeskMenuModal";
 import AudioStreamController from "@/components/AudioStreamController";
 import MusicHubModal from "@/components/MusicHubModal";
+import LogoutModal from "@/components/LogoutModal";
 import { useMusicStore } from "@/store/useMusicStore";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useTaskStore } from "@/store/useTaskStore";
 import { formatAudioTime } from "@/utils/musicCatalog";
 import {
   Play,
@@ -21,6 +24,11 @@ import {
   SkipForward,
   SkipBack,
   Music,
+  Cloud,
+  ChevronDown,
+  RefreshCw,
+  Settings,
+  LogOut,
 } from "lucide-react";
 
 export default function WindowFrame({ children }) {
@@ -50,8 +58,31 @@ export default function WindowFrame({ children }) {
   const seekMusic = useMusicStore((state) => state.seek);
   const openMusicHub = useMusicStore((state) => state.openMusicHub);
 
+  // Cloud & Online Authorization
+  const authUser = useAuthStore((state) => state.user);
+  const syncStatus = useAuthStore((state) => state.syncStatus);
+  const openAuthModal = useAuthStore((state) => state.openAuthModal);
+  const openLogoutModal = useAuthStore((state) => state.openLogoutModal);
+  const saveCloudWorkspace = useAuthStore((state) => state.saveCloudWorkspace);
+  const authToast = useAuthStore((state) => state.authToast);
+  const dismissAuthToast = useAuthStore((state) => state.dismissAuthToast);
+
   const [showYoutube, setShowYoutube] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
+
+  // Close account menu on outside click
+  useEffect(() => {
+    if (!isUserMenuOpen) return;
+    const handleClickOutside = (e) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isUserMenuOpen]);
 
   // Switch tabs
   const handleTabClick = (tabId) => {
@@ -99,8 +130,115 @@ export default function WindowFrame({ children }) {
             </button>
           </nav>
 
-          <div className={styles.navRight}>
-            <span className={styles.madeWithBadge}>made with 🍵 for cozy devs</span>
+          <div className={styles.navRight} ref={userMenuRef}>
+            {authUser ? (
+              <div className={styles.userMenuWrapper}>
+                <button
+                  type="button"
+                  className={`${styles.cloudAuthBtn} ${styles.cloudAuthBtnActive}`}
+                  onClick={() => {
+                    if (sounds) sounds.playClick();
+                    setIsUserMenuOpen((prev) => !prev);
+                  }}
+                  title={`Signed in as ${authUser.email} • Click for account actions`}
+                  aria-haspopup="true"
+                  aria-expanded={isUserMenuOpen}
+                >
+                  <Cloud size={14} className={syncStatus === "syncing" ? styles.syncSpin : ""} />
+                  <span>
+                    {syncStatus === "syncing"
+                      ? "Syncing..."
+                      : syncStatus === "error"
+                      ? "Sync Alert"
+                      : authUser.email?.split("@")[0] || "Synced"}
+                  </span>
+                  <span className={styles.cloudDotOnline} />
+                  <ChevronDown
+                    size={12}
+                    className={`${styles.menuChevron} ${isUserMenuOpen ? styles.menuChevronOpen : ""}`}
+                  />
+                </button>
+
+                {isUserMenuOpen && (
+                  <div className={styles.accountPopover} role="menu">
+                    <div className={styles.popoverHeader}>
+                      <div className={styles.popoverEmail}>{authUser.email}</div>
+                      <div className={styles.popoverStatus}>
+                        <span className={styles.cloudDotOnline} />
+                        <span>
+                          {syncStatus === "syncing"
+                            ? "Syncing changes..."
+                            : syncStatus === "error"
+                            ? "Sync issue detected"
+                            : "Online & Synced"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className={styles.popoverDivider} />
+
+                    <button
+                      type="button"
+                      className={styles.popoverItem}
+                      onClick={async () => {
+                        if (sounds) sounds.playClick();
+                        const payload = useTaskStore.getState().getExportPayload();
+                        const res = await saveCloudWorkspace(payload);
+                        if (res.success && sounds) sounds.playBellChime();
+                      }}
+                      disabled={syncStatus === "syncing"}
+                      role="menuitem"
+                    >
+                      <RefreshCw size={14} className={syncStatus === "syncing" ? styles.syncSpin : ""} />
+                      <span>{syncStatus === "syncing" ? "Syncing..." : "Sync Workspace Now"}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className={styles.popoverItem}
+                      onClick={() => {
+                        if (sounds) sounds.playClick();
+                        setIsUserMenuOpen(false);
+                        openDeskMenu("cloud");
+                      }}
+                      role="menuitem"
+                    >
+                      <Settings size={14} />
+                      <span>Cloud & Desk Settings</span>
+                    </button>
+
+                    <div className={styles.popoverDivider} />
+
+                    <button
+                      type="button"
+                      className={`${styles.popoverItem} ${styles.popoverItemDanger}`}
+                      onClick={() => {
+                        if (sounds) sounds.playPop();
+                        setIsUserMenuOpen(false);
+                        openLogoutModal();
+                      }}
+                      role="menuitem"
+                    >
+                      <LogOut size={14} />
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                type="button"
+                className={styles.cloudAuthBtn}
+                onClick={() => {
+                  if (sounds) sounds.playClick();
+                  openAuthModal("login");
+                }}
+                title="Sign in with Supabase to sync your workspace across devices"
+              >
+                <Cloud size={14} />
+                <span>Sign In</span>
+              </button>
+            )}
           </div>
         </header>
 
@@ -316,6 +454,27 @@ export default function WindowFrame({ children }) {
           </div>
         </div>
       )}
+
+      {/* Cozy Auth / Logout Notification Toast */}
+      {authToast && (
+        <div className={styles.authToast}>
+          <div className={styles.authToastContent}>
+            <span className={styles.authToastIcon}>{authToast.icon || "👋"}</span>
+            <div className={styles.authToastText}>{authToast.message}</div>
+            <button
+              type="button"
+              className={styles.authToastClose}
+              onClick={dismissAuthToast}
+              aria-label="Dismiss toast"
+            >
+              <X size={15} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Cozy Logout Confirmation Modal */}
+      <LogoutModal />
 
       {/* Comprehensive Desk Customization Hub Modal */}
       <DeskMenuModal isOpen={isDeskMenuOpen} onClose={closeDeskMenu} />
