@@ -3,6 +3,7 @@
 import React, { useState, useRef } from "react";
 import styles from "./DeskMenuModal.module.css";
 import { useTaskManager } from "@/context/TaskContext";
+import { useAuthStore } from "@/store/useAuthStore";
 import { sounds } from "@/utils/audio";
 import {
   X,
@@ -24,6 +25,11 @@ import {
   Tag,
   ChevronLeft,
   ChevronRight,
+  Cloud,
+  RefreshCw,
+  LogOut,
+  LogIn,
+  ShieldCheck,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -110,9 +116,45 @@ export default function DeskMenuModal({ isOpen, onClose }) {
     resetDailyStats,
     exportWorkspaceData,
     importWorkspaceData,
+    getExportPayload,
+    tasks,
     levelData,
     XP_REWARDS,
   } = useTaskManager();
+
+  // Cloud & Auth Store
+  const authUser = useAuthStore((state) => state.user);
+  const syncStatus = useAuthStore((state) => state.syncStatus);
+  const lastSyncedAt = useAuthStore((state) => state.lastSyncedAt);
+  const syncError = useAuthStore((state) => state.syncError);
+  const openAuthModal = useAuthStore((state) => state.openAuthModal);
+  const openLogoutModal = useAuthStore((state) => state.openLogoutModal);
+  const signOut = useAuthStore((state) => state.signOut);
+  const saveCloudWorkspace = useAuthStore((state) => state.saveCloudWorkspace);
+
+  const [isManualSyncing, setIsManualSyncing] = useState(false);
+  const [cloudMsg, setCloudMsg] = useState("");
+
+  const handleManualSync = async () => {
+    if (!authUser) return;
+    setIsManualSyncing(true);
+    setCloudMsg("");
+    const res = await saveCloudWorkspace(getExportPayload());
+    setIsManualSyncing(false);
+    if (res.success) {
+      if (sounds) sounds.playBellChime();
+      setCloudMsg(`Workspace successfully synced to Supabase at ${res.syncedAt}!`);
+    } else {
+      if (sounds) sounds.playPop();
+      setCloudMsg(`Sync failed: ${res.error}`);
+    }
+  };
+
+  const handleSignOut = () => {
+    if (sounds) sounds.playPop();
+    onClose();
+    openLogoutModal();
+  };
 
   // Profile Form Local State
   const [profileForm, setProfileForm] = useState(userProfile);
@@ -140,9 +182,12 @@ export default function DeskMenuModal({ isOpen, onClose }) {
 
   // Sync profile form when modal opens or userProfile changes
   React.useEffect(() => {
-    if (userProfile) {
-      setProfileForm(userProfile);
-    }
+    const timer = setTimeout(() => {
+      if (userProfile) {
+        setProfileForm(userProfile);
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [userProfile, isOpen]);
 
   if (!isOpen) return null;
@@ -332,6 +377,12 @@ export default function DeskMenuModal({ isOpen, onClose }) {
               onClick={(e) => handleTabChange("data", e)}
             >
               <Database size={14} /> Data & Backup
+            </button>
+            <button
+              className={`${styles.tabBtn} ${deskMenuTab === "cloud" ? styles.tabBtnActive : ""}`}
+              onClick={(e) => handleTabChange("cloud", e)}
+            >
+              <Cloud size={14} /> Cloud & Account
             </button>
           </div>
 
@@ -1006,6 +1057,138 @@ export default function DeskMenuModal({ isOpen, onClose }) {
                   🌱 Fresh Day Reset
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* TAB 7: CLOUD & ACCOUNT */}
+          {deskMenuTab === "cloud" && (
+            <div>
+              <div className={styles.sectionTitle}>Cloud Workspace & Online Authorization</div>
+              <div className={styles.sectionSubtitle}>
+                Synchronize your dev quests, cozy notes, shelves, and developer XP safely across your devices.
+              </div>
+
+              {cloudMsg && (
+                <div
+                  style={{
+                    padding: "10px 14px",
+                    borderRadius: "10px",
+                    background: "var(--cozy-green-light, #eef5e6)",
+                    border: "1px solid var(--cozy-green-accent, #78995a)",
+                    color: "var(--cozy-green-header, #50683a)",
+                    fontSize: "0.82rem",
+                    fontWeight: 600,
+                    marginBottom: "14px",
+                  }}
+                >
+                  {cloudMsg}
+                </div>
+              )}
+
+              {authUser ? (
+                <>
+                  {/* Account Status Card */}
+                  <div className={styles.dataActionBox} style={{ background: "var(--cozy-bg-warm, #faf7ef)" }}>
+                    <div className={styles.dataActionText}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                        <strong>{authUser.email}</strong>
+                        <span
+                          className={`${styles.cloudStatusBadge} ${syncStatus === "error"
+                              ? styles.cloudStatusBadgeError
+                              : syncStatus === "offline"
+                                ? styles.cloudStatusBadgeOffline
+                                : ""
+                            }`}
+                        >
+                          {syncStatus === "syncing"
+                            ? "Syncing..."
+                            : syncStatus === "error"
+                              ? "Sync Error"
+                              : "Cloud Active ✓"}
+                        </span>
+                      </div>
+                      <p>
+                        Last synchronized:{" "}
+                        {lastSyncedAt ? <strong>{lastSyncedAt}</strong> : "Awaiting first sync"}
+                      </p>
+                      {syncError && (
+                        <p style={{ color: "#b91c1c", marginTop: 4 }}>
+                          Notice: {syncError}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Manual Sync Now */}
+                  <div className={styles.dataActionBox}>
+                    <div className={styles.dataActionText}>
+                      <strong>Push Workspace to Cloud</strong>
+                      <p>Immediately sync all latest quests, notes, hydration, and settings.</p>
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.primaryBtn}
+                      onClick={handleManualSync}
+                      disabled={isManualSyncing}
+                      style={{ padding: "8px 16px" }}
+                    >
+                      <RefreshCw size={14} className={isManualSyncing ? styles.syncSpin : ""} />
+                      <span>{isManualSyncing ? "Syncing..." : "Sync Now"}</span>
+                    </button>
+                  </div>
+
+                  {/* Sign Out */}
+                  <div className={styles.dataActionBox}>
+                    <div className={styles.dataActionText}>
+                      <strong>Sign Out of Account</strong>
+                      <p>Disconnect cloud sync on this device. Your data remains safe in the cloud.</p>
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.secondaryBtn}
+                      onClick={handleSignOut}
+                      style={{ padding: "8px 14px", color: "#a84738" }}
+                    >
+                      <LogOut size={14} /> Sign Out
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Guest Mode Card */}
+                  <div className={styles.dataActionBox}>
+                    <div className={styles.dataActionText}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                        <strong>Guest Workspace (Local Only)</strong>
+                        <span className={`${styles.cloudStatusBadge} ${styles.cloudStatusBadgeOffline}`}>
+                          Local Device Only
+                        </span>
+                      </div>
+                      <p>
+                        Your quests and settings are stored locally on this machine. Sign in to sync across devices!
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className={styles.dataActionBox}>
+                    <div className={styles.dataActionText}>
+                      <strong>Connect Free Cloud Account</strong>
+                      <p>Sign in or register with email to enable seamless cross-device cloud synchronization.</p>
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.primaryBtn}
+                      onClick={() => {
+                        onClose();
+                        openAuthModal("login");
+                      }}
+                      style={{ padding: "8px 16px" }}
+                    >
+                      <LogIn size={14} /> Sign In / Register
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>

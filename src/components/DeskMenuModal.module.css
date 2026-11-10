@@ -424,6 +424,31 @@
   color: var(--cozy-text-muted, #797163);
 }
 
+.cloudStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  background: var(--cozy-green-light, #eef5e6);
+  color: var(--cozy-green-header, #50683a);
+  border: 1px solid var(--cozy-green-accent, #78995a);
+}
+
+.cloudStatusBadgeOffline {
+  background: #fef08a;
+  color: #713f12;
+  border-color: #fde047;
+}
+
+.cloudStatusBadgeError {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #fca5a5;
+}
+
 /* Quick Emoji Picker Strip */
 .emojiPickerSection {
   margin-bottom: 10px;
