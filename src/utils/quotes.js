@@ -64,3 +64,4 @@ export function getRandomQuote(currentQuote = "") {
   const randomIndex = Math.floor(Math.random() * pool.length);
   return pool[randomIndex];
 }
+

@@ -356,7 +356,8 @@ export default function DeskView() {
                 lineHeight: 1.35,
               }}
             >
-              ⚠️ <strong>Balance Tip:</strong> You&apos;ve made great progress on {imbalancedApp.name}! Make sure other apps get at least 1 commit before end of day.
+              ⚠️ <strong>{"Balance Tip: "}</strong>
+              {`You've made great progress on ${imbalancedApp.name}! Make sure other apps get at least 1 commit before end of day.`}
             </div>
           )}
         </div>
@@ -395,11 +396,11 @@ export default function DeskView() {
               <span className={styles.paceBadge}>gentle pace</span>
             </div>
             <p className={`${styles.intentionQuote} ${isQuoteShuffling ? styles.quoteFading : ""}`}>
-              &ldquo;{userProfile?.dailyIntention || "Keep code clean, sip matcha often, and don't worry if a bug takes time. We nurture our garden one seed at a time."}&rdquo;
+              {`“${userProfile?.dailyIntention || "Keep code clean, sip matcha often, and don't worry if a bug takes time. We nurture our garden one seed at a time."}”`}
             </p>
             <div className={styles.waterMeterBox}>
               <span>
-                Today&apos;s Focus Water Meter: {waterCups} / {maxWaterCups} Cups 🍵
+                {"Today's Focus Water Meter: "}{waterCups} / {maxWaterCups}{" Cups 🍵"}
               </span>
               <button className={styles.sipBtn} onClick={sipWater}>
                 + Sip Cup
@@ -414,9 +415,10 @@ export default function DeskView() {
             <div className={styles.staleContent}>
               <span className={styles.staleIcon}>⏰</span>
               <div>
-                <strong>Gentle Reminder:</strong> &ldquo;{staleTasks[0].title}&rdquo; has been waiting for {staleTasks[0].createdDaysAgo} days!
+                <strong>{"Gentle Reminder: "}</strong>
+                {`“${staleTasks[0].title}” has been waiting for ${staleTasks[0].createdDaysAgo} days!`}
                 <div style={{ fontSize: "0.75rem", opacity: 0.85 }}>
-                  Let&apos;s brew a cup and take 15 minutes to unblock it today.
+                  {"Let's brew a cup and take 15 minutes to unblock it today."}
                 </div>
               </div>
             </div>

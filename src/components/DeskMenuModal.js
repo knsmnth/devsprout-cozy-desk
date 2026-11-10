@@ -540,13 +540,13 @@ export default function DeskMenuModal({ isOpen, onClose }) {
                 <div className={styles.dailyQuoteHeader}>
                   <div className={styles.dailyQuoteTitle}>
                     <span>🍯</span>
-                    <strong>Today&apos;s Automated Intention Quote</strong>
+                    <strong>{"Today's Automated Intention Quote"}</strong>
                   </div>
                   <span className={styles.dailyQuoteBadge}>🌱 Rotates at midnight</span>
                 </div>
 
                 <p className={styles.dailyQuoteText}>
-                  &ldquo;{userProfile?.dailyIntention || profileForm.dailyIntention}&rdquo;
+                  {`“${userProfile?.dailyIntention || profileForm.dailyIntention || ""}”`}
                 </p>
 
                 <div className={styles.dailyQuoteActions}>
@@ -563,7 +563,7 @@ export default function DeskMenuModal({ isOpen, onClose }) {
                     title="Roll another inspiring quote for today"
                   >
                     <Sparkles size={13} />
-                    <span>Shuffle Today&apos;s Quote</span>
+                    <span>{"Shuffle Today's Quote"}</span>
                   </button>
                 </div>
               </div>
@@ -1085,7 +1085,7 @@ export default function DeskMenuModal({ isOpen, onClose }) {
               <div className={styles.dataActionBox}>
                 <div className={styles.dataActionText}>
                   <strong>Reset Daily Counters</strong>
-                  <p>Reset today&apos;s water cups and Pomodoro session counts for a fresh new day.</p>
+                  <p>{"Reset today's water cups and Pomodoro session counts for a fresh new day."}</p>
                 </div>
                 <button
                   className={styles.secondaryBtn}
