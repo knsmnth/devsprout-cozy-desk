@@ -108,9 +108,10 @@ export function TaskProvider({ children }) {
     };
   }, [user]);
 
-  // Midnight reset tracker for Daily Task Goals
+  // Midnight reset tracker for Daily Task Goals & Automated Daily Quote
   useEffect(() => {
     setTodayKey(new Date().toDateString());
+    useTaskStore.getState().checkDailyQuoteRotation();
 
     let timeoutId = null;
     const scheduleMidnightReset = () => {
@@ -127,6 +128,7 @@ export function TaskProvider({ children }) {
       const msUntilMidnight = Math.max(1000, nextMidnight.getTime() - now.getTime());
       timeoutId = setTimeout(() => {
         setTodayKey(new Date().toDateString());
+        useTaskStore.getState().checkDailyQuoteRotation();
         scheduleMidnightReset();
       }, msUntilMidnight);
     };

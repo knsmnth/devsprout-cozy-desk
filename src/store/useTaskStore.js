@@ -4,6 +4,7 @@ import { create } from "zustand";
 import confetti from "canvas-confetti";
 import { sounds } from "@/utils/audio";
 import { calculateLevel, XP_REWARDS, LEVEL_TIERS } from "@/utils/levelSystem";
+import { getDailyQuote, getRandomQuote } from "@/utils/quotes";
 
 export const DEFAULT_APPS = [
   {
@@ -44,7 +45,8 @@ export const DEFAULT_PROFILE = {
   title: "frontend / developer / plant parent",
   mood: "in the coding flow",
   bio: "Hello friend! Welcome to your cozy desk. Take sips of water, stretch often, and celebrate small commits! ☕🌱",
-  dailyIntention: "Keep code clean, sip matcha often, and don't worry if a bug takes time. We nurture our garden one seed at a time.",
+  dailyIntention: getDailyQuote(),
+  dailyQuoteDate: new Date().toDateString(),
 };
 
 export const DEFAULT_SHELVES = [
@@ -189,11 +191,40 @@ export const useTaskStore = create((set, get) => ({
   shelves: DEFAULT_SHELVES,
   updateUserProfile: (updates) => {
     set((state) => {
-      const next = { ...state.userProfile, ...updates };
+      const next = { ...DEFAULT_PROFILE, ...state.userProfile, ...updates };
       safeStorage.set("devsprout_profile", next);
       return { userProfile: next };
     });
     if (sounds) sounds.playPop();
+  },
+  shuffleDailyQuote: () => {
+    set((state) => {
+      const currentIntention = state.userProfile?.dailyIntention;
+      const newQuote = getRandomQuote(currentIntention);
+      const next = {
+        ...DEFAULT_PROFILE,
+        ...state.userProfile,
+        dailyIntention: newQuote,
+        dailyQuoteDate: new Date().toDateString(),
+      };
+      safeStorage.set("devsprout_profile", next);
+      return { userProfile: next };
+    });
+    if (sounds) sounds.playPop();
+  },
+  checkDailyQuoteRotation: () => {
+    const today = new Date().toDateString();
+    const current = get().userProfile;
+    if (!current?.dailyQuoteDate || current.dailyQuoteDate !== today) {
+      const next = {
+        ...DEFAULT_PROFILE,
+        ...current,
+        dailyIntention: getDailyQuote(today),
+        dailyQuoteDate: today,
+      };
+      safeStorage.set("devsprout_profile", next);
+      set({ userProfile: next });
+    }
   },
   updateShelves: (newShelves) => {
     set({ shelves: newShelves });
@@ -651,7 +682,7 @@ export const useTaskStore = create((set, get) => ({
         return false;
       }
       const updates = {};
-      if (data.userProfile) updates.userProfile = data.userProfile;
+      if (data.userProfile) updates.userProfile = { ...DEFAULT_PROFILE, ...data.userProfile };
       if (data.shelves) updates.shelves = data.shelves;
       if (data.theme) {
         updates.theme = data.theme;
@@ -764,7 +795,20 @@ export const useTaskStore = create((set, get) => ({
       const savedProfile = safeStorage.get("devsprout_profile");
       if (savedProfile) {
         parsed = safeJsonParse(savedProfile);
-        if (parsed) updates.userProfile = parsed;
+        if (parsed) {
+          const today = new Date().toDateString();
+          const isDifferentDay = parsed.dailyQuoteDate && parsed.dailyQuoteDate !== today;
+          updates.userProfile = {
+            ...DEFAULT_PROFILE,
+            ...parsed,
+            dailyIntention: isDifferentDay
+              ? getDailyQuote(today)
+              : parsed.dailyIntention || getDailyQuote(today),
+            dailyQuoteDate: today,
+          };
+        }
+      } else {
+        updates.userProfile = { ...DEFAULT_PROFILE, dailyIntention: getDailyQuote() };
       }
 
       const savedShelves = safeStorage.get("devsprout_shelves");

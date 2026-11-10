@@ -120,6 +120,7 @@ export default function DeskMenuModal({ isOpen, onClose }) {
     tasks,
     levelData,
     XP_REWARDS,
+    shuffleDailyQuote,
   } = useTaskManager();
 
   // Cloud & Auth Store
@@ -184,7 +185,18 @@ export default function DeskMenuModal({ isOpen, onClose }) {
   React.useEffect(() => {
     const timer = setTimeout(() => {
       if (userProfile) {
-        setProfileForm(userProfile);
+        setProfileForm({
+          avatar: userProfile.avatar || "🧸",
+          name: userProfile.name || "SPROUT",
+          handle: userProfile.handle || "(@^ 0 ^)",
+          title: userProfile.title || "frontend / developer / plant parent",
+          mood: userProfile.mood || "in the coding flow",
+          bio:
+            userProfile.bio !== undefined && userProfile.bio !== null
+              ? userProfile.bio
+              : "Hello friend! Welcome to your cozy desk. Take sips of water, stretch often, and celebrate small commits! ☕🌱",
+          dailyIntention: userProfile.dailyIntention || "",
+        });
       }
     }, 0);
     return () => clearTimeout(timer);
@@ -508,23 +520,52 @@ export default function DeskMenuModal({ isOpen, onClose }) {
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.label}>Desk Bio & Greeting</label>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "4px" }}>
+                  <label className={styles.label} style={{ margin: 0 }}>Desk Bio & Greeting</label>
+                  <span style={{ fontSize: "0.72rem", color: "var(--cozy-text-muted)" }}>
+                    Customizable • Live on companion card
+                  </span>
+                </div>
                 <textarea
                   rows={2}
                   className={styles.textarea}
-                  value={profileForm.bio}
+                  placeholder="Hello friend! Welcome to your cozy desk. Take sips of water, stretch often, and celebrate small commits! ☕🌱"
+                  value={profileForm.bio ?? ""}
                   onChange={(e) => setProfileForm({ ...profileForm, bio: e.target.value })}
                 />
               </div>
 
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Daily Intention Quote</label>
-                <textarea
-                  rows={2}
-                  className={styles.textarea}
-                  value={profileForm.dailyIntention}
-                  onChange={(e) => setProfileForm({ ...profileForm, dailyIntention: e.target.value })}
-                />
+              {/* Automated Daily Intention Card */}
+              <div className={styles.dailyQuoteCard}>
+                <div className={styles.dailyQuoteHeader}>
+                  <div className={styles.dailyQuoteTitle}>
+                    <span>🍯</span>
+                    <strong>Today&apos;s Automated Intention Quote</strong>
+                  </div>
+                  <span className={styles.dailyQuoteBadge}>🌱 Rotates at midnight</span>
+                </div>
+
+                <p className={styles.dailyQuoteText}>
+                  &ldquo;{userProfile?.dailyIntention || profileForm.dailyIntention}&rdquo;
+                </p>
+
+                <div className={styles.dailyQuoteActions}>
+                  <span className={styles.dailyQuoteHint}>
+                    Mindful developer affirmation rotated automatically each calendar day.
+                  </span>
+                  <button
+                    type="button"
+                    className={styles.shuffleQuoteBtn}
+                    onClick={() => {
+                      if (sounds) sounds.playPop();
+                      shuffleDailyQuote();
+                    }}
+                    title="Roll another inspiring quote for today"
+                  >
+                    <Sparkles size={13} />
+                    <span>Shuffle Today&apos;s Quote</span>
+                  </button>
+                </div>
               </div>
 
               <button type="submit" className={styles.primaryBtn} style={{ marginTop: "12px" }}>
@@ -1198,7 +1239,15 @@ export default function DeskMenuModal({ isOpen, onClose }) {
           <div style={{ fontSize: "0.78rem", color: "#8c8371" }}>
             🍵 DevSprout Cozy Hub • all preferences autosaved
           </div>
-          <button className={styles.secondaryBtn} onClick={onClose}>
+          <button
+            className={styles.secondaryBtn}
+            onClick={() => {
+              if (deskMenuTab === "profile") {
+                updateUserProfile(profileForm);
+              }
+              onClose();
+            }}
+          >
             Done
           </button>
         </div>

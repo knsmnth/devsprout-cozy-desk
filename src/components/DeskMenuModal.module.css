@@ -648,6 +648,95 @@
   align-items: center;
 }
 
+/* Automated Daily Intention Quote Card */
+.dailyQuoteCard {
+  background: var(--cozy-bg-panel, #f7f3ea);
+  border: 1.5px solid rgba(80, 110, 55, 0.22);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-top: 10px;
+  margin-bottom: 14px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.dailyQuoteHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.dailyQuoteTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.84rem;
+  color: var(--cozy-text-dark, #2d2621);
+}
+
+.dailyQuoteBadge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #445c2f;
+  background: rgba(80, 110, 55, 0.12);
+  padding: 3px 10px;
+  border-radius: 9999px;
+  letter-spacing: 0.01em;
+}
+
+.dailyQuoteText {
+  margin: 0 0 10px;
+  font-style: italic;
+  font-size: 0.85rem;
+  line-height: 1.48;
+  color: var(--cozy-text-body, #483d33);
+}
+
+.dailyQuoteActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(80, 110, 55, 0.16);
+}
+
+.dailyQuoteHint {
+  font-size: 0.74rem;
+  color: var(--cozy-text-muted, #7a7065);
+}
+
+.shuffleQuoteBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1.5px solid rgba(80, 110, 55, 0.28);
+  color: #384f23;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.shuffleQuoteBtn:hover {
+  background: #f7faf3;
+  border-color: rgba(80, 110, 55, 0.45);
+  color: #273818;
+  transform: translateY(-1.5px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.shuffleQuoteBtn:active {
+  transform: translateY(0);
+}
+
 @media (max-width: 600px) {
   .modal {
     height: 94vh;
