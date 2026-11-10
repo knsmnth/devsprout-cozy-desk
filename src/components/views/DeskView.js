@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import styles from "./DeskView.module.css";
 import { useTaskManager } from "@/context/TaskContext";
 import { sounds } from "@/utils/audio";
@@ -38,6 +38,7 @@ export default function DeskView() {
     shelves,
     openDeskMenu,
     levelData,
+    shuffleDailyQuote,
   } = useTaskManager();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -45,6 +46,13 @@ export default function DeskView() {
   const [questViewMode, setQuestViewMode] = useState("bento"); // 'bento' | 'list'
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(8); // at least 8-10 quests per page
+  const [completingTaskIds, setCompletingTaskIds] = useState(new Set());
+  const [isQuoteShuffling, setIsQuoteShuffling] = useState(false);
+
+  // Filter out completed (harvested) tasks for Current Quests & Checklist
+  const activeTasks = useMemo(() => {
+    return tasks.filter((t) => t.status !== "harvested");
+  }, [tasks]);
 
   const inBloomTasks = tasks.filter((t) => t.status === "in-bloom");
 
@@ -88,10 +96,34 @@ export default function DeskView() {
     } catch (e) { }
   };
 
-  // Pagination calculations: 8-10 items per page
-  const totalPages = Math.max(1, Math.ceil(tasks.length / itemsPerPage));
+  // Smooth completion handler: checkmark fills, celebratory chime, smooth 350ms fade-out
+  const handleCheckTask = (taskId, e) => {
+    if (e) e.stopPropagation();
+    if (sounds) sounds.playPop();
+
+    setCompletingTaskIds((prev) => new Set(prev).add(taskId));
+
+    setTimeout(() => {
+      toggleTaskDone(taskId);
+      setCompletingTaskIds((prev) => {
+        const next = new Set(prev);
+        next.delete(taskId);
+        return next;
+      });
+    }, 350);
+  };
+
+  // Pagination calculations: strictly based on active quests
+  const totalPages = Math.max(1, Math.ceil(activeTasks.length / itemsPerPage));
   const safePage = Math.min(Math.max(1, currentPage), totalPages);
-  const paginatedTasks = tasks.slice((safePage - 1) * itemsPerPage, safePage * itemsPerPage);
+  const paginatedTasks = activeTasks.slice((safePage - 1) * itemsPerPage, safePage * itemsPerPage);
+
+  // Auto-step back if harvesting leaves currentPage beyond new totalPages
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
 
   const completedCount = tasks.filter((t) => t.status === "harvested").length;
 
@@ -341,20 +373,28 @@ export default function DeskView() {
           <div className={styles.intentionCard}>
             <div className={styles.starPin}>★</div>
             <div className={styles.intentionHeader}>
-              <span
-                className={styles.intentionTitle}
-                onClick={() => {
-                  if (sounds) sounds.playClick();
-                  openDeskMenu("profile");
-                }}
-                style={{ cursor: "pointer" }}
-                title="Click to edit daily intention"
-              >
-                Daily Intention 🍯 ✏️
-              </span>
+              <div className={styles.intentionTitleGroup}>
+                <span className={styles.intentionTitle}>Daily Intention 🍯</span>
+                <button
+                  type="button"
+                  className={styles.deskShuffleBtn}
+                  onClick={() => {
+                    if (sounds) sounds.playPop();
+                    setIsQuoteShuffling(true);
+                    setTimeout(() => {
+                      shuffleDailyQuote();
+                      setIsQuoteShuffling(false);
+                    }, 180);
+                  }}
+                  title="Roll another inspiring quote for today"
+                >
+                  <Sparkles size={11} />
+                  <span>Shuffle</span>
+                </button>
+              </div>
               <span className={styles.paceBadge}>gentle pace</span>
             </div>
-            <p className={styles.intentionQuote}>
+            <p className={`${styles.intentionQuote} ${isQuoteShuffling ? styles.quoteFading : ""}`}>
               &ldquo;{userProfile?.dailyIntention || "Keep code clean, sip matcha often, and don't worry if a bug takes time. We nurture our garden one seed at a time."}&rdquo;
             </p>
             <div className={styles.waterMeterBox}>
@@ -476,8 +516,8 @@ export default function DeskView() {
           <div className={styles.questsHeader}>
             <div className={styles.questsTitle}>
               <span>📋</span> Current Quests & Checklist
-              {tasks.length > 0 && (
-                <span className={styles.questsCountBadge}>{tasks.length}</span>
+              {activeTasks.length > 0 && (
+                <span className={styles.questsCountBadge}>{activeTasks.length}</span>
               )}
             </div>
 
@@ -519,25 +559,30 @@ export default function DeskView() {
             </div>
           </div>
 
-          {tasks.length === 0 ? (
+          {activeTasks.length === 0 ? (
             <div className={styles.emptyQuests}>
               <div className={styles.emptyEmoji}>🌱</div>
-              <div className={styles.emptyTitle}>No quests planted yet!</div>
+              <div className={styles.emptyTitle}>
+                {tasks.length > 0 ? "All quests harvested! 🎉" : "No quests planted yet!"}
+              </div>
               <p className={styles.emptyDesc}>
-                Your desk is fresh and clear. Click <strong>+ new quest</strong> to plant your first focus task.
+                {tasks.length > 0
+                  ? "Your desk is clear of pending tasks. Visit Sprint Harvest to admire completed work or plant a new quest."
+                  : "Your desk is fresh and clear. Click + new quest to plant your first focus task."}
               </p>
             </div>
           ) : questViewMode === "bento" ? (
             /* Bento Cards Layout: 2 Columns, Compact & Cute */
             <div className={styles.bentoGrid}>
               {paginatedTasks.map((task) => {
-                const isDone = task.status === "harvested";
+                const isCompleting = completingTaskIds.has(task.id);
+                const isDone = task.status === "harvested" || isCompleting;
                 const app = apps.find((a) => a.id === task.appId);
 
                 return (
                   <div
                     key={task.id}
-                    className={`${styles.bentoCard} ${isDone ? styles.bentoCardDone : ""}`}
+                    className={`${styles.bentoCard} ${isDone ? styles.bentoCardDone : ""} ${isCompleting ? styles.bentoCardCompleting : ""}`}
                     onClick={() => {
                       if (sounds) sounds.playClick();
                       setSelectedTaskForPaper(task);
@@ -550,11 +595,8 @@ export default function DeskView() {
                         <button
                           type="button"
                           className={`${styles.questCheckbox} ${styles.bentoCheckbox} ${isDone ? styles.questChecked : ""}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleTaskDone(task.id);
-                          }}
-                          title={isDone ? "Mark as in progress" : "Mark completed"}
+                          onClick={(e) => handleCheckTask(task.id, e)}
+                          title="Mark completed (Harvest)"
                         >
                           {isDone && <Check size={12} strokeWidth={3} />}
                         </button>
@@ -622,13 +664,14 @@ export default function DeskView() {
             /* Classic List View */
             <div className={styles.questList}>
               {paginatedTasks.map((task) => {
-                const isDone = task.status === "harvested";
+                const isCompleting = completingTaskIds.has(task.id);
+                const isDone = task.status === "harvested" || isCompleting;
                 const app = apps.find((a) => a.id === task.appId);
 
                 return (
                   <div
                     key={task.id}
-                    className={styles.questItem}
+                    className={`${styles.questItem} ${isCompleting ? styles.questItemCompleting : ""}`}
                     onClick={() => {
                       if (sounds) sounds.playClick();
                       setSelectedTaskForPaper(task);
@@ -639,11 +682,8 @@ export default function DeskView() {
                     <button
                       type="button"
                       className={`${styles.questCheckbox} ${isDone ? styles.questChecked : ""}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleTaskDone(task.id);
-                      }}
-                      title={isDone ? "Mark as in progress" : "Mark completed"}
+                      onClick={(e) => handleCheckTask(task.id, e)}
+                      title="Mark completed"
                     >
                       {isDone && <Check size={14} />}
                     </button>
@@ -704,13 +744,13 @@ export default function DeskView() {
           )}
 
           {/* Cute Page-by-Page Pagination Bar */}
-          {tasks.length > 0 && (
+          {activeTasks.length > 0 && (
             <div className={styles.paginationRow}>
               <div className={styles.pageInfo}>
                 <span className={styles.pageInfoIcon}>🌱</span>
                 <span>
                   Page <strong>{safePage}</strong> of <strong>{totalPages}</strong>
-                  <span className={styles.pageInfoCount}>({tasks.length} total)</span>
+                  <span className={styles.pageInfoCount}>({activeTasks.length} active)</span>
                 </span>
 
                 {/* Per Page Selector: 8 or 10 */}

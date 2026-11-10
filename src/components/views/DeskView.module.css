@@ -442,12 +442,48 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.intentionTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .intentionTitle {
   font-size: 0.92rem;
   font-weight: 700;
   color: var(--cozy-text-dark);
+}
+
+.deskShuffleBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(80, 110, 55, 0.25);
+  color: #3b5024;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.16s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.deskShuffleBtn:hover {
+  background: #ffffff;
+  color: #263517;
+  border-color: rgba(80, 110, 55, 0.45);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.deskShuffleBtn:active {
+  transform: translateY(0);
 }
 
 .paceBadge {
@@ -464,6 +500,12 @@
   font-family: var(--font-gaegu), cursive;
   font-weight: 700;
   letter-spacing: 0.3px;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.quoteFading {
+  opacity: 0.2;
+  transform: scale(0.98);
 }
 
 .waterMeterBox {
@@ -927,6 +969,20 @@
   background: var(--cozy-green-light);
 }
 
+.bentoCardCompleting {
+  opacity: 0 !important;
+  transform: scale(0.92) translateY(8px) !important;
+  pointer-events: none !important;
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+}
+
+.questItemCompleting {
+  opacity: 0 !important;
+  transform: scale(0.96) translateX(12px) !important;
+  pointer-events: none !important;
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+}
+
 .bentoTopRow {
   display: flex;
   align-items: center;
@@ -984,6 +1040,7 @@
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
