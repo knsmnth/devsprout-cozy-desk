@@ -55,28 +55,116 @@ export const DEFAULT_SHELVES = [
 ];
 
 const isSameDay = (dateInput, targetDateStr) => {
-  if (!dateInput || !targetDateStr) return false;
+  if (!dateInput || !targetDateStr) {
+    return false;
+  }
   const d = new Date(dateInput);
-  if (isNaN(d.getTime())) return false;
+  if (isNaN(d.getTime())) {
+    return false;
+  }
   return d.toDateString() === targetDateStr;
 };
 
-// Safe helper to write to localStorage
-const safeStorage = {
-  get: (key) => {
-    if (typeof window === "undefined") return null;
-    try {
-      return localStorage.getItem(key);
-    } catch {
-      return null;
+function safeJsonParse(rawStr, fallback = null) {
+  if (!rawStr || typeof rawStr !== "string") {
+    return fallback;
+  }
+  try {
+    return JSON.parse(rawStr);
+  } catch (_err) {
+    return fallback;
+  }
+}
+
+// Dynamic Storage Scoping (Guest vs Logged-In User)
+let currentStorageScope = "guest";
+
+export function setStorageScope(scopeId) {
+  currentStorageScope = scopeId ? String(scopeId) : "guest";
+}
+
+export function getStorageScope() {
+  return currentStorageScope;
+}
+
+function getCleanKey(rawKey) {
+  if (!rawKey || typeof rawKey !== "string") {
+    return "";
+  }
+  if (rawKey.startsWith("devsprout_guest_")) {
+    return rawKey.slice(16);
+  }
+  if (rawKey.startsWith("devsprout_user_")) {
+    const parts = rawKey.split("_");
+    return parts.slice(3).join("_");
+  }
+  if (rawKey.startsWith("devsprout_")) {
+    return rawKey.slice(10);
+  }
+  return rawKey;
+}
+
+function getScopedWriteKey(rawKey) {
+  const clean = getCleanKey(rawKey);
+  if (currentStorageScope === "guest") {
+    return "devsprout_guest_" + clean;
+  }
+  return "devsprout_user_" + currentStorageScope + "_" + clean;
+}
+
+// Safe helpers to read/write to localStorage
+function safeGetStorage(rawKey) {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  try {
+    const clean = getCleanKey(rawKey);
+    if (currentStorageScope === "guest") {
+      const scopedVal = localStorage.getItem("devsprout_guest_" + clean);
+      if (scopedVal !== null) {
+        return scopedVal;
+      }
+      return localStorage.getItem("devsprout_" + clean);
     }
-  },
-  set: (key, val) => {
-    if (typeof window === "undefined") return;
-    try {
-      localStorage.setItem(key, typeof val === "string" ? val : JSON.stringify(val));
-    } catch {}
-  },
+    return localStorage.getItem("devsprout_user_" + currentStorageScope + "_" + clean);
+  } catch (_err) {
+    return null;
+  }
+}
+
+function safeSetStorage(rawKey, val) {
+  if (typeof window === "undefined") {
+    return;
+  }
+  try {
+    const key = getScopedWriteKey(rawKey);
+    const serialized = typeof val === "string" ? val : JSON.stringify(val);
+    localStorage.setItem(key, serialized);
+  } catch (_err) {
+    // ignore write error
+  }
+}
+
+function safeRemoveStorage(rawKey) {
+  if (typeof window === "undefined") {
+    return;
+  }
+  try {
+    const key = getScopedWriteKey(rawKey);
+    localStorage.removeItem(key);
+    if (currentStorageScope === "guest") {
+      const clean = getCleanKey(rawKey);
+      localStorage.removeItem("devsprout_" + clean);
+    }
+  } catch (_err) {
+    // ignore
+  }
+}
+
+const safeStorage = {
+  get: safeGetStorage,
+  set: safeSetStorage,
+  remove: safeRemoveStorage,
 };
 
 export const useTaskStore = create((set, get) => ({
@@ -115,7 +203,7 @@ export const useTaskStore = create((set, get) => ({
   addShelf: (newShelf) => {
     set((state) => {
       const shelf = {
-        id: `shelf-${Date.now()}`,
+        id: "shelf-" + Date.now(),
         icon: "🔖",
         isExternal: true,
         ...newShelf,
@@ -210,7 +298,7 @@ export const useTaskStore = create((set, get) => ({
   addApp: (newApp) => {
     set((state) => {
       const app = {
-        id: `app-${Date.now()}`,
+        id: "app-" + Date.now(),
         color: "#5F7A49",
         icon: "🌱",
         dailyTarget: 2,
@@ -253,7 +341,7 @@ export const useTaskStore = create((set, get) => ({
   // Task Categories
   taskCategories: DEFAULT_CATEGORIES,
   addCategory: (newCat) => {
-    const id = newCat.id || `cat-${Date.now()}`;
+    const id = newCat.id || ("cat-" + Date.now());
     const category = {
       id,
       label: newCat.label || "New Tag",
@@ -291,8 +379,8 @@ export const useTaskStore = create((set, get) => ({
   addTask: (newTask) => {
     const isHarvested = newTask?.status === "harvested";
     const task = {
-      id: `task-${Date.now()}`,
-      ticketNumber: `#SP-${Math.floor(Math.random() * 80 + 20)}`,
+      id: "task-" + Date.now(),
+      ticketNumber: "#SP-" + Math.floor(Math.random() * 80 + 20),
       status: "sprouting",
       createdDaysAgo: 0,
       updatedAt: new Date().toISOString(),
@@ -479,11 +567,11 @@ export const useTaskStore = create((set, get) => ({
       const now = new Date();
       const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
       const newLog = {
-        id: `log-${Date.now()}`,
+        id: "log-" + Date.now(),
         time: timeStr,
         beverage: state.currentBeverage,
         icon: state.currentBeverage.includes("Matcha") ? "🍵" : "☕",
-        task: `Mindful Focus Sprint #${state.timerIntervalCount + 1}`,
+        task: "Mindful Focus Sprint #" + (state.timerIntervalCount + 1),
         status: "Completed ✨",
         appId: state.selectedAppId,
       };
@@ -522,9 +610,9 @@ export const useTaskStore = create((set, get) => ({
   },
 
   // Export & Import
-  exportWorkspaceData: () => {
+  getExportPayload: () => {
     const state = get();
-    const data = {
+    return {
       version: "devsprout_v4_zustand",
       exportDate: new Date().toISOString(),
       userProfile: state.userProfile,
@@ -533,6 +621,7 @@ export const useTaskStore = create((set, get) => ({
       audioEnabled: state.audioEnabled,
       apps: state.apps,
       tasks: state.tasks,
+      taskCategories: state.taskCategories,
       waterCups: state.waterCups,
       maxWaterCups: state.maxWaterCups,
       userXp: state.userXp,
@@ -540,20 +629,27 @@ export const useTaskStore = create((set, get) => ({
       scratchpadCode: state.scratchpadCode,
       sessionLogs: state.sessionLogs,
       cafeStamps: state.cafeStamps,
+      pomodoroDuration: state.pomodoroDuration,
     };
-    const jsonStr = JSON.stringify(data, null, 2);
-    const blob = new Blob([jsonStr], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `devsprout-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  },
+  exportWorkspaceData: () => {
+    const exportPayload = get().getExportPayload();
+    const backupJsonString = JSON.stringify(exportPayload, null, 2);
+    const workspaceBlob = new Blob([backupJsonString], { type: "application/json" });
+    const downloadUrl = URL.createObjectURL(workspaceBlob);
+    const downloadAnchor = document.createElement("a");
+    downloadAnchor.href = downloadUrl;
+    downloadAnchor.download = "devsprout-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+    downloadAnchor.click();
+    URL.revokeObjectURL(downloadUrl);
     if (sounds) sounds.playPop();
   },
-  importWorkspaceData: (jsonStr) => {
+  importWorkspaceData: (jsonOrObj, skipSound = false) => {
     try {
-      const data = JSON.parse(jsonStr);
+      const data = typeof jsonOrObj === "string" ? safeJsonParse(jsonOrObj) : jsonOrObj;
+      if (!data) {
+        return false;
+      }
       const updates = {};
       if (data.userProfile) updates.userProfile = data.userProfile;
       if (data.shelves) updates.shelves = data.shelves;
@@ -569,6 +665,7 @@ export const useTaskStore = create((set, get) => ({
       }
       if (data.apps) updates.apps = data.apps;
       if (data.tasks) updates.tasks = data.tasks;
+      if (data.taskCategories) updates.taskCategories = data.taskCategories;
       if (typeof data.waterCups === "number") updates.waterCups = data.waterCups;
       if (typeof data.maxWaterCups === "number") updates.maxWaterCups = data.maxWaterCups;
       if (typeof data.userXp === "number") updates.userXp = data.userXp;
@@ -576,47 +673,120 @@ export const useTaskStore = create((set, get) => ({
       if (data.scratchpadCode) updates.scratchpadCode = data.scratchpadCode;
       if (data.sessionLogs) updates.sessionLogs = data.sessionLogs;
       if (data.cafeStamps) updates.cafeStamps = data.cafeStamps;
+      if (typeof data.pomodoroDuration === "number") updates.pomodoroDuration = data.pomodoroDuration;
 
       set(updates);
 
-      // Persist loaded keys
-      Object.entries(updates).forEach(([k, v]) => {
-        safeStorage.set(`devsprout_${k}`, v);
-      });
+      // Persist loaded keys using matching storage keys
+      if (updates.userProfile) safeStorage.set("devsprout_profile", updates.userProfile);
+      if (updates.shelves) safeStorage.set("devsprout_shelves", updates.shelves);
+      if (updates.theme) safeStorage.set("devsprout_theme", updates.theme);
+      if (updates.audioEnabled !== undefined) safeStorage.set("devsprout_audio", String(updates.audioEnabled));
+      if (updates.maxWaterCups !== undefined) safeStorage.set("devsprout_max_water", String(updates.maxWaterCups));
+      if (updates.pomodoroDuration !== undefined) safeStorage.set("devsprout_pomo_dur", String(updates.pomodoroDuration));
+      if (updates.apps) safeStorage.set("devsprout_apps", updates.apps);
+      if (updates.tasks) safeStorage.set("devsprout_tasks", updates.tasks);
+      if (updates.waterCups !== undefined) safeStorage.set("devsprout_water", String(updates.waterCups));
+      if (updates.cafeStamps) safeStorage.set("devsprout_cafe_stamps", updates.cafeStamps);
+      if (updates.learnings) safeStorage.set("devsprout_learnings", updates.learnings);
+      if (updates.taskCategories) safeStorage.set("devsprout_categories", updates.taskCategories);
+      if (updates.sessionLogs) safeStorage.set("devsprout_session_logs", updates.sessionLogs);
+      if (updates.scratchpadCode !== undefined) safeStorage.set("devsprout_scratchpad", updates.scratchpadCode);
+      if (updates.userXp !== undefined) safeStorage.set("devsprout_user_xp", String(updates.userXp));
 
-      if (sounds) sounds.playBellChime();
+      if (!skipSound && sounds) sounds.playBellChime();
       return true;
-    } catch {
+    } catch (_err) {
       return false;
     }
   },
+  mergeExternalTasks: (incomingTasks) => {
+    if (!Array.isArray(incomingTasks) || incomingTasks.length === 0) return 0;
+    let addedCount = 0;
+    set((state) => {
+      const existingIds = new Set(state.tasks.map((t) => t.id));
+      const toAdd = [];
+      incomingTasks.forEach((incoming) => {
+        if (!existingIds.has(incoming.id)) {
+          toAdd.push(incoming);
+          addedCount++;
+        }
+      });
+      if (toAdd.length === 0) return {};
+      const nextTasks = [...toAdd, ...state.tasks];
+      safeStorage.set("devsprout_tasks", nextTasks);
+      return { tasks: nextTasks };
+    });
+    if (addedCount > 0 && sounds) sounds.playPop();
+    return addedCount;
+  },
 
-  // Hydrate Store from LocalStorage
-  hydrateFromStorage: () => {
-    if (typeof window === "undefined") return;
+  // Hydrate Store from LocalStorage (optionally switching storage scope)
+  hydrateFromStorage: (scopeId) => {
+    if (typeof window === "undefined") {
+      return;
+    }
     try {
+      if (scopeId !== undefined) {
+        setStorageScope(scopeId);
+      }
+
+      // Base reset state: pristine defaults prevent memory leakage across profiles
+      const defaultState = {
+        userProfile: { ...DEFAULT_PROFILE },
+        shelves: [...DEFAULT_SHELVES],
+        theme: "matcha",
+        audioEnabled: true,
+        waterCups: 0,
+        maxWaterCups: 5,
+        userXp: 0,
+        levelUpToast: null,
+        apps: [...DEFAULT_APPS],
+        taskCategories: [...DEFAULT_CATEGORIES],
+        tasks: [],
+        scratchpadCode: "",
+        learnings: [],
+        stamps: { bear: 0, strawberry: 0, matcha: 0, sparkle: 0 },
+        pomodoroDuration: 25 * 60,
+        timeLeft: 25 * 60,
+        isTimerRunning: false,
+        timerIntervalCount: 0,
+        currentBeverage: "Matcha Latte",
+        cafeStamps: [...INITIAL_CAFE_STAMPS],
+        sessionLogs: [],
+        todayKey: new Date().toDateString(),
+        selectedAppId: "all",
+      };
+
       const updates = {};
+      let parsed = null;
+
       const savedProfile = safeStorage.get("devsprout_profile");
-      if (savedProfile) updates.userProfile = JSON.parse(savedProfile);
+      if (savedProfile) {
+        parsed = safeJsonParse(savedProfile);
+        if (parsed) updates.userProfile = parsed;
+      }
 
       const savedShelves = safeStorage.get("devsprout_shelves");
-      if (savedShelves) updates.shelves = JSON.parse(savedShelves);
+      if (savedShelves) {
+        parsed = safeJsonParse(savedShelves);
+        if (parsed) updates.shelves = parsed;
+      }
 
       const savedTheme = safeStorage.get("devsprout_theme");
       if (savedTheme) {
         updates.theme = savedTheme;
-        document.documentElement.setAttribute("data-theme", savedTheme);
       }
 
       const savedAudio = safeStorage.get("devsprout_audio");
       if (savedAudio !== null) {
-        const isAudio = savedAudio === "true";
-        updates.audioEnabled = isAudio;
-        if (sounds) sounds.setMuted(!isAudio);
+        updates.audioEnabled = savedAudio === "true";
       }
 
       const savedMaxWater = safeStorage.get("devsprout_max_water");
-      if (savedMaxWater) updates.maxWaterCups = Number(savedMaxWater);
+      if (savedMaxWater) {
+        updates.maxWaterCups = Number(savedMaxWater);
+      }
 
       const savedPomo = safeStorage.get("devsprout_pomo_dur");
       if (savedPomo) {
@@ -626,36 +796,56 @@ export const useTaskStore = create((set, get) => ({
       }
 
       const savedApps = safeStorage.get("devsprout_apps");
-      if (savedApps) updates.apps = JSON.parse(savedApps);
+      if (savedApps) {
+        parsed = safeJsonParse(savedApps);
+        if (parsed) updates.apps = parsed;
+      }
 
       const savedTasks = safeStorage.get("devsprout_tasks");
       let loadedTasks = [];
       if (savedTasks) {
-        const parsed = JSON.parse(savedTasks);
-        loadedTasks = parsed.filter(
-          (t) => !["task-1", "task-2", "task-3", "task-4", "task-5", "task-6", "task-7"].includes(t.id)
-        );
-        updates.tasks = loadedTasks;
+        parsed = safeJsonParse(savedTasks);
+        if (Array.isArray(parsed)) {
+          loadedTasks = parsed.filter(
+            (t) => !["task-1", "task-2", "task-3", "task-4", "task-5", "task-6", "task-7"].includes(t.id)
+          );
+          updates.tasks = loadedTasks;
+        }
       }
 
       const savedWater = safeStorage.get("devsprout_water");
-      if (savedWater !== null) updates.waterCups = Number(savedWater);
+      if (savedWater !== null) {
+        updates.waterCups = Number(savedWater);
+      }
 
       const savedStamps = safeStorage.get("devsprout_cafe_stamps");
-      if (savedStamps) updates.cafeStamps = JSON.parse(savedStamps);
+      if (savedStamps) {
+        parsed = safeJsonParse(savedStamps);
+        if (parsed) updates.cafeStamps = parsed;
+      }
 
       const savedLearnings = safeStorage.get("devsprout_learnings");
-      if (savedLearnings) updates.learnings = JSON.parse(savedLearnings);
+      if (savedLearnings) {
+        parsed = safeJsonParse(savedLearnings);
+        if (parsed) updates.learnings = parsed;
+      }
 
       const savedCategories = safeStorage.get("devsprout_categories");
       if (savedCategories) {
-        try {
-          updates.taskCategories = JSON.parse(savedCategories);
-        } catch {}
+        parsed = safeJsonParse(savedCategories);
+        if (parsed) updates.taskCategories = parsed;
       }
 
       const savedLogs = safeStorage.get("devsprout_session_logs");
-      if (savedLogs) updates.sessionLogs = JSON.parse(savedLogs);
+      if (savedLogs) {
+        parsed = safeJsonParse(savedLogs);
+        if (parsed) updates.sessionLogs = parsed;
+      }
+
+      const savedScratchpad = safeStorage.get("devsprout_scratchpad");
+      if (savedScratchpad !== null) {
+        updates.scratchpadCode = savedScratchpad;
+      }
 
       const savedXp = safeStorage.get("devsprout_user_xp");
       if (savedXp !== null) {
@@ -673,10 +863,17 @@ export const useTaskStore = create((set, get) => ({
         }
       }
 
-      updates.todayKey = new Date().toDateString();
-      set(updates);
-    } catch (e) {
-      console.warn("Zustand store hydration error:", e);
+      const finalState = { ...defaultState, ...updates };
+      set(finalState);
+
+      if (typeof document !== "undefined") {
+        document.documentElement.setAttribute("data-theme", finalState.theme);
+      }
+      if (sounds) {
+        sounds.setMuted(!finalState.audioEnabled);
+      }
+    } catch (_err) {
+      console.warn("Zustand store hydration error:", _err);
     }
   },
 }));

@@ -50,21 +50,24 @@ export default function DeskView() {
 
   // Restore saved view and page size preferences
   useEffect(() => {
-    try {
-      const savedMode = localStorage.getItem("devsprout_quest_view_mode");
-      if (savedMode === "bento" || savedMode === "list") {
-        setQuestViewMode(savedMode);
-      }
-      const savedSize = localStorage.getItem("devsprout_quest_page_size");
-      if (savedSize) {
-        const num = parseInt(savedSize, 10);
-        if (num === 8 || num === 10) {
-          setItemsPerPage(num);
+    const timer = setTimeout(() => {
+      try {
+        const savedMode = localStorage.getItem("devsprout_quest_view_mode");
+        if (savedMode === "bento" || savedMode === "list") {
+          setQuestViewMode(savedMode);
         }
+        const savedSize = localStorage.getItem("devsprout_quest_page_size");
+        if (savedSize) {
+          const num = parseInt(savedSize, 10);
+          if (num === 8 || num === 10) {
+            setItemsPerPage(num);
+          }
+        }
+      } catch (e) {
+        // ignore storage errors
       }
-    } catch (e) {
-      // ignore storage errors
-    }
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleViewModeChange = (mode) => {
@@ -73,7 +76,7 @@ export default function DeskView() {
     setCurrentPage(1);
     try {
       localStorage.setItem("devsprout_quest_view_mode", mode);
-    } catch (e) {}
+    } catch (e) { }
   };
 
   const handlePageSizeChange = (size) => {
@@ -82,20 +85,13 @@ export default function DeskView() {
     setCurrentPage(1);
     try {
       localStorage.setItem("devsprout_quest_page_size", String(size));
-    } catch (e) {}
+    } catch (e) { }
   };
 
   // Pagination calculations: 8-10 items per page
   const totalPages = Math.max(1, Math.ceil(tasks.length / itemsPerPage));
   const safePage = Math.min(Math.max(1, currentPage), totalPages);
   const paginatedTasks = tasks.slice((safePage - 1) * itemsPerPage, safePage * itemsPerPage);
-
-  // Keep page within bounds when tasks change
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [tasks.length, totalPages, currentPage]);
 
   const completedCount = tasks.filter((t) => t.status === "harvested").length;
 

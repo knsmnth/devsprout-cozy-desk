@@ -17,7 +17,8 @@ export default function NewTaskModal({ isOpen, onClose, defaultAppId }) {
 
   // Sync selected project whenever modal opens or defaults change
   React.useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) return;
+    const timer = setTimeout(() => {
       const preferredId =
         defaultAppId && defaultAppId !== "all"
           ? defaultAppId
@@ -30,7 +31,8 @@ export default function NewTaskModal({ isOpen, onClose, defaultAppId }) {
       } else if (apps[0]?.id) {
         setSelectedAppId(apps[0].id);
       }
-    }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [isOpen, defaultAppId, storeSelectedAppId, apps]);
 
   const activeAppId =
